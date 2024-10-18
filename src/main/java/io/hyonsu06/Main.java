@@ -64,6 +64,8 @@ public final class Main extends JavaPlugin implements Listener {
 
         plugin.getCommand("potato").setExecutor(new PotatoBookCommand());
 
+        plugin.getCommand("autobuild").setExecutor(new AutoBuild());
+
         getSkillClasses();
         getItemClasses();
         getReforgeClasses();

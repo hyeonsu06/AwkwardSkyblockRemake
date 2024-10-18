@@ -9,6 +9,11 @@ description: something dumbass thing that simulates hypixel skyblock
 website: nope
 depend: [ProtocolLib]
 commands:
+  autobuild:
+    description: "Automatically reloads plugin."
+    usage: "/autobuild"
+    permission: op
+    permission-message: "You cannot access this command!"
   items:
     description: "Show all items."
     usage: "/items"
