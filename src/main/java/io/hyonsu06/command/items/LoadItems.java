@@ -6,6 +6,7 @@ import io.hyonsu06.core.annotations.items.items.ItemAdditiveBonus;
 import io.hyonsu06.core.annotations.items.items.ItemMultiplicativeBonus;
 import io.hyonsu06.core.annotations.skills.Skill;
 import io.hyonsu06.core.annotations.tags.SkillTagged;
+import io.hyonsu06.core.functions.CustomHead;
 import io.hyonsu06.core.interfaces.SkillMethods;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -24,7 +25,6 @@ import java.util.*;
 
 import static io.hyonsu06.Main.plugin;
 import static io.hyonsu06.core.Refresher.*;
-import static io.hyonsu06.core.functions.CustomHead.setTexture;
 import static io.hyonsu06.core.functions.ItemTypeForSlot.getReforgeType;
 import static io.hyonsu06.core.functions.getClasses.getItemClasses;
 import static io.hyonsu06.core.functions.getPluginNameSpacedKey.*;
@@ -154,7 +154,7 @@ public class LoadItems {
         if (item.getType().equals(Material.PLAYER_HEAD)) {
             SkullMeta skullMeta = (SkullMeta) meta;
             String url = metadata.texture();
-            setTexture(skullMeta, url);
+            new CustomHead().setTexture(skullMeta, url);
             meta = skullMeta;
         }
 
