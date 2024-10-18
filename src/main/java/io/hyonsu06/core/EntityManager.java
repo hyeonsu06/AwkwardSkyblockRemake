@@ -14,6 +14,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerItemDamageEvent;
@@ -229,7 +230,7 @@ public class EntityManager implements Listener {
         updateDisplay((LivingEntity) event.getEntity());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onDamage(EntityDamageEvent damageEvent) {
         if (!damageEvent.isCancelled()) {
             if (damageEvent.getEntity() instanceof LivingEntity e) {
