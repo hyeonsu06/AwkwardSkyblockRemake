@@ -10,13 +10,13 @@ import java.util.UUID;
 
 public class CustomHead {
 
-    public ItemMeta setTexture(SkullMeta meta, String textureURL) {
+    public static ItemMeta setTexture(SkullMeta meta, String textureURL) {
         PlayerProfile profile = createProfile(textureURL);
         meta.setPlayerProfile(profile);
         return meta;
     }
 
-    private PlayerProfile createProfile(String textureURL) {
+    private static PlayerProfile createProfile(String textureURL) {
         // Create a PlayerProfile with a random UUID
         PlayerProfile profile = org.bukkit.Bukkit.createProfile(UUID.randomUUID(), null);
 

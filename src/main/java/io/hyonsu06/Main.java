@@ -63,6 +63,7 @@ public final class Main extends JavaPlugin {
         getPluginManager().registerEvents(new EntityManager(), plugin);
         getPluginManager().registerEvents(new AllItemsListener(), plugin);
         getPluginManager().registerEvents(new AccessoriesListener(), plugin);
+        getPluginManager().registerEvents(new VanillaManager(), plugin);
 
         new NoParticle();
         new StatManager();
