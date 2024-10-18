@@ -225,7 +225,7 @@ public class EntityManager implements Listener {
         double health = statMap.get(Stats.HEALTH);
         double healthRegen = 100;
         if (event.getEntity() instanceof Player) healthRegen = statMap.get(Stats.HEALTHREGEN);
-        double regen = health / 20 * asPercentageMultiplier(healthRegen);
+        double regen = health / 80 * asPercentageMultiplier(healthRegen);
         event.setAmount(regen);
         updateDisplay((LivingEntity) event.getEntity());
     }

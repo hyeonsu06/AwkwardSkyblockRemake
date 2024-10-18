@@ -8,6 +8,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 
 import static io.hyonsu06.core.functions.NumberTweaks.shortNumber;
@@ -101,6 +102,11 @@ public class VanillaManager implements Listener {
             ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(19);
             ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(800000);
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onSpawnHighest(EntitySpawnEvent e) {
+        EntityType type = e.getEntityType();
         if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON)) {
             Entity entity = e.getEntity();
             LivingEntity victim = (LivingEntity) entity;
@@ -116,4 +122,22 @@ public class VanillaManager implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onHeal(EntityRegainHealthEvent e) {
+        EntityType type = e.getEntityType();
+        if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON)) {
+            Entity entity = e.getEntity();
+            LivingEntity victim = (LivingEntity) entity;
+            EntityType type2 = e.getEntity().getType();
+            if (type2.equals(EntityType.WITHER) || type2.equals(EntityType.ENDER_DRAGON)) {
+                String name = victim.getName();
+                if (victim.getCustomName() != null) name = victim.getCustomName();
+                if (victim.getHealth() / victim.getMaxHealth() > 0.5) {
+                    ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.GREEN + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+                } else {
+                    ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.YELLOW + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+                }
+            }
+        }}
 }
