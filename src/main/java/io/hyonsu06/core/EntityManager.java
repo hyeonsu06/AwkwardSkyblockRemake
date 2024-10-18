@@ -268,7 +268,6 @@ public class EntityManager implements Listener {
                                 if (attacker instanceof LivingEntity) {
                                     Pair<Double, Boolean> pair = getFinalDamage(attacker);
                                     baseDamage = pair.key();
-                                    damageEvent.getEntity().sendMessage(String.valueOf(baseDamage));
                                     crit = pair.value();
                                 }
 

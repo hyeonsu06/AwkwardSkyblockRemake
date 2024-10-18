@@ -176,7 +176,7 @@ public class Refresher {
 
         // Add additional lore if present
         if (!metadata.description().isEmpty()) {
-            lore.addAll(addSkillDescription(metadata.description(), WORDS_PER_LINE, new long[]{}, ChatColor.GRAY));
+            lore.addAll(addSkillDescription(metadata.description(), WORDS_PER_LINE, new long[]{}, ChatColor.GRAY, ChatColor.AQUA));
             lore.add(" ");
         }
 
@@ -194,7 +194,7 @@ public class Refresher {
 
                             long[] args = skills.args();
                             args[0] = magicDamage(player, args[0]);
-                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, args, ChatColor.GRAY));
+                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, args, ChatColor.GRAY, ChatColor.AQUA));
 
                             if (skills.cost() != 0)
                                 lore.add(format(ChatColor.DARK_GRAY + "Mana cost: {0}", ChatColor.AQUA + String.valueOf(skills.cost())));
@@ -204,7 +204,7 @@ public class Refresher {
                             }
                             lore.add(" ");
                         } else {
-                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY));
+                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY, ChatColor.AQUA));
                             lore.add(" ");
                         }
                     }
@@ -561,11 +561,11 @@ public class Refresher {
         return input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
     }
 
-    public static List<String> addSkillDescription(String template, int wordsPerLine, long[] args, ChatColor placeholderColor) {
+    public static List<String> addSkillDescription(String template, int wordsPerLine, long[] args, ChatColor color1, ChatColor color2) {
         String formatted = template;
         for (int i = 0; i < args.length; i++) {
             String placeholder = "{" + i + "}";
-            String coloredArg = ChatColor.AQUA + numberFormat(args[i]) + placeholderColor;  // Apply the placeholder color
+            String coloredArg = color2 + numberFormat(args[i]) + color1;  // Apply the placeholder color
             formatted = formatted.replace(placeholder, coloredArg);
         }
 
@@ -577,7 +577,7 @@ public class Refresher {
         // Append words and collect into lines after a certain number of words
         int wordCount = 0;
         for (String word : words) {
-            currentLine.append(placeholderColor).append(word).append(" ");
+            currentLine.append(color1).append(word).append(" ");
             wordCount++;
 
             // When we reach the word limit for a line, add the current line to the list
