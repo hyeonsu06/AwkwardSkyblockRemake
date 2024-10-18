@@ -25,7 +25,7 @@ public class VanillaManager implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onDamage(EntityDamageByEntityEvent e) {
-        EntityType type = e.getEntity().getType();
+        EntityType type = e.getDamager().getType();
         if (type.equals(EntityType.WITHER)) {
             e.setDamage(e.getDamage() * 150);
             ((LivingEntity) e.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 30, 0, false));
@@ -38,6 +38,12 @@ public class VanillaManager implements Listener {
         }
         if (type.equals(EntityType.WARDEN)) {
             e.setDamage(e.getDamage() * 10000);
+        }
+        type = e.getEntity().getType();
+        if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON) || type.equals(EntityType.ELDER_GUARDIAN) || type.equals(EntityType.WARDEN)) {
+            if (e.getCause().equals(EntityDamageEvent.DamageCause.MAGIC)) {
+                e.setDamage(e.getDamage() / 20);
+            }
         }
     }
 
