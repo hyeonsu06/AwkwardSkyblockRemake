@@ -13,6 +13,7 @@ public class ItemTypeForSlot {
             case BOW, SHORTBOW -> RANGED;
             case HELMET, CHESTPLATE, LEGGINGS, BOOTS -> ARMOR;
             case ACCESSORY -> ACCESSORY;
+            case null -> UNREFORGEABLE;
         };
     }
 }
