@@ -62,7 +62,7 @@ public final class Main extends JavaPlugin implements Listener {
         StatManager.setBaseStatMap((Map<UUID, Map<Stats, Double>>) loadObjectFromJson(myPluginFolder + "baseMap.json"));
         AccessoriesUtils.setAccessories((Map<UUID, ItemStack[]>) loadObjectFromJson(myPluginFolder + "accessories.json"));
 
-        if (StatManager.getBaseStatMap() == null) {
+        if (StatManager.getBaseStatMap() == null || StatManager.getBaseStatMap().isEmpty()) {
             getLogger().info("Initializing..");
             for (World w : Bukkit.getWorlds()) for (Entity e : w.getEntities()) if (e instanceof LivingEntity le) initMap(le);
         }
