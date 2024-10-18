@@ -3,7 +3,6 @@ package io.hyonsu06.command.accessories;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
