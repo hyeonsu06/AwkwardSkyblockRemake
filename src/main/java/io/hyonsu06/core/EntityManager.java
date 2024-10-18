@@ -240,7 +240,7 @@ public class EntityManager implements Listener {
                         Entity entity = event.getEntity();
 
                         if (entity instanceof LivingEntity victim) {
-                            if (victim.getNoDamageTicks() == 0) {
+                            if (victim.getFireTicks() != 0 || victim.getNoDamageTicks() == 0) {
                                 boolean crit = false;
                                 Map<Stats, Double> attackerMap = StatManager.getFinalStatMap().get(attacker.getUniqueId());
                                 Map<Stats, Double> victimMap = StatManager.getFinalStatMap().get(victim.getUniqueId());
@@ -268,6 +268,7 @@ public class EntityManager implements Listener {
                                 if (attacker instanceof LivingEntity) {
                                     Pair<Double, Boolean> pair = getFinalDamage(attacker);
                                     baseDamage = pair.key();
+                                    damageEvent.getEntity().sendMessage(String.valueOf(baseDamage));
                                     crit = pair.value();
                                 }
 
@@ -538,7 +539,7 @@ public class EntityManager implements Listener {
 
             e.getPersistentDataContainer().set(getPDC("name"), PersistentDataType.STRING, name);
 
-            String text = name + " " + ChatColor.GREEN + numberFormat(e.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + numberFormat(e.getMaxHealth()) + ChatColor.RED + "❤";
+            String text = name + " " + ChatColor.GREEN + shortNumber(e.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(e.getMaxHealth()) + ChatColor.RED + "❤";
             display.setText(text);
 
             e.addPassenger(display);
