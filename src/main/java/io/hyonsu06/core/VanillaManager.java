@@ -23,7 +23,7 @@ public class VanillaManager implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onDamage(EntityDamageByEntityEvent e) {
         EntityType type = e.getDamager().getType();
         if (type.equals(EntityType.WITHER)) {
@@ -37,7 +37,9 @@ public class VanillaManager implements Listener {
             e.setDamage(e.getDamage() * 80);
         }
         if (type.equals(EntityType.WARDEN)) {
-            e.setDamage(e.getDamage() * 10000);
+            if (e.getCause().equals(EntityDamageEvent.DamageCause.SONIC_BOOM)) {
+                e.setDamage(e.getDamage() * 10000000);
+            } else e.setDamage(e.getDamage() * 10000);
         }
         type = e.getEntity().getType();
         if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON) || type.equals(EntityType.ELDER_GUARDIAN) || type.equals(EntityType.WARDEN)) {
