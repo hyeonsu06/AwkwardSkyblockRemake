@@ -33,7 +33,7 @@ public class setSkillMapOfEntity {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    StatManager.getSkillBonusMap().get(uuid).put(stat, finalOriginalValue - value);
+                    StatManager.getSkillBonusMap().get(uuid).put(stat, finalOriginalValue);
                     skillMap.put(uuid, Map.of(skillID, false));
                 }
             }.runTaskLater(plugin, duration);

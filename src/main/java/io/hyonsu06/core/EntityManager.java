@@ -272,9 +272,49 @@ public class EntityManager implements Listener {
                                 }
 
                                 double defense = victimMap.get(Stats.DEFENSE);
+
+                                if (!(attacker instanceof Player)) {
+                                    if (attacker instanceof Warden) {
+                                        if (event.getCause().equals(EntityDamageEvent.DamageCause.SONIC_BOOM)) {
+                                            baseDamage = 1_000_000_000_000d;
+                                            if (victim instanceof Player)
+                                                victim.sendMessage(message("Warden's Sonic Boom hitting your for {0} true damage.", new long[]{(long) baseDamage}));
+                                        }
+                                    }
+                                    if (attacker instanceof AreaEffectCloud cloud) {
+                                        if (Bukkit.getEntity(cloud.getOwnerUniqueId()).getType().equals(EntityType.ENDER_DRAGON)) {
+                                            if (event.getCause().equals(EntityDamageEvent.DamageCause.DRAGON_BREATH)) {
+                                                baseDamage = 1_000_000d;
+                                                if (victim instanceof Player)
+                                                    victim.sendMessage(message("Ender Dragon's Acid Breath hitting your for {0} damage.", new long[]{(long) baseDamage}));
+                                            }
+                                        }
+                                    }
+                                    if (attacker instanceof ElderGuardian) {
+                                        if (event.getCause().equals(EntityDamageEvent.DamageCause.THORNS)) {
+                                            baseDamage = 1_000_000d;
+                                            if (victim instanceof Player)
+                                                victim.sendMessage(message("Elder Guardian's Thorns hitting your for {0} damage.", new long[]{(long) baseDamage}));
+                                        }
+                                    }
+                                    if (attacker instanceof Fireball) {
+                                        if (((Fireball) attacker).getShooter() instanceof Ghast) {
+                                            baseDamage = 25_000d;
+                                            if (victim instanceof Player)
+                                                victim.sendMessage(message("Ghast's Fireball hitting your for {0} damage.", new long[]{(long) baseDamage}));
+                                        }
+                                    }
+                                    if (attacker instanceof Arrow) {
+                                        if (((Arrow) attacker).getShooter() instanceof BlockProjectileSource) {
+                                            baseDamage = 100_000d;
+                                            if (victim instanceof Player)
+                                                victim.sendMessage(message("Hidden Arrow Trap hit you for {0} damage!", new long[]{(long) baseDamage}));
+                                        }
+                                    }
+                                }
+
                                 double agility = 0;
                                 if (victim instanceof Player) agility = victimMap.get(Stats.AGILITY);
-
 
                                 baseDamage *= 1 - (defense / (defense + 1));
                                 if (new Random().nextInt(100) + 1 <= agility) baseDamage *= (0.5 * agility) / 100;
@@ -617,5 +657,44 @@ public class EntityManager implements Listener {
         }
 
         return gradientText.toString();
+    }
+
+    private String message(String template, long[] args) {
+        String formatted = template;
+        for (int i = 0; i < args.length; i++) {
+            String placeholder = "{" + i + "}";
+            String coloredArg = ChatColor.RED + numberFormat(args[i]) + ChatColor.GRAY;  // Apply the placeholder color
+            formatted = formatted.replace(placeholder, coloredArg);
+        }
+
+        // Split the formatted string into words
+        String[] words = formatted.split(" ");
+        List<String> result = new ArrayList<>();
+        StringBuilder currentLine = new StringBuilder();
+
+        // Append words and collect into lines after a certain number of words
+        int wordCount = 0;
+        for (String word : words) {
+            currentLine.append(ChatColor.GRAY).append(word).append(" ");
+            wordCount++;
+
+            // When we reach the word limit for a line, add the current line to the list
+            if (wordCount == Integer.MAX_VALUE) {
+                result.add(currentLine.toString().trim());
+                currentLine.setLength(0);  // Clear the StringBuilder for the next line
+                wordCount = 0;  // Reset the word count
+            }
+        }
+
+        // Add the last line if any remaining words
+        if (!currentLine.isEmpty()) {
+            result.add(currentLine.toString().trim());
+        }
+
+        String value = "";
+        for (String s : result) {
+            value = String.join("", s);
+        }
+        return value;
     }
 }
