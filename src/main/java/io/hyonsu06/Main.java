@@ -15,7 +15,9 @@ import io.hyonsu06.command.stat.setStatCommand;
 import io.hyonsu06.core.*;
 import io.hyonsu06.core.Refresher;
 import io.hyonsu06.core.enums.Stats;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,6 +34,7 @@ import java.util.UUID;
 
 import static io.hyonsu06.core.DataMapManager.loadObjectFromJson;
 import static io.hyonsu06.core.DataMapManager.saveObjectToJson;
+import static io.hyonsu06.core.StatManager.initMap;
 import static io.hyonsu06.core.functions.getClasses.*;
 import static org.bukkit.Bukkit.getPluginManager;
 
@@ -58,6 +61,11 @@ public final class Main extends JavaPlugin implements Listener {
 
         StatManager.setBaseStatMap((Map<UUID, Map<Stats, Double>>) loadObjectFromJson(myPluginFolder + "baseMap.json"));
         AccessoriesUtils.setAccessories((Map<UUID, ItemStack[]>) loadObjectFromJson(myPluginFolder + "accessories.json"));
+
+        if (StatManager.getBaseStatMap() == null) {
+            getLogger().info("Initializing..");
+            for (World w : Bukkit.getWorlds()) for (Entity e : w.getEntities()) if (e instanceof LivingEntity le) initMap(le);
+        }
 
         plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
 

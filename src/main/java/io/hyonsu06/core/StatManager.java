@@ -57,7 +57,7 @@ public class StatManager {
     @Getter
     private static Map<UUID, Map<Stats, Double>> finalStatMap = new HashMap<>();
 
-    private EquipmentSlot[] slots = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.BODY, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.HAND};
+    private static EquipmentSlot[] slots = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.BODY, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.HAND};
 
     double FEROCITY_CAP = 400;
     double ATTACK_SPEED_CAP = 100;
@@ -132,76 +132,6 @@ public class StatManager {
                 }
             }
         }.runTaskTimer(plugin, 0, 1);
-    }
-
-    private void initMap(LivingEntity e) {
-        UUID entityId = e.getUniqueId();
-
-        finalStatMap.put(entityId, new EnumMap<>(Stats.class));
-
-        // Initialize empty mutable maps for the entity
-        Map<EquipmentSlot, Map<Stats, Double>> itemStat = new HashMap<>();
-        Map<EquipmentSlot, Map<Stats, Double>> additiveStat = new HashMap<>();
-        Map<EquipmentSlot, Map<Stats, Double>> multiplicativeStat = new HashMap<>();
-
-        // Loop through all slots and stats
-        for (EquipmentSlot slot : slots) {
-            Map<Stats, Double> statMap = new EnumMap<>(Stats.class); // EnumMap for performance
-            Map<Stats, Double> additiveStatMap = new EnumMap<>(Stats.class);
-            Map<Stats, Double> multiplicativeStatMap = new EnumMap<>(Stats.class);
-
-            for (Stats stat : Stats.values()) {
-                statMap.put(stat, 0d);               // Initialize base stats
-                additiveStatMap.put(stat, 0d);       // Initialize additive stats
-                multiplicativeStatMap.put(stat, 1d); // Initialize multiplicative stats
-            }
-
-            // Add the stat maps for the current slot
-            itemStat.put(slot, statMap);
-            additiveStat.put(slot, additiveStatMap);
-            multiplicativeStat.put(slot, multiplicativeStatMap);
-        }
-
-        // Finally, put the fully built maps in the main maps
-        itemStatMap.put(entityId, itemStat);
-        additiveStatMap.put(entityId, additiveStat);
-        multiplicativeStatMap.put(entityId, multiplicativeStat);
-
-
-        accessoryStatMap.put(e.getUniqueId(), new HashMap<>());
-        accessoryAdditiveStatMap.put(e.getUniqueId(), new HashMap<>());
-        accessoryMultiplicativeStatMap.put(e.getUniqueId(), new HashMap<>());
-
-        Map<Stats, Double> statMap = new EnumMap<>(Stats.class); // EnumMap for performance
-        Map<Stats, Double> addStatMap = new EnumMap<>(Stats.class);
-        Map<Stats, Double> mulStatMap = new EnumMap<>(Stats.class);
-
-        for (int i = 0; i < slots.length; i++) {
-            for (Stats stat : Stats.values()) {
-                statMap.put(stat, 0d);
-                addStatMap.put(stat, 0d);
-                mulStatMap.put(stat, 1d);
-            }
-            accessoryStatMap.get(e.getUniqueId()).put(i, statMap);
-            accessoryAdditiveStatMap.get(e.getUniqueId()).put(i, addStatMap);
-            accessoryMultiplicativeStatMap.get(e.getUniqueId()).put(i, mulStatMap);
-        }
-
-
-        reforgeStatMap.put(e.getUniqueId(), new HashMap<>());
-
-        Map<Stats, Double> reforgeStatMapTemp = new EnumMap<>(Stats.class); // EnumMap for performance
-        Map<Stats, Double> reforgeAddStatMapTemp = new EnumMap<>(Stats.class);
-        Map<Stats, Double> reforgeMulStatMapTemp = new EnumMap<>(Stats.class);
-
-        for (int i = 0; i < slots.length; i++) {
-            for (Stats stat : Stats.values()) {
-                reforgeStatMapTemp.put(stat, 0d);
-                reforgeAddStatMapTemp.put(stat, 0d);
-                reforgeMulStatMapTemp.put(stat, 1d);
-            }
-            reforgeStatMap.get(e.getUniqueId()).put(i, reforgeStatMapTemp);
-        }
     }
 
     private void applyStat(LivingEntity e, EquipmentSlot slot, ItemStats value1, ItemAdditiveBonus value2, ItemMultiplicativeBonus value3) {
@@ -548,6 +478,76 @@ public class StatManager {
         additiveStatMap.remove(uuid);
         multiplicativeStatMap.remove(uuid);
         finalStatMap.remove(uuid);
+    }
+
+    public static void initMap(LivingEntity e) {
+        UUID entityId = e.getUniqueId();
+
+        finalStatMap.put(entityId, new EnumMap<>(Stats.class));
+
+        // Initialize empty mutable maps for the entity
+        Map<EquipmentSlot, Map<Stats, Double>> itemStat = new HashMap<>();
+        Map<EquipmentSlot, Map<Stats, Double>> additiveStat = new HashMap<>();
+        Map<EquipmentSlot, Map<Stats, Double>> multiplicativeStat = new HashMap<>();
+
+        // Loop through all slots and stats
+        for (EquipmentSlot slot : slots) {
+            Map<Stats, Double> statMap = new EnumMap<>(Stats.class); // EnumMap for performance
+            Map<Stats, Double> additiveStatMap = new EnumMap<>(Stats.class);
+            Map<Stats, Double> multiplicativeStatMap = new EnumMap<>(Stats.class);
+
+            for (Stats stat : Stats.values()) {
+                statMap.put(stat, 0d);               // Initialize base stats
+                additiveStatMap.put(stat, 0d);       // Initialize additive stats
+                multiplicativeStatMap.put(stat, 1d); // Initialize multiplicative stats
+            }
+
+            // Add the stat maps for the current slot
+            itemStat.put(slot, statMap);
+            additiveStat.put(slot, additiveStatMap);
+            multiplicativeStat.put(slot, multiplicativeStatMap);
+        }
+
+        // Finally, put the fully built maps in the main maps
+        itemStatMap.put(entityId, itemStat);
+        additiveStatMap.put(entityId, additiveStat);
+        multiplicativeStatMap.put(entityId, multiplicativeStat);
+
+
+        accessoryStatMap.put(e.getUniqueId(), new HashMap<>());
+        accessoryAdditiveStatMap.put(e.getUniqueId(), new HashMap<>());
+        accessoryMultiplicativeStatMap.put(e.getUniqueId(), new HashMap<>());
+
+        Map<Stats, Double> statMap = new EnumMap<>(Stats.class); // EnumMap for performance
+        Map<Stats, Double> addStatMap = new EnumMap<>(Stats.class);
+        Map<Stats, Double> mulStatMap = new EnumMap<>(Stats.class);
+
+        for (int i = 0; i < slots.length; i++) {
+            for (Stats stat : Stats.values()) {
+                statMap.put(stat, 0d);
+                addStatMap.put(stat, 0d);
+                mulStatMap.put(stat, 1d);
+            }
+            accessoryStatMap.get(e.getUniqueId()).put(i, statMap);
+            accessoryAdditiveStatMap.get(e.getUniqueId()).put(i, addStatMap);
+            accessoryMultiplicativeStatMap.get(e.getUniqueId()).put(i, mulStatMap);
+        }
+
+
+        reforgeStatMap.put(e.getUniqueId(), new HashMap<>());
+
+        Map<Stats, Double> reforgeStatMapTemp = new EnumMap<>(Stats.class); // EnumMap for performance
+        Map<Stats, Double> reforgeAddStatMapTemp = new EnumMap<>(Stats.class);
+        Map<Stats, Double> reforgeMulStatMapTemp = new EnumMap<>(Stats.class);
+
+        for (int i = 0; i < slots.length; i++) {
+            for (Stats stat : Stats.values()) {
+                reforgeStatMapTemp.put(stat, 0d);
+                reforgeAddStatMapTemp.put(stat, 0d);
+                reforgeMulStatMapTemp.put(stat, 1d);
+            }
+            reforgeStatMap.get(e.getUniqueId()).put(i, reforgeStatMapTemp);
+        }
     }
 
     public static int rarityToIndex(ItemRarity rarity) {
