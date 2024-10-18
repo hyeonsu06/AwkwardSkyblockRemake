@@ -359,7 +359,7 @@ public class Refresher {
                 value += potato * POTATO_BOOK_ARMOR_HEALTH;
                 potatoBook = ChatColor.YELLOW + " (" + addPlusIfPositive(potato * POTATO_BOOK_ARMOR_HEALTH) + ")";
             }
-            lore.add(stat + ChatColor.GREEN + value + ref + potatoBook);
+            lore.add(stat + ChatColor.GREEN + addPlusIfPositive(value) + ref + potatoBook);
             health = value;
         } // Health
         if (defense != 0 || map.get(Stats.DEFENSE)[rarity] != 0 || (potato > 0 && type == ReforgeType.ARMOR)) {
@@ -374,7 +374,7 @@ public class Refresher {
                 value += potato * POTATO_BOOK_ARMOR_DEFENSE;
                 potatoBook = ChatColor.YELLOW + " (" + addPlusIfPositive(potato * POTATO_BOOK_ARMOR_DEFENSE) + ")";
             }
-            lore.add(stat + ChatColor.GREEN + value + ref + potatoBook);
+            lore.add(stat + ChatColor.GREEN + addPlusIfPositive(value) + ref + potatoBook);
             defense = value;
         } // Defense
         if (speed != 0 || map.get(Stats.SPEED)[rarity] != 0) {
