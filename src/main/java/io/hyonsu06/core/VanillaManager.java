@@ -37,9 +37,7 @@ public class VanillaManager implements Listener {
             e.setDamage(e.getDamage() * 80);
         }
         if (type.equals(EntityType.WARDEN)) {
-            if (e.getCause().equals(EntityDamageEvent.DamageCause.SONIC_BOOM)) {
-                e.setDamage(e.getDamage() * 10000000);
-            } else e.setDamage(e.getDamage() * 10000);
+            e.setDamage(e.getDamage() * 1_000_000);
         }
         type = e.getEntity().getType();
         if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON) || type.equals(EntityType.ELDER_GUARDIAN) || type.equals(EntityType.WARDEN)) {
