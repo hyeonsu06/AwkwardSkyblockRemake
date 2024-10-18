@@ -1,0 +1,41 @@
+name: SkyblockParody
+version: '6974'
+main: io.hyonsu06.Main
+api-version: '1.21'
+prefix: SkyblockParody
+load: STARTUP
+authors: [ (Discord) nuriadofai ]
+description: something dumbass thing that simulates hypixel skyblock
+website: nope
+depend: [ProtocolLib]
+commands:
+  items:
+    description: "Show all items."
+    usage: "/items"
+    permission: op
+    permission-message: "You cannot access this command!"
+  stat:
+    description: "Set base stat of entity."
+    usage: "/stat <entity> <stat> <get/set> <value>"
+    permission: op
+    permission-message: "You cannot access this command!"
+  accessories:
+    aliases: ["acc", "accessory"]
+    description: "Open your accessory bag"
+    usage: "/accessories load [page]"
+  reforge:
+    aliases: ["ref"]
+    description: "Reforges your item with given reforge."
+    usage: "/reforge <reforge>"
+    permission: op
+    permission-message: "You cannot access this command!"
+  recombobulate:
+    aliases: ["recom", "recombobulator"]
+    description: "Upgrades rarity of your item."
+    usage: "/recombobulate"
+    permission: op
+    permission-message: "You cannot access this command!"
+  potato:
+    description: "Apply potato books to your item."
+    permission: op
+    permission-message: "You cannot access this command!"

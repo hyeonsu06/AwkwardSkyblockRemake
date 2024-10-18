@@ -1,0 +1,125 @@
+package io.hyonsu06;
+
+import io.hyonsu06.command.accessories.AccessoriesListener;
+import io.hyonsu06.command.accessories.ShowAccessoriesCommand;
+import io.hyonsu06.command.items.LoadItems;
+import io.hyonsu06.command.items.ShowAllItemsCommand;
+import io.hyonsu06.command.items.AllItemsListener;
+import io.hyonsu06.command.potatobook.PotatoBookCommand;
+import io.hyonsu06.command.recombobulator.RecombobulatorCommand;
+import io.hyonsu06.command.reforge.ReforgeCommand;
+import io.hyonsu06.command.reforge.ReforgeTabCompleter;
+import io.hyonsu06.command.stat.setStatTabCompleter;
+import io.hyonsu06.command.stat.setStatCommand;
+import io.hyonsu06.core.*;
+import io.hyonsu06.core.Refresher;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.*;
+
+import static io.hyonsu06.core.functions.getClasses.*;
+import static org.bukkit.Bukkit.getPluginManager;
+
+public final class Main extends JavaPlugin {
+    public static Main plugin;
+    // private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+    @Override
+    public void onEnable() {
+        plugin = this;
+        getPluginManager().registerEvents(new PreventUnintendedAction(), plugin);
+
+        File myPluginFolder = new File(getDataFolder().getAbsolutePath());
+        if (!myPluginFolder.exists()) {
+            boolean created = myPluginFolder.mkdirs();
+            if (created) {
+                getLogger().info("[" + this.getName() + "] Successfully created plugin directory to: " + myPluginFolder.getAbsolutePath());
+            } else {
+                getLogger().warning("[" + this.getName() + "] Could not create plugin directory to: " + myPluginFolder.getAbsolutePath());
+            }
+        } else {
+            getLogger().info("[" + this.getName() + "] Plugin directory already exists, skipping creating it");
+        }
+
+        plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
+
+        plugin.getCommand("stat").setExecutor(new setStatCommand());
+        plugin.getCommand("stat").setTabCompleter(new setStatTabCompleter());
+
+        plugin.getCommand("reforge").setExecutor(new ReforgeCommand());
+        plugin.getCommand("reforge").setTabCompleter(new ReforgeTabCompleter());
+
+        plugin.getCommand("accessories").setExecutor(new ShowAccessoriesCommand());
+
+        plugin.getCommand("recombobulate").setExecutor(new RecombobulatorCommand());
+
+        plugin.getCommand("potato").setExecutor(new PotatoBookCommand());
+
+        getSkillClasses();
+        getItemClasses();
+        getReforgeClasses();
+
+        getPluginManager().registerEvents(new SkillManager(), plugin);
+        getPluginManager().registerEvents(new EntityManager(), plugin);
+        getPluginManager().registerEvents(new AllItemsListener(), plugin);
+        getPluginManager().registerEvents(new AccessoriesListener(), plugin);
+
+        new NoParticle();
+        new StatManager();
+        new Refresher();
+        new LoadItems().registerAllItems();
+
+        //TODO: recombobulator 3000, potato books, and enchants
+    }
+/*
+    public void saveData() {
+        saveMap(StatManager.getBaseStatMap(), "baseStatMap.json");
+        saveMap(EntityManager.getPlayerIntelligence(), "playerIntelligence.json");
+    }
+
+    public void loadData() {
+        StatManager.setBaseStatMap(loadMap("baseStatMap.json"));
+        EntityManager.setPlayerIntelligence(loadMap("playerIntelligence.json"));
+    }
+    private <K, V> void saveMap(Map<K, V> map, String fileName) {
+        // Create a set to track unique values
+        Set<V> uniqueValues = new HashSet<>();
+        Map<K, V> uniqueMap = new HashMap<>();
+
+        // Iterate over the original map to filter out duplicates
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            if (uniqueValues.add(entry.getValue())) { // Returns true if the value was not already present
+                uniqueMap.put(entry.getKey(), entry.getValue());
+            } else {
+                // Log a message about the duplicate value
+                getLogger().warning("[" + this.getName() + "] Duplicate value found: " + entry.getValue());
+            }
+        }
+
+        // Save the unique map to the file
+        File file = new File(getDataFolder(), fileName);
+        try (FileWriter writer = new FileWriter(file)) {
+            gson.toJson(uniqueMap, writer);
+            getLogger().info("[" + this.getName() + "] Saved " + fileName + " with unique values");
+        } catch (IOException e) {
+            getLogger().severe("[" + this.getName() + "] Error saving " + fileName + ": " + e.getMessage());
+        }
+    }
+
+    private <K, V> Map<K, V> loadMap(String fileName) {
+        File file = new File(getDataFolder(), fileName);
+        if (!file.exists()) {
+            return new HashMap<>(); // Return an empty map if the file doesn't exist
+        }
+
+        Type mapType = new TypeToken<Map<K, V>>() {}.getType();
+        try (FileReader reader = new FileReader(file)) {
+            return gson.fromJson(reader, mapType);
+        } catch (IOException e) {
+            getLogger().severe("[" + this.getName() + "] Error loading " + fileName + ": " + e.getMessage());
+            return new HashMap<>(); // Return an empty map on error
+        }
+    }
+
+ */
+}
