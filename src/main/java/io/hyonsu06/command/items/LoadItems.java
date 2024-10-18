@@ -26,7 +26,6 @@ import static io.hyonsu06.Main.plugin;
 import static io.hyonsu06.core.Refresher.*;
 import static io.hyonsu06.core.functions.CustomHead.setTexture;
 import static io.hyonsu06.core.functions.ItemTypeForSlot.getReforgeType;
-import static io.hyonsu06.core.functions.NumberTweaks.*;
 import static io.hyonsu06.core.functions.getClasses.getItemClasses;
 import static io.hyonsu06.core.functions.getPluginNameSpacedKey.*;
 import static java.text.MessageFormat.format;
@@ -97,7 +96,7 @@ public class LoadItems {
         }
 
         if (!metadata.description().isEmpty()) {
-            lore.addAll(addSkillDescription(metadata.description(), WORDS_PER_LINE, new long[]{}, ChatColor.GRAY + ""));
+            lore.addAll(addSkillDescription(metadata.description(), WORDS_PER_LINE, new long[]{}, ChatColor.GRAY));
             lore.add(" ");
         }
 
@@ -112,7 +111,7 @@ public class LoadItems {
                                     ChatColor.BOLD + "", ChatColor.YELLOW + method.getName())
                             );
 
-                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY + ""));
+                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY));
 
                             if (skills.cost() != 0)
                                 lore.add(format(ChatColor.DARK_GRAY + "Mana cost: {0}", ChatColor.AQUA + String.valueOf(skills.cost())));
@@ -122,7 +121,7 @@ public class LoadItems {
                             }
                             lore.add(" ");
                         } else {
-                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY + ""));
+                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY));
                             lore.add(" ");
                         }
                     }
@@ -162,53 +161,6 @@ public class LoadItems {
         item.setItemMeta(meta);
         item.setType(metadata.material());
         return item;
-    }
-
-    // This method is based on generation of ChatGPT
-    public List<String> addSkillDescription(String inputText, int wordsPerLine, long[] args, String color) {
-        if (!inputText.isEmpty()) {
-            // Replace placeholders in the input text with corresponding args
-            for (int i = 0; i < args.length; i++) {
-                inputText = inputText.replace("{" + i + "}", numberFormat(args[i]));
-            }
-
-            // Split the input text by spaces while keeping placeholders as whole words
-            String[] words = inputText.split(" (?=(\\{\\w+}))| ");
-            List<String> lines = new ArrayList<>(); // List to hold formatted lines
-
-            StringBuilder currentLine = new StringBuilder();
-            int wordCount = 0;
-
-            for (String word : words) {
-                // Trim leading and trailing whitespace from the word
-                word = word.trim();
-                if (!word.isEmpty()) {
-                    // Check if the word is a placeholder (e.g., {0})
-                    if (word.matches("\\{\\d+}")) {
-                        // Append the formatted placeholder with ChatColor.AQUA
-                        currentLine.append(ChatColor.AQUA).append(word).append(" ");
-                    } else {
-                        // Append ChatColor.GRAY for other words
-                        currentLine.append(color).append(word).append(" ");
-                    }
-                    wordCount++;
-
-                    if (wordCount == wordsPerLine) {
-                        lines.add(currentLine.toString().trim()); // Add the current line to the list
-                        currentLine.setLength(0); // Clear the StringBuilder for the next line
-                        wordCount = 0; // Reset the word count for the next line
-                    }
-                }
-            }
-
-            // Add any remaining text as the last line
-            if (!currentLine.isEmpty()) {
-                lines.add(currentLine.toString().trim());
-            }
-
-            return lines; // Return the list of lines
-        }
-        return List.of();
     }
 
     private String returnTypeName(String method) {
