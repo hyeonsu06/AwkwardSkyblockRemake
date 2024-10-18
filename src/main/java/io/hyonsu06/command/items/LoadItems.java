@@ -96,7 +96,7 @@ public class LoadItems {
         }
 
         if (!metadata.description().isEmpty()) {
-            lore.addAll(addSkillDescription(metadata.description(), WORDS_PER_LINE, new long[]{}, ChatColor.GRAY));
+            lore.addAll(addSkillDescription(metadata.description(), WORDS_PER_LINE, new long[]{}, ChatColor.GRAY, ChatColor.AQUA));
             lore.add(" ");
         }
 
@@ -111,7 +111,7 @@ public class LoadItems {
                                     ChatColor.BOLD + "", ChatColor.YELLOW + method.getName())
                             );
 
-                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY));
+                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY, ChatColor.AQUA));
 
                             if (skills.cost() != 0)
                                 lore.add(format(ChatColor.DARK_GRAY + "Mana cost: {0}", ChatColor.AQUA + String.valueOf(skills.cost())));
@@ -121,7 +121,7 @@ public class LoadItems {
                             }
                             lore.add(" ");
                         } else {
-                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY));
+                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY, ChatColor.AQUA));
                             lore.add(" ");
                         }
                     }
