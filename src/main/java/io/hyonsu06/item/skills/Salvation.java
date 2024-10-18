@@ -69,7 +69,7 @@ public class Salvation implements SkillMethods {
                         if (!victims.contains(e)) {
                             if (e instanceof LivingEntity le) {
                                 if (!le.equals(player)) {
-                                    double damage = skill.args()[4] * (1 + (mul / 10));
+                                    double damage = skill.args()[4] * (1 + (mul / 100));
                                     le.damage(damage, causeAndAttacker(getCause(skill.damageType()), player, le));
                                     setNoDamageTicks(le, 0);
                                     victims.add(e);

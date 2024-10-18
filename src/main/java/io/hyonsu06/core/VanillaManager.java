@@ -42,7 +42,7 @@ public class VanillaManager implements Listener {
         type = e.getEntity().getType();
         if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON) || type.equals(EntityType.ELDER_GUARDIAN) || type.equals(EntityType.WARDEN)) {
             if (e.getCause().equals(EntityDamageEvent.DamageCause.MAGIC)) {
-                e.setDamage(e.getDamage() / 20);
+                e.setDamage(e.getDamage() / 200);
             }
         }
     }
