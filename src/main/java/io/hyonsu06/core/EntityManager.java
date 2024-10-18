@@ -30,8 +30,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.*;
 
 import static io.hyonsu06.Main.plugin;
-import static io.hyonsu06.core.functions.NumberTweaks.asPercentageMultiplier;
-import static io.hyonsu06.core.functions.NumberTweaks.numberFormat;
+import static io.hyonsu06.core.functions.NumberTweaks.*;
 import static io.hyonsu06.core.functions.customCauseAndAttacker.causeAndAttacker;
 import static io.hyonsu06.core.functions.getClasses.getItemClasses;
 import static io.hyonsu06.core.functions.getClasses.getSkillClasses;
@@ -558,9 +557,9 @@ public class EntityManager implements Listener {
                 if (name.equals(name2)) {
                     String text;
                     if (e.getHealth() / e.getMaxHealth() > 0.5) {
-                        text = name + " " + ChatColor.GREEN + numberFormat(e.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + numberFormat(e.getMaxHealth()) + ChatColor.RED + "❤";
+                        text = name + " " + ChatColor.GREEN + shortNumber(e.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(e.getMaxHealth()) + ChatColor.RED + "❤";
                     } else {
-                        text = name + " " + ChatColor.YELLOW + numberFormat(e.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + numberFormat(e.getMaxHealth()) + ChatColor.RED + "❤";
+                        text = name + " " + ChatColor.YELLOW + shortNumber(e.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(e.getMaxHealth()) + ChatColor.RED + "❤";
                     }
                     display.setText(text);
                 }

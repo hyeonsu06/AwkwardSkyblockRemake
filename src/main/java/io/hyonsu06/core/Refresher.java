@@ -222,7 +222,7 @@ public class Refresher {
 
         // Update durability
         if (metadata.durability() != Long.MIN_VALUE) {
-            lore.add(ChatColor.DARK_GRAY + "Durability: " + (metadata.durability() - customCurrentDamage) + "/" + metadata.durability());
+            lore.add(ChatColor.DARK_GRAY + "Durability: " + shortNumber(metadata.durability() - customCurrentDamage) + "/" + shortNumber(metadata.durability()));
         }
 
         meta.getPersistentDataContainer().set(getPDC("type"), PersistentDataType.STRING, metadata.type().getDisplay().toLowerCase());

@@ -2,7 +2,6 @@ package io.hyonsu06.core.functions;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import static io.hyonsu06.Main.plugin;
 

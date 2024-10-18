@@ -1,7 +1,5 @@
 package io.hyonsu06.core.functions;
 
-import java.util.Objects;
-
 public class NumberTweaks {
     public static double flip(double value) {
         return value + (value * -2);
@@ -27,6 +25,18 @@ public class NumberTweaks {
         } else {
             // Format with decimal points (if needed)
             return String.format("%,.1f", number);
+        }
+    }
+
+    public static String shortNumber(double value) {
+        if (value >= 1_000_000_000) {
+            return String.format("%.1fB", value / 1_000_000_000); // Billions
+        } else if (value >= 1_000_000) {
+            return String.format("%.1fM", value / 1_000_000); // Millions
+        } else if (value >= 1_000) {
+            return String.format("%.1fK", value / 1_000); // Thousands
+        } else {
+            return String.valueOf((long) value); // No formatting for small numbers
         }
     }
 }
