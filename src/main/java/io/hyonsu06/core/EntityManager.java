@@ -141,7 +141,7 @@ public class EntityManager implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player p = event.getPlayer();
-        p.setHealthScale(40);
+        p.setHealthScale(20);
         double intelligence = 100d;
         Map<Stats, Double> statMap = StatManager.getBaseStatMap().get(p.getUniqueId());
         if (statMap == null) {
