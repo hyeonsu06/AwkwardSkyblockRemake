@@ -1,2 +1,2 @@
 # AwkwardSkyblockRemake
-this guy's awkward skyblock remake
+due to my dumbness actual main branch is master, go there
