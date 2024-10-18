@@ -14,7 +14,7 @@ import static io.hyonsu06.core.functions.ArmorTweaks.isArmor;
 import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getItemID;
 
 public class PreventUnintendedAction implements Listener {
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEvent event) {
         if (Objects.nonNull(getItemID(event.getItem()))) {
             if (!isArmor(event.getItem()) && event.getAction().isLeftClick()) {
@@ -25,7 +25,7 @@ public class PreventUnintendedAction implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onHit(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof LivingEntity e) {
             if (e.getEquipment().getItemInMainHand().getType().equals(Material.BOW) || e.getEquipment().getItemInMainHand().getType().equals(Material.CROSSBOW)) {

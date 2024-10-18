@@ -1,5 +1,6 @@
 package io.hyonsu06.core;
 
+import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -13,7 +14,7 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import static io.hyonsu06.core.functions.setImmuneTime.setNoDamageTicks;
 
 public class VanillaManager implements Listener {
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onHit(EntityDamageEvent e) {
         EntityType type = e.getEntity().getType();
         if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON) || type.equals(EntityType.ELDER_GUARDIAN) || type.equals(EntityType.WARDEN)) {
@@ -21,7 +22,7 @@ public class VanillaManager implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.LOW)
     public void onSpawn(EntitySpawnEvent e) {
         EntityType type = e.getEntity().getType();
         if (type.equals(EntityType.WITHER)) {
