@@ -1,6 +1,7 @@
 package io.hyonsu06.command.accessories;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
@@ -9,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 
 public class AccessoriesUtils {
-    @Getter
+    @Getter @Setter
     public static Map<UUID, ItemStack[]> accessories = new HashMap<>();
 
     // Save the player's inventory as a string in the PersistentDataContainer

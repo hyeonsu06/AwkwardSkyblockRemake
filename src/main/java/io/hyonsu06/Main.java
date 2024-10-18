@@ -1,6 +1,7 @@
 package io.hyonsu06;
 
 import io.hyonsu06.command.accessories.AccessoriesListener;
+import io.hyonsu06.command.accessories.AccessoriesUtils;
 import io.hyonsu06.command.accessories.ShowAccessoriesCommand;
 import io.hyonsu06.command.items.LoadItems;
 import io.hyonsu06.command.items.ShowAllItemsCommand;
@@ -13,19 +14,24 @@ import io.hyonsu06.command.stat.setStatTabCompleter;
 import io.hyonsu06.command.stat.setStatCommand;
 import io.hyonsu06.core.*;
 import io.hyonsu06.core.Refresher;
+import io.hyonsu06.core.enums.Stats;
 import org.bukkit.Location;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.io.*;
 import java.util.Comparator;
+import java.util.Map;
+import java.util.UUID;
 
+import static io.hyonsu06.core.DataMapManager.loadObjectFromJson;
+import static io.hyonsu06.core.DataMapManager.saveObjectToJson;
 import static io.hyonsu06.core.functions.getClasses.*;
 import static org.bukkit.Bukkit.getPluginManager;
 
@@ -49,6 +55,9 @@ public final class Main extends JavaPlugin implements Listener {
         } else {
             getLogger().info("[" + this.getName() + "] Plugin directory already exists, skipping creating it");
         }
+
+        StatManager.setBaseStatMap((Map<UUID, Map<Stats, Double>>) loadObjectFromJson(myPluginFolder + "baseMap.json"));
+        AccessoriesUtils.setAccessories((Map<UUID, ItemStack[]>) loadObjectFromJson(myPluginFolder + "accessories.json"));
 
         plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
 
@@ -85,6 +94,12 @@ public final class Main extends JavaPlugin implements Listener {
         //TODO: recombobulator 3000, potato books, and enchants
     }
 
+    @Override
+    public void onDisable() {
+        saveObjectToJson(StatManager.getBaseStatMap(), new File(getDataFolder().getAbsolutePath()) + "baseMap.json");
+        saveObjectToJson(AccessoriesUtils.getAccessories(), new File(getDataFolder().getAbsolutePath()) + "accessories.json");
+    }
+
     @EventHandler
     public void onArrowShoot(ProjectileLaunchEvent event) {
         if (event.getEntity() instanceof Arrow arrow) {
@@ -114,55 +129,4 @@ public final class Main extends JavaPlugin implements Listener {
                 .min(Comparator.comparingDouble(dragon -> dragon.getLocation().distance(location)))
                 .orElse(null);
     }
-/*
-    public void saveData() {
-        saveMap(StatManager.getBaseStatMap(), "baseStatMap.json");
-        saveMap(EntityManager.getPlayerIntelligence(), "playerIntelligence.json");
-    }
-
-    public void loadData() {
-        StatManager.setBaseStatMap(loadMap("baseStatMap.json"));
-        EntityManager.setPlayerIntelligence(loadMap("playerIntelligence.json"));
-    }
-    private <K, V> void saveMap(Map<K, V> map, String fileName) {
-        // Create a set to track unique values
-        Set<V> uniqueValues = new HashSet<>();
-        Map<K, V> uniqueMap = new HashMap<>();
-
-        // Iterate over the original map to filter out duplicates
-        for (Map.Entry<K, V> entry : map.entrySet()) {
-            if (uniqueValues.add(entry.getValue())) { // Returns true if the value was not already present
-                uniqueMap.put(entry.getKey(), entry.getValue());
-            } else {
-                // Log a message about the duplicate value
-                getLogger().warning("[" + this.getName() + "] Duplicate value found: " + entry.getValue());
-            }
-        }
-
-        // Save the unique map to the file
-        File file = new File(getDataFolder(), fileName);
-        try (FileWriter writer = new FileWriter(file)) {
-            gson.toJson(uniqueMap, writer);
-            getLogger().info("[" + this.getName() + "] Saved " + fileName + " with unique values");
-        } catch (IOException e) {
-            getLogger().severe("[" + this.getName() + "] Error saving " + fileName + ": " + e.getMessage());
-        }
-    }
-
-    private <K, V> Map<K, V> loadMap(String fileName) {
-        File file = new File(getDataFolder(), fileName);
-        if (!file.exists()) {
-            return new HashMap<>(); // Return an empty map if the file doesn't exist
-        }
-
-        Type mapType = new TypeToken<Map<K, V>>() {}.getType();
-        try (FileReader reader = new FileReader(file)) {
-            return gson.fromJson(reader, mapType);
-        } catch (IOException e) {
-            getLogger().severe("[" + this.getName() + "] Error loading " + fileName + ": " + e.getMessage());
-            return new HashMap<>(); // Return an empty map on error
-        }
-    }
-
- */
 }

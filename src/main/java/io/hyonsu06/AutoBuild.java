@@ -45,7 +45,7 @@ public class AutoBuild extends Command implements CommandExecutor {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "reload confirm");
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "plugman reload SkyblockParody");
                     }
                 }.runTask(plugin);
             }
