@@ -44,12 +44,11 @@ public class AutoBuild extends Command implements CommandExecutor {
         try {
             // Wait for the thread to complete its work
             thread.join();
+            isReloading = true;
+            Bukkit.dispatchCommand(commandSender, "plugman reload AwkwardSkyblockRemake");
         } catch (InterruptedException e) {
             System.err.println("Main thread was interrupted while waiting.");
         }
-
-        isReloading = true;
-        Bukkit.dispatchCommand(commandSender, "plugman reload AwkwardSkyblockRemake");
         return true;
     }
 }
