@@ -100,9 +100,6 @@ public final class Main extends JavaPlugin implements Listener {
             itemReflections = null;
             skillReflections = null;
             reforgeReflections = null;
-            getSkillClasses();
-            getItemClasses();
-            getReforgeClasses();
         }
 
         //TODO: enchants
