@@ -610,24 +610,26 @@ public class EntityManager implements Listener {
 
     private void addDisplay(LivingEntity e) {
         if (!e.getType().equals(EntityType.PLAYER) || !e.getType().equals(EntityType.TEXT_DISPLAY)) {
-            TextDisplay display = e.getWorld().spawn(e.getLocation(), TextDisplay.class);
-            display.setAlignment(TextDisplay.TextAlignment.CENTER);
-            display.setSeeThrough(false);
-            display.setBillboard(Display.Billboard.CENTER);
+            if (e.getPassengers().isEmpty()) {
+                TextDisplay display = e.getWorld().spawn(e.getLocation(), TextDisplay.class);
+                display.setAlignment(TextDisplay.TextAlignment.CENTER);
+                display.setSeeThrough(false);
+                display.setBillboard(Display.Billboard.CENTER);
 
-            String name;
-            if (e.getCustomName() == null) {
-                name = e.getName();
-            } else {
-                name = e.getCustomName();
+                String name;
+                if (e.getCustomName() == null) {
+                    name = e.getName();
+                } else {
+                    name = e.getCustomName();
+                }
+
+                e.getPersistentDataContainer().set(getPDC("name"), PersistentDataType.STRING, name);
+
+                String text = name + " " + ChatColor.GREEN + shortNumber(e.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(e.getMaxHealth()) + ChatColor.RED + "❤";
+                display.setText(text);
+
+                e.addPassenger(display);
             }
-
-            e.getPersistentDataContainer().set(getPDC("name"), PersistentDataType.STRING, name);
-
-            String text = name + " " + ChatColor.GREEN + shortNumber(e.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(e.getMaxHealth()) + ChatColor.RED + "❤";
-            display.setText(text);
-
-            e.addPassenger(display);
         }
     }
 
@@ -744,7 +746,6 @@ public class EntityManager implements Listener {
         return value;
     }
 
-    // Load all data
     public static void loadData() {
         StatManager.setBaseStatMap(dataMapManager1.loadStatsMap());
         AccessoriesUtils.setAccessories(dataMapManager2.loadItemStackMap());
