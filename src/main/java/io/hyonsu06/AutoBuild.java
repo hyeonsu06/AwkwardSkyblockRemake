@@ -12,8 +12,6 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import static io.hyonsu06.Main.isReloading;
-import static io.hyonsu06.Main.plugin;
-import static org.bukkit.Bukkit.getPluginManager;
 
 public class AutoBuild extends Command implements CommandExecutor {
 
