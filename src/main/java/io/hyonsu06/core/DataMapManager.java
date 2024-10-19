@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import static org.bukkit.Bukkit.getLogger;
+
 public class DataMapManager {
     private final File dataFile; // File to store the YAML data
     private final FileConfiguration config;
@@ -68,19 +70,20 @@ public class DataMapManager {
                                 double value = config.getDouble("entities." + key + ".stats." + statKey);
                                 statsMap.put(stat, value);
                             } catch (IllegalArgumentException e) {
-                                System.err.println("Invalid Stat key: " + statKey);
+                                getLogger().severe("Invalid Stat key: " + statKey);
+                                e.printStackTrace();
                             }
                         }
                     } else {
-                        System.out.println("No stats found for entity: " + key);
+                        getLogger().warning("No stats found for entity: " + key);
                     }
                     map.put(uuid, statsMap);
                 } catch (IllegalArgumentException e) {
-                    System.err.println("Invalid UUID format for key: " + key);
+                    getLogger().severe("Invalid UUID format for key: " + key);
                 }
             }
         } else {
-            System.out.println("No players section found in config.");
+            getLogger().warning("No players section found in config.");
         }
         return map;
     }

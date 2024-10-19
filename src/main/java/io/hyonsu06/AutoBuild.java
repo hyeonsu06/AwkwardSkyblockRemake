@@ -12,6 +12,7 @@ import java.util.Scanner;
 
 import static io.hyonsu06.Main.isReloading;
 import static io.hyonsu06.Main.plugin;
+import static org.bukkit.Bukkit.getLogger;
 import static org.bukkit.Bukkit.getPluginManager;
 
 public class AutoBuild extends Command implements CommandExecutor {
@@ -26,15 +27,15 @@ public class AutoBuild extends Command implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String string, @NotNull String[] strings) {
         getPluginManager().disablePlugin(plugin);
         Thread thread = new Thread(() -> {
             try {
                 Process process = Runtime.getRuntime().exec("./reload-server.sh");
                 Scanner scanner = new Scanner(process.getInputStream());
                 while (process.isAlive()) {
-                    String st = "[AutoBuild] " + scanner.nextLine();
-                    System.out.println(st);
+                    String s = "[AutoBuild] " + scanner.nextLine();
+                    getLogger().info(s);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -52,7 +53,8 @@ public class AutoBuild extends Command implements CommandExecutor {
 
             commandSender.sendMessage("Reload Completed.");
         } catch (InterruptedException e) {
-            System.err.println("Main thread was interrupted while waiting.");
+            getLogger().severe("Main thread was interrupted while waiting.");
+            e.printStackTrace();
         }
         return true;
     }
