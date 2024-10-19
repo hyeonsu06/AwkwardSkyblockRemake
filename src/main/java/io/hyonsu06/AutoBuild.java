@@ -26,21 +26,27 @@ public class AutoBuild extends Command implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        new Thread("AutoBuild") {
-            @Override
-            public void run() {
-                try {
-                    Process process = Runtime.getRuntime().exec("./reload-server.sh");
-                    Scanner scanner = new Scanner(process.getInputStream());
-                    while(process.isAlive()) {
-                        String st = "[AutoBuild] " + scanner.nextLine();
-                        System.out.println(st);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (NoSuchElementException ignored) {}
+        Thread thread = new Thread(() -> {
+            try {
+                Process process = Runtime.getRuntime().exec("./reload-server.sh");
+                Scanner scanner = new Scanner(process.getInputStream());
+                while (process.isAlive()) {
+                    String st = "[AutoBuild] " + scanner.nextLine();
+                    System.out.println(st);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NoSuchElementException ignored) {
             }
-        }.start();
+        });
+
+        thread.start();
+        try {
+            // Wait for the thread to complete its work
+            thread.join();
+        } catch (InterruptedException e) {
+            System.err.println("Main thread was interrupted while waiting.");
+        }
 
         isReloading = true;
         Bukkit.dispatchCommand(commandSender, "plugman reload AwkwardSkyblockRemake");
