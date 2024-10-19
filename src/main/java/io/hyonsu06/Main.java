@@ -92,7 +92,10 @@ public final class Main extends JavaPlugin implements Listener {
         new Refresher();
         new LoadItems().registerAllItems();
 
-        if (isReloading) loadData();
+        if (isReloading) {
+            getLogger().info("Seems plugin is on reload, remapping stat map...");
+            loadData();
+        }
 
         //TODO: enchants
         //TODO: save/load data
