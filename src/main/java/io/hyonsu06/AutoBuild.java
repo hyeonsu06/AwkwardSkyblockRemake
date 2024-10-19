@@ -1,5 +1,6 @@
 package io.hyonsu06;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -44,8 +45,7 @@ public class AutoBuild extends Command implements CommandExecutor {
         }.start();
 
         isReloading = true;
-        getPluginManager().disablePlugin(plugin);
-        getPluginManager().enablePlugin(plugin);
+        Bukkit.dispatchCommand(commandSender, "plugman reload AwkwardSkyblockRemake");
         return true;
     }
 }
