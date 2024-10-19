@@ -77,9 +77,11 @@ public final class Main extends JavaPlugin implements Listener {
 
         plugin.getCommand("autobuild").setExecutor(new AutoBuild());
 
-        getSkillClasses();
-        getItemClasses();
-        getReforgeClasses();
+        if (!isReloading) {
+            getSkillClasses();
+            getItemClasses();
+            getReforgeClasses();
+        }
 
         getPluginManager().registerEvents(new VanillaManager(), plugin);
         getPluginManager().registerEvents(new SkillManager(), plugin);
