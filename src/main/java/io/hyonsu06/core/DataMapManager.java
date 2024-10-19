@@ -47,7 +47,7 @@ public class DataMapManager {
             String uuidString = entry.getKey().toString();
             Map<Stats, Double> stats = entry.getValue();
             for (Map.Entry<Stats, Double> statEntry : stats.entrySet()) {
-                config.set("players." + uuidString + ".stats." + statEntry.getKey().name().toLowerCase(), statEntry.getValue());
+                config.set("entities." + uuidString + ".stats." + statEntry.getKey().name().toLowerCase(), statEntry.getValue());
             }
         }
         saveConfig();
@@ -56,23 +56,23 @@ public class DataMapManager {
     // Loading Map<UUID, Map<Stats, Double>> from YAML
     public Map<UUID, Map<Stats, Double>> loadStatsMap() {
         Map<UUID, Map<Stats, Double>> map = new HashMap<>();
-        if (config.contains("players")) {
-            for (String key : config.getConfigurationSection("players").getKeys(false)) {
+        if (config.contains("entities")) {
+            for (String key : config.getConfigurationSection("entities").getKeys(false)) {
                 try {
                     UUID uuid = UUID.fromString(key);
                     Map<Stats, Double> statsMap = new HashMap<>();
-                    if (config.contains("players." + key + ".stats")) {
-                        for (String statKey : config.getConfigurationSection("players." + key + ".stats").getKeys(false)) {
+                    if (config.contains("entities." + key + ".stats")) {
+                        for (String statKey : config.getConfigurationSection("entities." + key + ".stats").getKeys(false)) {
                             try {
                                 Stats stat = Stats.valueOf(statKey.toUpperCase()); // Assuming Stats enum names match the keys
-                                double value = config.getDouble("players." + key + ".stats." + statKey);
+                                double value = config.getDouble("entities." + key + ".stats." + statKey);
                                 statsMap.put(stat, value);
                             } catch (IllegalArgumentException e) {
                                 System.err.println("Invalid Stat key: " + statKey);
                             }
                         }
                     } else {
-                        System.out.println("No stats found for player: " + key);
+                        System.out.println("No stats found for entity: " + key);
                     }
                     map.put(uuid, statsMap);
                 } catch (IllegalArgumentException e) {

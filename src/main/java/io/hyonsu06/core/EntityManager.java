@@ -128,7 +128,7 @@ public class EntityManager implements Listener {
 
     @EventHandler
     public void onServerLoad(ServerLoadEvent event) {
-        loadData();
+        if (!isReloading) loadData();
 
         if (StatManager.getBaseStatMap() == null || StatManager.getBaseStatMap().isEmpty()) {
             getLogger().info("Map is null, initializing...");
