@@ -1,4 +1,4 @@
-package io.hyonsu06.core;
+package io.hyonsu06.core.managers;
 
 import io.hyonsu06.core.enums.Stats;
 import org.bukkit.configuration.file.FileConfiguration;

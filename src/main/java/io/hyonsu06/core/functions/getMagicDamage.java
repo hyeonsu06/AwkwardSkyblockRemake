@@ -1,6 +1,6 @@
 package io.hyonsu06.core.functions;
 
-import io.hyonsu06.core.StatManager;
+import io.hyonsu06.core.managers.StatManager;
 import io.hyonsu06.core.enums.Stats;
 import org.bukkit.entity.Player;
 

@@ -7,7 +7,6 @@ import io.hyonsu06.core.annotations.items.items.ItemMultiplicativeBonus;
 import io.hyonsu06.core.annotations.items.reforge.ReforgeMetadata;
 import io.hyonsu06.core.annotations.skills.Skill;
 import io.hyonsu06.core.annotations.tags.SkillTagged;
-import io.hyonsu06.core.enums.ItemType;
 import io.hyonsu06.core.enums.ReforgeType;
 import io.hyonsu06.core.enums.Stats;
 import org.bukkit.Bukkit;
@@ -27,7 +26,7 @@ import java.util.Map;
 
 import static io.hyonsu06.Main.plugin;
 import static io.hyonsu06.command.items.LoadItems.WORDS_PER_LINE;
-import static io.hyonsu06.core.StatManager.rarityToIndex;
+import static io.hyonsu06.core.managers.StatManager.rarityToIndex;
 import static io.hyonsu06.core.enums.ItemRarity.next;
 import static io.hyonsu06.core.functions.ItemTypeForSlot.getReforgeType;
 import static io.hyonsu06.core.functions.NumberTweaks.*;

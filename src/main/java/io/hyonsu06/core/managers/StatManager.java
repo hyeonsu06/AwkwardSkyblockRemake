@@ -1,4 +1,4 @@
-package io.hyonsu06.core;
+package io.hyonsu06.core.managers;
 
 import io.hyonsu06.command.accessories.AccessoriesUtils;
 import io.hyonsu06.core.annotations.items.items.ItemMetadata;

@@ -1,6 +1,6 @@
 package io.hyonsu06.command.stat;
 
-import io.hyonsu06.core.StatManager;
+import io.hyonsu06.core.managers.StatManager;
 import io.hyonsu06.core.enums.Stats;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

@@ -1,4 +1,4 @@
-package io.hyonsu06.core;
+package io.hyonsu06.core.managers;
 
 import org.bukkit.ChatColor;
 import org.bukkit.attribute.Attribute;

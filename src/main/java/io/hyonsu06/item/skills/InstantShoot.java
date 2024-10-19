@@ -1,6 +1,6 @@
 package io.hyonsu06.item.skills;
 
-import io.hyonsu06.core.StatManager;
+import io.hyonsu06.core.managers.StatManager;
 import io.hyonsu06.core.annotations.skills.Skill;
 import io.hyonsu06.core.annotations.tags.SkillTagged;
 import io.hyonsu06.core.enums.Stats;

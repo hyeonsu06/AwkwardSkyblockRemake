@@ -1,6 +1,6 @@
 package io.hyonsu06.core.functions;
 
-import io.hyonsu06.core.EntityManager;
+import io.hyonsu06.core.managers.EntityManager;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 

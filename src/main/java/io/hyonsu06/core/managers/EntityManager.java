@@ -1,4 +1,4 @@
-package io.hyonsu06.core;
+package io.hyonsu06.core.managers;
 
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import io.hyonsu06.command.accessories.AccessoriesUtils;
@@ -32,7 +32,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.*;
 
 import static io.hyonsu06.Main.*;
-import static io.hyonsu06.core.StatManager.remove;
+import static io.hyonsu06.core.managers.StatManager.remove;
 import static io.hyonsu06.core.functions.NumberTweaks.*;
 import static io.hyonsu06.core.functions.customCauseAndAttacker.causeAndAttacker;
 import static io.hyonsu06.core.functions.getClasses.getItemClasses;
@@ -52,7 +52,7 @@ public class EntityManager implements Listener {
     @Getter @Setter
     private static Map<UUID, Integer> rangedHits = new HashMap<>();
 
-    final int FEROCITY_DELAY = 5;
+    final int FEROCITY_DELAY = 3;
 
     public EntityManager() {
         new BukkitRunnable() {
@@ -149,21 +149,28 @@ public class EntityManager implements Listener {
     }
 
     @EventHandler
-    public void onSpawn(EntitySpawnEvent event) {
-        if (event.getEntity() instanceof LivingEntity e) {
-            if (!(e instanceof TextDisplay) || !(e instanceof Player)) {
-                initEntity(e);
-                addDisplay(e);
+    public void onSpawnGeneric(EntitySpawnEvent event) {
+        if (!(event instanceof SpawnerSpawnEvent)) {
+            if (event.getEntity() instanceof LivingEntity e) {
+                if (!(e instanceof TextDisplay) || !(e instanceof Player)) {
+                    initEntity(e);
+                    addDisplay(e);
+                }
             }
         }
     }
 
     @EventHandler
-    public void onSpawn(SpawnerSpawnEvent event) {
+    public void onSpawnSpawner(SpawnerSpawnEvent event) {
         if (event.getEntity() instanceof LivingEntity e) {
             if (!(e instanceof TextDisplay) || !(e instanceof Player)) {
-                initEntity(e);
-                addDisplay(e);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        initEntity(e);
+                        addDisplay(e);
+                    }
+                }.runTaskLater(plugin, 1);
             }
         }
     }
@@ -467,36 +474,40 @@ public class EntityManager implements Listener {
                     return;
                 }
                 if (damageEvent instanceof EntityDamageByBlockEvent event) {
-                    double defense = 0;
-                    try {
-                        defense = StatManager.getFinalStatMap().get(e.getUniqueId()).get(Stats.DEFENSE);
-                    } catch (NullPointerException ignored) {
+                    if (isCauseNotIgnoreDefense(event.getCause())) {
+                        double defense = 0;
+                        try {
+                            defense = StatManager.getFinalStatMap().get(e.getUniqueId()).get(Stats.DEFENSE);
+                        } catch (NullPointerException ignored) {
+                        }
+                        double baseDamage = event.getDamage() * (1 - (defense / (defense + 1)));
+                        event.setDamage(baseDamage);
                     }
-                    double baseDamage = event.getDamage() * (1 - (defense / (defense + 1)));
-                    event.setDamage(baseDamage);
                     new BukkitRunnable() {
                         @Override
                         public void run() {
                             updateDisplay(e);
                         }
                     }.runTaskLater(plugin, 1);
-                    showDisplay(baseDamage, damageEvent.getEntity().getLocation(), event.getCause(), false);
+                    showDisplay(event.getDamage(), damageEvent.getEntity().getLocation(), event.getCause(), false);
                 }
                 if (damageEvent instanceof EntityDamageEvent event) {
-                    double defense = 0;
-                    try {
-                        defense = StatManager.getFinalStatMap().get(e.getUniqueId()).get(Stats.DEFENSE);
-                    } catch (NullPointerException ignored) {
+                    if (isCauseNotIgnoreDefense(event.getCause())) {
+                        double defense = 0;
+                        try {
+                            defense = StatManager.getFinalStatMap().get(e.getUniqueId()).get(Stats.DEFENSE);
+                        } catch (NullPointerException ignored) {
+                        }
+                        double baseDamage = event.getDamage() * (1 - (defense / (defense + 1)));
+                        event.setDamage(baseDamage);
                     }
-                    double baseDamage = event.getDamage() * (1 - (defense / (defense + 1)));
-                    event.setDamage(baseDamage);
-                    showDisplay(event.getDamage(), e.getLocation(), event.getCause(), false);
                     new BukkitRunnable() {
                         @Override
                         public void run() {
                             updateDisplay(e);
                         }
                     }.runTaskLater(plugin, 1);
+                    showDisplay(event.getDamage(), e.getLocation(), event.getCause(), false);
                 }
             } else damageEvent.setDamage(Double.MAX_VALUE);
         }
@@ -744,6 +755,19 @@ public class EntityManager implements Listener {
             value = String.join("", s);
         }
         return value;
+    }
+
+    private boolean isCauseNotIgnoreDefense(EntityDamageEvent.DamageCause cause) {
+        return !(cause.equals(EntityDamageEvent.DamageCause.FALL) ||
+                cause.equals(EntityDamageEvent.DamageCause.DROWNING) ||
+                cause.equals(EntityDamageEvent.DamageCause.FIRE) ||
+                cause.equals(EntityDamageEvent.DamageCause.FIRE_TICK) ||
+                cause.equals(EntityDamageEvent.DamageCause.SUFFOCATION) ||
+                cause.equals(EntityDamageEvent.DamageCause.MAGIC) ||
+                cause.equals(EntityDamageEvent.DamageCause.WITHER) ||
+                cause.equals(EntityDamageEvent.DamageCause.POISON) ||
+                cause.equals(EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) ||
+                cause.equals(EntityDamageEvent.DamageCause.ENTITY_EXPLOSION));
     }
 
     public static void loadData() {

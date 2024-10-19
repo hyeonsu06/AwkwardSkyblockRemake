@@ -15,23 +15,18 @@ import io.hyonsu06.command.stat.setStatTabCompleter;
 import io.hyonsu06.command.stat.setStatCommand;
 import io.hyonsu06.core.*;
 import io.hyonsu06.core.Refresher;
-import org.bukkit.Location;
-import org.bukkit.entity.*;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import io.hyonsu06.core.managers.*;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.*;
-import java.util.Comparator;
 
-import static io.hyonsu06.core.EntityManager.loadData;
+import static io.hyonsu06.core.managers.EntityManager.loadData;
 import static io.hyonsu06.core.functions.getClasses.*;
 import static org.bukkit.Bukkit.getPluginManager;
+import static org.bukkit.Bukkit.getScheduler;
 
-public final class Main extends JavaPlugin implements Listener {
+public final class Main extends JavaPlugin {
     public static Main plugin;
     public static boolean isReloading;
     public static DataMapManager dataMapManager1;
@@ -88,7 +83,9 @@ public final class Main extends JavaPlugin implements Listener {
         getPluginManager().registerEvents(new AllItemsListener(), plugin);
         getPluginManager().registerEvents(new AccessoriesListener(), plugin);
         getPluginManager().registerEvents(new EntityManager(), plugin);
-        getPluginManager().registerEvents(this, this);
+        getPluginManager().registerEvents(new EntityLimiter(), plugin);
+
+        getPluginManager().registerEvents(new DragonHoming(), plugin);
 
         new NoParticle();
         new StatManager();
@@ -111,6 +108,7 @@ public final class Main extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         saveData();
+        for (BukkitTask task : getScheduler().getPendingTasks()) if (task.getOwner().equals(plugin)) task.cancel();
     }
 
     // Save all data
@@ -118,35 +116,5 @@ public final class Main extends JavaPlugin implements Listener {
         dataMapManager1.saveStatsMap(StatManager.getBaseStatMap());
         dataMapManager2.saveItemStackMap(AccessoriesUtils.getAccessories());
         getLogger().info("Data saved successfully.");
-    }
-
-    @EventHandler
-    public void onArrowShoot(ProjectileLaunchEvent event) {
-        if (event.getEntity() instanceof Arrow arrow) {
-            // Create new runnable to update the arrow's trajectory
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (arrow.getTicksLived() > 20) {
-                        if (!arrow.isValid()) {
-                            cancel(); // Stop if the arrow is dead
-                            return;
-                        }
-                        EnderDragon nearestDragon = findNearestEnderDragon(arrow.getLocation());
-                        if (nearestDragon != null) {
-                            Vector direction = nearestDragon.getLocation().subtract(arrow.getLocation()).toVector().normalize();
-                            arrow.setVelocity(direction.multiply(1.2)); // Adjust the multiplier for speed
-                        }
-                    }
-                }
-            }.runTaskTimer(this, 0L, 1L); // Update every tick
-        }
-    }
-
-    private EnderDragon findNearestEnderDragon(Location location) {
-        return (EnderDragon) location.getWorld().getEntities().stream()
-                .filter(entity -> entity.getType() == EntityType.ENDER_DRAGON)
-                .min(Comparator.comparingDouble(dragon -> dragon.getLocation().distance(location)))
-                .orElse(null);
     }
 }
