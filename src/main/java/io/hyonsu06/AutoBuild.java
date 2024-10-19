@@ -1,6 +1,5 @@
 package io.hyonsu06;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,6 +11,8 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import static io.hyonsu06.Main.isReloading;
+import static io.hyonsu06.Main.plugin;
+import static org.bukkit.Bukkit.getPluginManager;
 
 public class AutoBuild extends Command implements CommandExecutor {
 
@@ -44,8 +45,12 @@ public class AutoBuild extends Command implements CommandExecutor {
         try {
             // Wait for the thread to complete its work
             thread.join();
+
             isReloading = true;
-            Bukkit.dispatchCommand(commandSender, "plugman reload AwkwardSkyblockRemake");
+            getPluginManager().disablePlugin(plugin);
+            getPluginManager().enablePlugin(plugin);
+
+            commandSender.sendMessage("Reload Completed.");
         } catch (InterruptedException e) {
             System.err.println("Main thread was interrupted while waiting.");
         }
