@@ -92,7 +92,7 @@ public final class Main extends JavaPlugin implements Listener {
         new Refresher();
         new LoadItems().registerAllItems();
 
-        loadData();
+        if (isReloading) loadData();
 
         //TODO: enchants
         //TODO: save/load data
