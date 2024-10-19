@@ -11,7 +11,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 
 import static io.hyonsu06.Main.plugin;
-import static org.bukkit.Bukkit.getLogger;
 import static org.bukkit.Bukkit.getWorlds;
 
 public class EntityLimiter implements Listener {
@@ -31,11 +30,8 @@ public class EntityLimiter implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void limit(EntitySpawnEvent event) {
         if (event.getEntity() instanceof LivingEntity) {
-            int limit = 100;
-            if (count + 1 > limit) {
-                event.setCancelled(true);
-                getLogger().warning("An entity tried to spawn, exceeding spawn limit. Event cancelled.");
-            }
+            int limit = 300;
+            if (count + 1 > limit) event.setCancelled(true);
         }
     }
 }
