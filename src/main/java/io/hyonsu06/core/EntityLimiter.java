@@ -15,7 +15,6 @@ import static org.bukkit.Bukkit.getWorlds;
 public class EntityLimiter implements Listener {
     private int count;
 
-
     public EntityLimiter() {
         new BukkitRunnable() {
             @Override

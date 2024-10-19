@@ -164,13 +164,20 @@ public class EntityManager implements Listener {
     public void onSpawnSpawner(SpawnerSpawnEvent event) {
         if (event.getEntity() instanceof LivingEntity e) {
             if (!(e instanceof TextDisplay) || !(e instanceof Player)) {
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        initEntity(e);
-                        addDisplay(e);
-                    }
-                }.runTaskLater(plugin, 1);
+                initEntity(e);
+                addDisplay(e);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onSpawnTrial(TrialSpawnerSpawnEvent event) {
+        if (event.getEntity() instanceof LivingEntity e) {
+            if (!(e instanceof TextDisplay) || !(e instanceof Player)) {
+                if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 200);
+                if (e.getAttribute(Attribute.GENERIC_ARMOR) != null) e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(9);
+                initEntity(e);
+                addDisplay(e);
             }
         }
     }

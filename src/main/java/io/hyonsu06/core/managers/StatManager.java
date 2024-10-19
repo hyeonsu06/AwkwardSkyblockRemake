@@ -488,6 +488,7 @@ public class StatManager {
         additiveStatMap.remove(uuid);
         multiplicativeStatMap.remove(uuid);
         finalStatMap.remove(uuid);
+        getLogger().warning(uuid + "had wrong data, removed");
     }
 
     public static void initMap(LivingEntity e) {
