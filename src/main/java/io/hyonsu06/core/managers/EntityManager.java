@@ -236,12 +236,9 @@ public class EntityManager implements Listener {
         }
 
         Map<UUID, ItemStack[]> accessories = AccessoriesUtils.getAccessories();
-        if (accessories == null || accessories.isEmpty()) {
-            // Ensure the map is mutable and initialized
-            if (accessories == null) {
-                accessories = new HashMap<>(); // Initialize if it's null
-                AccessoriesUtils.setAccessories(accessories); // Assume you have a way to set it
-            }
+        if (accessories == null) {
+            accessories = new HashMap<>(); // Initialize if it's null
+            AccessoriesUtils.setAccessories(accessories); // Assume you have a way to set it
             accessories.putIfAbsent(p.getUniqueId(), new ItemStack[]{});
         }
 

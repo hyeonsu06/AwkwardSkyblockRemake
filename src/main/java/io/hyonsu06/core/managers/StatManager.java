@@ -372,7 +372,9 @@ public class StatManager {
                 }
 
                 ItemStack[] items = getItems(e);
-                items = addItemStacks(items, AccessoriesUtils.getAccessories().get(e.getUniqueId()));
+                ItemStack[] add = AccessoriesUtils.getAccessories().get(e.getUniqueId());
+                if (add == null) add = new ItemStack[]{};
+                items = addItemStacks(items, add);
 
                 for (int i = 0; i < items.length; i++) {
                     if (items[i] == null) continue;
