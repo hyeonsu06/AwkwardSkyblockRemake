@@ -27,6 +27,7 @@ public class AutoBuild extends Command implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        getPluginManager().disablePlugin(plugin);
         Thread thread = new Thread(() -> {
             try {
                 Process process = Runtime.getRuntime().exec("./reload-server.sh");
@@ -47,7 +48,6 @@ public class AutoBuild extends Command implements CommandExecutor {
             thread.join();
 
             isReloading = true;
-            getPluginManager().disablePlugin(plugin);
             getPluginManager().enablePlugin(plugin);
 
             commandSender.sendMessage("Reload Completed.");
