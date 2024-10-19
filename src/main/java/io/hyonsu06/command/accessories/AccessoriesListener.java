@@ -28,13 +28,11 @@ public class AccessoriesListener implements Listener {
         ) {
             if (e.getSlot() == 0) {
                 previousPage((Player) e.getWhoClicked());
-                e.getWhoClicked().closeInventory();
                 open((Player) e.getWhoClicked());
                 return;
             }
             if (e.getSlot() == 8) {
                 nextPage((Player) e.getWhoClicked());
-                e.getWhoClicked().closeInventory();
                 open((Player) e.getWhoClicked());
                 return;
             }

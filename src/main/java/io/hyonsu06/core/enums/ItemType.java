@@ -15,7 +15,6 @@ public enum ItemType {
 
     // Weapons
     SWORD(true, "Sword", EquipmentSlot.HAND),
-    LONGSWORD(true, "Longsword", EquipmentSlot.HAND),
 
     // Armor
     HELMET(true, "Helmet", EquipmentSlot.HEAD),

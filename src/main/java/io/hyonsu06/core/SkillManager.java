@@ -104,7 +104,9 @@ public class SkillManager implements Listener {
                             String skillID = skill2.ID();
 
                             // Decrease cooldown if it's greater than 0
-                            playerCooldowns.computeIfPresent(skillID, (k, remain) -> (remain > 0) ? remain - 1 : 0);
+                            if (playerCooldowns.get(skillID) > 0) {
+                                playerCooldowns.put(skillID, playerCooldowns.get(skillID) - 1);
+                            }
                         }
                     }
                 }

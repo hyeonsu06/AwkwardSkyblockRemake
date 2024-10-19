@@ -14,7 +14,6 @@ import io.hyonsu06.command.stat.setStatTabCompleter;
 import io.hyonsu06.command.stat.setStatCommand;
 import io.hyonsu06.core.*;
 import io.hyonsu06.core.Refresher;
-import io.hyonsu06.core.enums.Stats;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,32 +21,38 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.io.*;
 import java.util.Comparator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.HashMap;
 
-import static io.hyonsu06.core.DataMapManager.loadObjectFromJson;
-import static io.hyonsu06.core.DataMapManager.saveObjectToJson;
-import static io.hyonsu06.core.StatManager.initMap;
+import static io.hyonsu06.core.EntityManager.loadData;
 import static io.hyonsu06.core.functions.getClasses.*;
+import static org.bukkit.Bukkit.getLogger;
 import static org.bukkit.Bukkit.getPluginManager;
 
 public final class Main extends JavaPlugin implements Listener {
     public static Main plugin;
-    // private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    public static boolean isReloading;
+    public static DataMapManager dataMapManager1;
+    public static DataMapManager dataMapManager2;
 
+    File myPluginFolder = new File(getDataFolder().getAbsolutePath());
     @Override
     public void onEnable() {
         plugin = this;
+
+        File dataFile1 = new File(getDataFolder(), "baseMap.yml");
+        dataMapManager1 = new DataMapManager(dataFile1);
+
+        File dataFile2 = new File(getDataFolder(), "accessories.yml");
+        dataMapManager2 = new DataMapManager(dataFile2);
+
         getPluginManager().registerEvents(new PreventUnintendedAction(), plugin);
 
-        File myPluginFolder = new File(getDataFolder().getAbsolutePath());
         if (!myPluginFolder.exists()) {
             boolean created = myPluginFolder.mkdirs();
             if (created) {
@@ -57,14 +62,6 @@ public final class Main extends JavaPlugin implements Listener {
             }
         } else {
             getLogger().info("[" + this.getName() + "] Plugin directory already exists, skipping creating it");
-        }
-
-        StatManager.setBaseStatMap((Map<UUID, Map<Stats, Double>>) loadObjectFromJson(myPluginFolder + "baseMap.json"));
-        AccessoriesUtils.setAccessories((Map<UUID, ItemStack[]>) loadObjectFromJson(myPluginFolder + "accessories.json"));
-
-        if (StatManager.getBaseStatMap() == null || StatManager.getBaseStatMap().isEmpty()) {
-            getLogger().info("Initializing..");
-            for (World w : Bukkit.getWorlds()) for (Entity e : w.getEntities()) if (e instanceof LivingEntity le) initMap(le);
         }
 
         plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
@@ -89,9 +86,9 @@ public final class Main extends JavaPlugin implements Listener {
 
         getPluginManager().registerEvents(new VanillaManager(), plugin);
         getPluginManager().registerEvents(new SkillManager(), plugin);
-        getPluginManager().registerEvents(new EntityManager(), plugin);
         getPluginManager().registerEvents(new AllItemsListener(), plugin);
         getPluginManager().registerEvents(new AccessoriesListener(), plugin);
+        getPluginManager().registerEvents(new EntityManager(), plugin);
         getPluginManager().registerEvents(this, this);
 
         new NoParticle();
@@ -99,13 +96,25 @@ public final class Main extends JavaPlugin implements Listener {
         new Refresher();
         new LoadItems().registerAllItems();
 
-        //TODO: recombobulator 3000, potato books, and enchants
+        if (isReloading) {
+            loadData();
+            isReloading = false;
+        }
+
+        //TODO: enchants
+        //TODO: save/load data
     }
 
     @Override
     public void onDisable() {
-        saveObjectToJson(StatManager.getBaseStatMap(), new File(getDataFolder().getAbsolutePath()) + "baseMap.json");
-        saveObjectToJson(AccessoriesUtils.getAccessories(), new File(getDataFolder().getAbsolutePath()) + "accessories.json");
+        saveData();
+    }
+
+    // Save all data
+    private void saveData() {
+        dataMapManager1.saveStatsMap(StatManager.getBaseStatMap());
+        dataMapManager2.saveItemStackMap(AccessoriesUtils.getAccessories());
+        getLogger().info("Data saved successfully.");
     }
 
     @EventHandler
@@ -115,7 +124,7 @@ public final class Main extends JavaPlugin implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    if (arrow.getTicksLived() > 40) {
+                    if (arrow.getTicksLived() > 20) {
                         if (!arrow.isValid()) {
                             cancel(); // Stop if the arrow is dead
                             return;

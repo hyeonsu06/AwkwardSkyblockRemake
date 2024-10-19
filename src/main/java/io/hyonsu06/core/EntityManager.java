@@ -20,7 +20,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -30,7 +30,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
-import static io.hyonsu06.Main.plugin;
+import static io.hyonsu06.Main.*;
+import static io.hyonsu06.core.StatManager.remove;
 import static io.hyonsu06.core.functions.NumberTweaks.*;
 import static io.hyonsu06.core.functions.customCauseAndAttacker.causeAndAttacker;
 import static io.hyonsu06.core.functions.getClasses.getItemClasses;
@@ -106,15 +107,35 @@ public class EntityManager implements Listener {
                             }
                         }
                     }
+                    Map<UUID, Map<Stats, Double>> statMap = StatManager.getBaseStatMap();
+                    if (statMap.keySet().stream().findFirst().isEmpty()) return;
+                    for (int i = 0; i < statMap.keySet().size(); i++) {
+                        UUID uuid = statMap.keySet().iterator().next();
+                        if (uuid == null) return;
+                        try {
+                            if (!Bukkit.getEntity(uuid).isValid()) {
+                                remove(uuid);
+                            }
+                        } catch (NullPointerException ignored) {
+                            remove(uuid);
+                        }
+                    }
                 }
             }
         }.runTaskTimer(plugin, 0, 1);
     }
-
     @EventHandler
-    public void onWorldLoad(WorldLoadEvent event) {
-        for (Entity entity : event.getWorld().getEntities()) {
-            entity.remove();
+    public void onServerLoad(ServerLoadEvent event) {
+        loadData();
+
+        if (StatManager.getBaseStatMap() == null || StatManager.getBaseStatMap().isEmpty()) {
+            getLogger().info("Map is null, initializing...");
+            StatManager.setBaseStatMap(new HashMap<>());
+            for (World world : Bukkit.getWorlds()) for (Entity entity : world.getEntities()) {
+                if (entity instanceof LivingEntity e) {
+                    initEntity(e);
+                }
+            }
         }
     }
 
@@ -143,8 +164,13 @@ public class EntityManager implements Listener {
         Player p = event.getPlayer();
         p.setHealthScale(20);
         double intelligence = 100d;
-        Map<Stats, Double> statMap = StatManager.getBaseStatMap().get(p.getUniqueId());
-        if (statMap == null) {
+        Map<UUID, Map<Stats, Double>> map = StatManager.getBaseStatMap();
+        if (map == null) {
+            map = new HashMap<>();
+            map.put(p.getUniqueId(), new HashMap<>());
+        }
+        Map<Stats, Double> statMap = map.get(p.getUniqueId());
+        if (statMap == null || statMap.isEmpty()) {
             statMap = new HashMap<>();
             statMap.put(Stats.DAMAGE, 1d);
             statMap.put(Stats.STRENGTH, 0d);
@@ -165,27 +191,38 @@ public class EntityManager implements Listener {
 
             statMap.put(Stats.LUCK, 100d);
 
-            StatManager.getBaseStatMap().put(event.getPlayer().getUniqueId(), statMap);
+            if (StatManager.getBaseStatMap() == null) StatManager.getBaseStatMap().put(p.getUniqueId(), new HashMap<>());
+            StatManager.getBaseStatMap().put(p.getUniqueId(), statMap);
+        }
 
+        if (!StatManager.getSkillBonusMap().containsKey(p.getUniqueId())) {
             StatManager.getSkillBonusMap().put(p.getUniqueId(), new HashMap<>());
             for (Stats stat : Stats.values()) StatManager.getSkillBonusMap().get(p.getUniqueId()).put(stat, 0d);
+            Map<UUID, Map<String, Integer>> map2 = SkillManager.getCooldownMap();
+            if (!map2.containsKey(p.getUniqueId()))
+                map2.put(p.getUniqueId(), new HashMap<>());  // Initialize if not present
 
-            // Ensure the player's cooldown map exists
-            SkillManager.getCooldownMap().computeIfAbsent(p.getUniqueId(), k -> new HashMap<>());
             for (Class<?> clazz : getSkillClasses()) {
                 Skill skill = clazz.getAnnotation(Skill.class);
-                SkillManager.getCooldownMap().get(p.getUniqueId()).putIfAbsent(skill.ID(), 0);
+                if (!map2.get(p.getUniqueId()).containsKey(skill.ID())) map2.get(p.getUniqueId()).put(skill.ID(), 0);
             }
-
-            AccessoriesUtils.getAccessories().computeIfAbsent(p.getUniqueId(), k -> new ItemStack[]{});
-
-            p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(statMap.get(Stats.HEALTH));
-            p.setHealth(statMap.get(Stats.HEALTH));
+            SkillManager.setCooldownMap(map2);
         }
 
-        if (Objects.nonNull(StatManager.getFinalStatMap().get(p.getUniqueId()))) {
-            intelligence = StatManager.getFinalStatMap().get(p.getUniqueId()).get(Stats.INTELLIGENCE);
+        Map<UUID, ItemStack[]> accessories = AccessoriesUtils.getAccessories();
+        if (accessories == null || accessories.isEmpty()) {
+            // Ensure the map is mutable and initialized
+            if (accessories == null) {
+                accessories = new HashMap<>(); // Initialize if it's null
+                AccessoriesUtils.setAccessories(accessories); // Assume you have a way to set it
+            }
+            accessories.putIfAbsent(p.getUniqueId(), new ItemStack[]{});
         }
+
+        p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(statMap.get(Stats.HEALTH));
+        p.setHealth(statMap.get(Stats.HEALTH));
+
+        if (Objects.nonNull(StatManager.getFinalStatMap().get(p.getUniqueId()))) intelligence = StatManager.getFinalStatMap().get(p.getUniqueId()).get(Stats.INTELLIGENCE);
         playerIntelligence.put(p.getUniqueId(), intelligence);
 
         BukkitRunnable runnable = new BukkitRunnable() {
@@ -463,7 +500,11 @@ public class EntityManager implements Listener {
 
     @EventHandler
     public void onEntityRemove(EntityRemoveFromWorldEvent event) {
-        if (!(event.getEntity() instanceof Player)) StatManager.remove(event.getEntity().getUniqueId());
+        if (!(event.getEntity() instanceof Player)) {
+            try {
+                StatManager.remove(event.getEntity().getUniqueId());
+            } catch (NullPointerException ignored) {}
+        }
     }
 
     @EventHandler
@@ -506,7 +547,7 @@ public class EntityManager implements Listener {
         }
     }
 
-    private void initEntity(LivingEntity e) {
+    public static void initEntity(LivingEntity e) {
         if (!(e instanceof Player)) {
             UUID uuid = e.getUniqueId();
             if (StatManager.getBaseStatMap().get(uuid) == null) {
@@ -696,5 +737,12 @@ public class EntityManager implements Listener {
             value = String.join("", s);
         }
         return value;
+    }
+
+    // Load all data
+    public static void loadData() {
+        StatManager.setBaseStatMap(dataMapManager1.loadStatsMap());
+        AccessoriesUtils.setAccessories(dataMapManager2.loadItemStackMap());
+        getLogger().info("Data loaded successfully.");
     }
 }

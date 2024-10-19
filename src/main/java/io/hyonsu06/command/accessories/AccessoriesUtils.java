@@ -25,7 +25,8 @@ public class AccessoriesUtils {
                     items = addItemStack(items, item);
                 }
             }
-            accessories.put(p.getUniqueId(), items);
+            getAccessories().computeIfAbsent(p.getUniqueId(), k -> new ItemStack[]{});
+            getAccessories().put(p.getUniqueId(), items);
         }
     }
 

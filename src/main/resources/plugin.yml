@@ -1,13 +1,13 @@
-name: SkyblockParody
+name: AwkwardSkyblockRemake
 version: '6974'
 main: io.hyonsu06.Main
 api-version: '1.21'
-prefix: SkyblockParody
+prefix: AwkwardSkyblockRemake
 load: STARTUP
 authors: [ (Discord) nuriadofai ]
 description: something dumbass thing that simulates hypixel skyblock
 website: nope
-depend: [ProtocolLib, PlugManX]
+depend: [ProtocolLib]
 commands:
   autobuild:
     description: "Automatically reloads plugin."

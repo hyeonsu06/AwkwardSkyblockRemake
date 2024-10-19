@@ -14,7 +14,7 @@ import org.bukkit.Material;
         name = "Evil Claymore",
         description = "Too heavy to hold.",
         rarity = ItemRarity.MYTHIC,
-        type = ItemType.LONGSWORD,
+        type = ItemType.SWORD,
         material = Material.DIAMOND_SWORD,
         durability = 100000000
 )

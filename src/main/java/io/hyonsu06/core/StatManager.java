@@ -49,11 +49,13 @@ public class StatManager {
 
     private static Map<UUID, Map<Integer, Map<Stats, Double>>> reforgeStatMap = new HashMap<>();
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private static Map<UUID, Map<Stats, Double>> skillBonusMap = new HashMap<>();
 
-    @Getter @Setter
-    private static Map<UUID, Map<Stats, Double>> baseStatMap = new HashMap<>();
+    @Getter
+    @Setter
+    public static Map<UUID, Map<Stats, Double>> baseStatMap = new HashMap<>();
     @Getter
     private static Map<UUID, Map<Stats, Double>> finalStatMap = new HashMap<>();
 
@@ -150,7 +152,8 @@ public class StatManager {
             if (meta != null) {
                 int count;
                 Object temp3 = meta.getPersistentDataContainer().get(getPDC("potato"), PersistentDataType.INTEGER);
-                if (temp3 == null) count = 0; else count = (int) temp3;
+                if (temp3 == null) count = 0;
+                else count = (int) temp3;
 
                 String type = item.getItemMeta().getPersistentDataContainer().get(getPDC("type"), STRING);
                 if (getReforgeType(stringTypeToItemType(type)) == ReforgeType.MELEE) {
@@ -334,14 +337,14 @@ public class StatManager {
         Map<Stats, Double> skillMap = skillBonusMap.get(entityId);
 
         for (Stats stat : Stats.values()) {
-            double itemValue = 0, addValue = 0, mulValue = 1, reforgeValue = 0;
+            double accValue = 0, addValue = 0, mulValue = 1, reforgeValue = 0;
             double total;
-            try {
-                total = baseMap.get(stat);
-            } catch (NullPointerException ignored) {
+            if (baseMap == null) {
                 e.remove();
                 StatManager.remove(entityId);
                 return;
+            } else {
+                total = baseMap.get(stat);
             }
 
             if (e instanceof Player p) {
@@ -360,7 +363,7 @@ public class StatManager {
                         }
                     }
 
-                    itemValue += accMap.get(i).get(stat);
+                    accValue += accMap.get(i).get(stat);
                     addValue += accAddMap.get(i).get(stat);
                     mulValue += accMulMap.get(i).get(stat) - 1;
                 }
@@ -381,8 +384,10 @@ public class StatManager {
                             boolean isRecombobulatorEXPresent;
                             Object temp1 = currentItem.getPersistentDataContainer().get(getPDC("recombobulator"), PersistentDataType.BOOLEAN);
                             Object temp2 = currentItem.getPersistentDataContainer().get(getPDC("recombobulatorEX"), PersistentDataType.BOOLEAN);
-                            if (temp1 == null) isRecombobulatorPresent = false; else isRecombobulatorPresent = (boolean) temp1;
-                            if (temp2 == null) isRecombobulatorEXPresent = false; else isRecombobulatorEXPresent = (boolean) temp2;
+                            if (temp1 == null) isRecombobulatorPresent = false;
+                            else isRecombobulatorPresent = (boolean) temp1;
+                            if (temp2 == null) isRecombobulatorEXPresent = false;
+                            else isRecombobulatorEXPresent = (boolean) temp2;
 
                             for (Class<?> clazz2 : getItemClasses()) {
                                 if (clazz2.getAnnotation(ItemMetadata.class).ID().equals(getItemID(currentItem))) {
@@ -395,7 +400,6 @@ public class StatManager {
                                     }
 
                                     rarityNumber = rarityToIndex(rarity);
-                                    continue;
                                 }
 
                                 Map<Stats, Double[]> reforgeMap2 = new HashMap<>();
@@ -422,7 +426,7 @@ public class StatManager {
                             }
                         }
                     }
-                    if (reforgeMap.get(i) != null ) reforgeValue += reforgeMap.get(i).get(stat);
+                    if (reforgeMap.get(i) != null) reforgeValue += reforgeMap.get(i).get(stat);
                 }
             }
 
@@ -435,12 +439,17 @@ public class StatManager {
                 finalMulValue *= (mulMap.get(slot).get(stat) - 1);
             }
 
-            finalBaseValue += itemValue;
+            finalBaseValue += accValue;
             finalAddValue += addValue;
             finalMulValue += mulValue;
 
             total += (finalBaseValue * finalMulValue) + finalAddValue;
-            if (e instanceof Player) total += skillMap.get(stat);
+            if (e instanceof Player p) {
+                if (skillMap == null) {
+                    StatManager.getSkillBonusMap().put(p.getUniqueId(), new HashMap<>());
+                    for (Stats stat2 : Stats.values()) StatManager.getSkillBonusMap().get(p.getUniqueId()).put(stat2, 0d);
+                } else total += skillMap.get(stat);
+            }
 
             finalStats.put(stat, total);
         }
@@ -468,7 +477,8 @@ public class StatManager {
         if (i == 1 && type == ItemType.CHESTPLATE) return true;
         if (i == 2 && type == ItemType.LEGGINGS) return true;
         if (i == 3 && type == ItemType.BOOTS) return true;
-        if (i == 4 && !(type == ItemType.HELMET || type == ItemType.CHESTPLATE || type == ItemType.LEGGINGS || type == ItemType.BOOTS) && type != ItemType.ACCESSORY) return true;
+        if (i == 4 && !(type == ItemType.HELMET || type == ItemType.CHESTPLATE || type == ItemType.LEGGINGS || type == ItemType.BOOTS) && type != ItemType.ACCESSORY)
+            return true;
         return i >= 5 && type == ItemType.ACCESSORY;
     }
 

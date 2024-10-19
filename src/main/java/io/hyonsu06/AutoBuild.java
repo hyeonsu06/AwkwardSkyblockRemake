@@ -1,10 +1,8 @@
 package io.hyonsu06;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -12,7 +10,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+import static io.hyonsu06.Main.isReloading;
 import static io.hyonsu06.Main.plugin;
+import static org.bukkit.Bukkit.getPluginManager;
 
 public class AutoBuild extends Command implements CommandExecutor {
 
@@ -39,17 +39,13 @@ public class AutoBuild extends Command implements CommandExecutor {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    return;
-                } catch (NoSuchElementException ignored) {
-                }
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "plugman reload SkyblockParody");
-                    }
-                }.runTask(plugin);
+                } catch (NoSuchElementException ignored) {}
             }
         }.start();
+
+        isReloading = true;
+        getPluginManager().disablePlugin(plugin);
+        getPluginManager().enablePlugin(plugin);
         return true;
     }
 }
