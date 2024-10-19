@@ -29,9 +29,7 @@ public class EntityLimiter implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void limit(EntitySpawnEvent event) {
-        if (event.getEntity() instanceof LivingEntity) {
-            int limit = 300;
+            int limit = 500;
             if (count + 1 > limit) event.setCancelled(true);
-        }
     }
 }
