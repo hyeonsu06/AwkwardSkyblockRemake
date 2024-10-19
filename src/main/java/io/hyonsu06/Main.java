@@ -3,6 +3,7 @@ package io.hyonsu06;
 import io.hyonsu06.command.accessories.AccessoriesListener;
 import io.hyonsu06.command.accessories.AccessoriesUtils;
 import io.hyonsu06.command.accessories.ShowAccessoriesCommand;
+import io.hyonsu06.command.autobuild.AutoBuild;
 import io.hyonsu06.command.items.LoadItems;
 import io.hyonsu06.command.items.ShowAllItemsCommand;
 import io.hyonsu06.command.items.AllItemsListener;
@@ -95,6 +96,13 @@ public final class Main extends JavaPlugin implements Listener {
         if (isReloading) {
             getLogger().info("Seems plugin is on reload, remapping stat map...");
             loadData();
+
+            itemReflections = null;
+            skillReflections = null;
+            reforgeReflections = null;
+            getSkillClasses();
+            getItemClasses();
+            getReforgeClasses();
         }
 
         //TODO: enchants

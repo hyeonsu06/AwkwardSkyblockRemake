@@ -8,9 +8,9 @@ import org.reflections.Reflections;
 import java.util.Set;
 
 public class getClasses {
-    private static Set<Class<?>> itemReflections;
-    private static Set<Class<?>> skillReflections;
-    private static Set<Class<?>> reforgeReflections;
+    public static Set<Class<?>> itemReflections;
+    public static Set<Class<?>> skillReflections;
+    public static Set<Class<?>> reforgeReflections;
 
     public static Set<Class<?>> getItemClasses() {
         if (itemReflections == null) {

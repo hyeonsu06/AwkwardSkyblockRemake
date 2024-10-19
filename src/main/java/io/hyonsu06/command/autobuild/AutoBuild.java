@@ -1,4 +1,4 @@
-package io.hyonsu06;
+package io.hyonsu06.command.autobuild;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
