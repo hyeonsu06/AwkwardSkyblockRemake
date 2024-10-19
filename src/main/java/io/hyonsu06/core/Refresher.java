@@ -51,17 +51,17 @@ public class Refresher {
             public void run() {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     for (int slot = 0; slot < p.getInventory().getSize(); slot++) {
-                        if (p.getInventory().getItem(slot) != null) p.getInventory().setItem(slot, refreshItemVisuals(p, p.getInventory().getItem(slot)));
+                        if (p.getInventory().getItem(slot) != null) refreshItemVisuals(p, p.getInventory().getItem(slot));
                     }
                 }
             }
         }.runTaskTimer(plugin, 0, 1);
     }
 
-    public ItemStack refreshItemVisuals(Player player, ItemStack item) {
+    public void refreshItemVisuals(Player player, ItemStack item) {
         // Check if item has ItemMetadata
         ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.getPersistentDataContainer().has(getPDC("id"), PersistentDataType.STRING)) return item; // No valid item metadata
+        if (meta == null || !meta.getPersistentDataContainer().has(getPDC("id"), PersistentDataType.STRING)) return; // No valid item metadata
 
         String reforge = meta.getPersistentDataContainer().get(getPDC("reforge"), PersistentDataType.STRING);
         Class<?> reforgeClass = null;
@@ -247,7 +247,6 @@ public class Refresher {
         item.setItemMeta(meta);
         item.setDurability(finalDurability);
         item.setType(metadata.material());
-        return item;
     }
 
     private Class<?> findClassById(String id) {

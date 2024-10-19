@@ -80,7 +80,7 @@ public class VanillaManager implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onSpawn(EntitySpawnEvent e) {
         EntityType type = e.getEntity().getType();
         if (type.equals(EntityType.WITHER)) {

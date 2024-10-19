@@ -488,10 +488,9 @@ public class StatManager {
         additiveStatMap.remove(uuid);
         multiplicativeStatMap.remove(uuid);
         finalStatMap.remove(uuid);
-        getLogger().warning(uuid + "had wrong data, removed");
     }
 
-    public static void initMap(LivingEntity e) {
+    private void initMap(LivingEntity e) {
         UUID entityId = e.getUniqueId();
 
         finalStatMap.put(entityId, new EnumMap<>(Stats.class));
@@ -547,15 +546,11 @@ public class StatManager {
 
         reforgeStatMap.put(e.getUniqueId(), new HashMap<>());
 
-        Map<Stats, Double> reforgeStatMapTemp = new EnumMap<>(Stats.class); // EnumMap for performance
-        Map<Stats, Double> reforgeAddStatMapTemp = new EnumMap<>(Stats.class);
-        Map<Stats, Double> reforgeMulStatMapTemp = new EnumMap<>(Stats.class);
+        Map<Stats, Double> reforgeStatMapTemp = new EnumMap<>(Stats.class);
 
         for (int i = 0; i < slots.length; i++) {
             for (Stats stat : Stats.values()) {
                 reforgeStatMapTemp.put(stat, 0d);
-                reforgeAddStatMapTemp.put(stat, 0d);
-                reforgeMulStatMapTemp.put(stat, 1d);
             }
             reforgeStatMap.get(e.getUniqueId()).put(i, reforgeStatMapTemp);
         }

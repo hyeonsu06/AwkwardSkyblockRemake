@@ -7,7 +7,7 @@ load: STARTUP
 authors: [ (Discord) nuriadofai ]
 description: something dumbass thing that simulates hypixel skyblock
 website: nope
-depend: [ProtocolLib, PlugManX]
+depend: [ProtocolLib]
 commands:
   autobuild:
     description: "Automatically reloads plugin."

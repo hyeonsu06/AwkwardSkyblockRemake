@@ -43,8 +43,6 @@ public final class Main extends JavaPlugin {
         File dataFile2 = new File(getDataFolder(), "accessories.yml");
         dataMapManager2 = new DataMapManager(dataFile2);
 
-        getPluginManager().registerEvents(new PreventUnintendedAction(), plugin);
-
         if (!myPluginFolder.exists()) {
             boolean created = myPluginFolder.mkdirs();
             if (created) {
@@ -57,19 +55,13 @@ public final class Main extends JavaPlugin {
         }
 
         plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
-
         plugin.getCommand("stat").setExecutor(new setStatCommand());
         plugin.getCommand("stat").setTabCompleter(new setStatTabCompleter());
-
         plugin.getCommand("reforge").setExecutor(new ReforgeCommand());
         plugin.getCommand("reforge").setTabCompleter(new ReforgeTabCompleter());
-
         plugin.getCommand("accessories").setExecutor(new ShowAccessoriesCommand());
-
         plugin.getCommand("recombobulate").setExecutor(new RecombobulatorCommand());
-
         plugin.getCommand("potato").setExecutor(new PotatoBookCommand());
-
         plugin.getCommand("autobuild").setExecutor(new AutoBuild());
 
         if (!isReloading) {
@@ -78,13 +70,12 @@ public final class Main extends JavaPlugin {
             getReforgeClasses();
         }
 
+        getPluginManager().registerEvents(new PreventUnintendedAction(), plugin);
+        getPluginManager().registerEvents(new EntityManager(), plugin);
         getPluginManager().registerEvents(new VanillaManager(), plugin);
         getPluginManager().registerEvents(new SkillManager(), plugin);
         getPluginManager().registerEvents(new AllItemsListener(), plugin);
         getPluginManager().registerEvents(new AccessoriesListener(), plugin);
-        getPluginManager().registerEvents(new EntityManager(), plugin);
-        getPluginManager().registerEvents(new EntityLimiter(), plugin);
-
         getPluginManager().registerEvents(new DragonHoming(), plugin);
 
         new NoParticle();
@@ -108,7 +99,7 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         saveData();
-        for (BukkitTask task : getScheduler().getPendingTasks()) if (task.getOwner().equals(plugin)) task.cancel();
+        for (BukkitTask task : getScheduler().getPendingTasks()) if (task.getOwner().equals(plugin)) if (!EntityManager.getPlayerTaskMap().containsValue(task.getTaskId())) task.cancel();
     }
 
     // Save all data

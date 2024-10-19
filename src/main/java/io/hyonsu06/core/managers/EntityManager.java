@@ -32,7 +32,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.*;
 
 import static io.hyonsu06.Main.*;
-import static io.hyonsu06.core.managers.StatManager.remove;
 import static io.hyonsu06.core.functions.NumberTweaks.*;
 import static io.hyonsu06.core.functions.customCauseAndAttacker.causeAndAttacker;
 import static io.hyonsu06.core.functions.getClasses.getItemClasses;
@@ -46,7 +45,7 @@ public class EntityManager implements Listener {
     @Getter @Setter
     private static Map<UUID, Double> playerIntelligence = new HashMap<>();
     @Getter
-    private static Map<UUID, Integer> playerTaskMap = new HashMap<>();
+    public static Map<UUID, Integer> playerTaskMap = new HashMap<>();
     @Getter @Setter
     private static Map<UUID, Integer> meleeHits = new HashMap<>();
     @Getter @Setter
@@ -113,13 +112,6 @@ public class EntityManager implements Listener {
                     for (int i = 0; i < statMap.keySet().size(); i++) {
                         UUID uuid = statMap.keySet().iterator().next();
                         if (uuid == null) return;
-                        try {
-                            if (!Bukkit.getEntity(uuid).isValid()) {
-                                remove(uuid);
-                            }
-                        } catch (NullPointerException ignored) {
-                            remove(uuid);
-                        }
                     }
                 }
             }
@@ -133,7 +125,7 @@ public class EntityManager implements Listener {
         if (StatManager.getBaseStatMap() == null || StatManager.getBaseStatMap().isEmpty()) {
             getLogger().info("Map is null, initializing...");
             StatManager.setBaseStatMap(new HashMap<>());
-            for (World world : Bukkit.getWorlds()) for (Entity entity : world.getEntities()) {
+            for (World world : getWorlds()) for (Entity entity : world.getEntities()) {
                 if (entity instanceof LivingEntity e) {
                     initEntity(e);
                 }
@@ -148,36 +140,47 @@ public class EntityManager implements Listener {
         }
     }
 
-    @EventHandler
-    public void onSpawnGeneric(EntitySpawnEvent event) {
-        if (!(event instanceof SpawnerSpawnEvent)) {
-            if (event.getEntity() instanceof LivingEntity e) {
-                if (!(e instanceof TextDisplay) || !(e instanceof Player)) {
-                    initEntity(e);
-                    addDisplay(e);
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onSpawn(EntitySpawnEvent event) {
+        if (event.getEntity() instanceof LivingEntity e) {
+            if (!(e instanceof TextDisplay) && !(e instanceof Player)) {
+                if (!e.getPersistentDataContainer().has(getPDC("displayAdded"), PersistentDataType.BYTE)) {
+                    e.getPersistentDataContainer().set(getPDC("displayAdded"), PersistentDataType.BYTE, (byte) 1);
+
+                    switch (event) {
+                        case CreatureSpawnEvent ignored -> {
+                            if (e.getPassengers().isEmpty()) {
+                                initEntity(e);
+                                addDisplay(e);
+                            }
+                        }
+                        case SpawnerSpawnEvent ignored -> {
+                            if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 10);
+                            if (e.getAttribute(Attribute.GENERIC_ARMOR) != null)
+                                e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(1);
+                            if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 75);
+                            if (e.getPassengers().isEmpty()) {
+                                initEntity(e);
+                                addDisplay(e);
+                            }
+                        }
+                        case TrialSpawnerSpawnEvent ignored -> {
+                            if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 25);
+                            if (e.getAttribute(Attribute.GENERIC_ARMOR) != null)
+                                e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(9);
+                            if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 300);
+                            if (e.getPassengers().isEmpty()) {
+                                initEntity(e);
+                                addDisplay(e);
+                            }
+                        }
+                        default -> throw new IllegalStateException("Unexpected value: " + event);
+                    }
                 }
-            }
-        }
-    }
-
-    @EventHandler
-    public void onSpawnSpawner(SpawnerSpawnEvent event) {
-        if (event.getEntity() instanceof LivingEntity e) {
-            if (!(e instanceof TextDisplay) || !(e instanceof Player)) {
-                initEntity(e);
-                addDisplay(e);
-            }
-        }
-    }
-
-    @EventHandler
-    public void onSpawnTrial(TrialSpawnerSpawnEvent event) {
-        if (event.getEntity() instanceof LivingEntity e) {
-            if (!(e instanceof TextDisplay) || !(e instanceof Player)) {
-                if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 200);
-                if (e.getAttribute(Attribute.GENERIC_ARMOR) != null) e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(9);
-                initEntity(e);
-                addDisplay(e);
             }
         }
     }
@@ -342,7 +345,7 @@ public class EntityManager implements Listener {
                                         }
                                     }
                                     if (attacker instanceof AreaEffectCloud cloud) {
-                                        if (Bukkit.getEntity(cloud.getOwnerUniqueId()).getType().equals(EntityType.ENDER_DRAGON)) {
+                                        if (getEntity(cloud.getOwnerUniqueId()).getType().equals(EntityType.ENDER_DRAGON)) {
                                             if (event.getCause().equals(EntityDamageEvent.DamageCause.DRAGON_BREATH)) {
                                                 baseDamage = 1_000_000d;
                                                 if (victim instanceof Player)
@@ -522,17 +525,23 @@ public class EntityManager implements Listener {
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
-        if (!(event.getEntity() instanceof Player)) StatManager.remove(event.getEntity().getUniqueId());
+        if (!(event.getEntity() instanceof Player)) {
+            StatManager.remove(event.getEntity().getUniqueId());
+        }
     }
 
     @EventHandler
     public void onEntityRemove(EntityRemoveFromWorldEvent event) {
-        StatManager.remove(event.getEntity().getUniqueId());
+        if (!(event.getEntity() instanceof Player)) {
+            StatManager.remove(event.getEntity().getUniqueId());
+        }
     }
 
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event) {
-        if (!(event.getEntity() instanceof Player)) StatManager.remove(event.getEntity().getUniqueId());
+        if (!(event.getEntity() instanceof Player)) {
+            StatManager.remove(event.getEntity().getUniqueId());
+        }
     }
 
     @EventHandler
@@ -571,28 +580,26 @@ public class EntityManager implements Listener {
     }
 
     public static void initEntity(LivingEntity e) {
-        if (!(e instanceof Player)) {
+        if (!(e instanceof TextDisplay) && !(e instanceof Player)) {
             UUID uuid = e.getUniqueId();
-            if (StatManager.getBaseStatMap().get(uuid) == null) {
-                Map<Stats, Double> statMap = new HashMap<>();
-                for (Stats stat : Stats.values()) statMap.put(stat, 0d);
+            Map<Stats, Double> statMap = new HashMap<>();
+            for (Stats stat : Stats.values()) statMap.put(stat, 0d);
 
-                if (Objects.nonNull(e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)))
-                    statMap.put(Stats.DAMAGE, e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 10);
-                if (Objects.nonNull(e.getAttribute(Attribute.GENERIC_MAX_HEALTH))) {
-                    statMap.put(Stats.HEALTH, e.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() * 5);
-                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(statMap.get(Stats.HEALTH));
-                    e.setHealth(statMap.get(Stats.HEALTH));
-                }
-                if (Objects.nonNull(e.getAttribute(Attribute.GENERIC_ARMOR)) || e.getAttribute(Attribute.GENERIC_ARMOR).getBaseValue() == -1000)
-                    statMap.put(Stats.DEFENSE, e.getAttribute(Attribute.GENERIC_ARMOR).getBaseValue());
-                if (Objects.nonNull(e.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED)))
-                    statMap.put(Stats.SPEED, e.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getBaseValue() * 1000);
-
-                StatManager.getBaseStatMap().put(uuid, statMap);
-                e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(-1000);
-                e.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).setBaseValue(-1000);
+            if (Objects.nonNull(e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)))
+                statMap.put(Stats.DAMAGE, e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 10);
+            if (Objects.nonNull(e.getAttribute(Attribute.GENERIC_MAX_HEALTH))) {
+                statMap.put(Stats.HEALTH, e.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() * 5);
+                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(statMap.get(Stats.HEALTH));
+                e.setHealth(statMap.get(Stats.HEALTH));
             }
+            if (Objects.nonNull(e.getAttribute(Attribute.GENERIC_ARMOR)) || e.getAttribute(Attribute.GENERIC_ARMOR).getBaseValue() == -1000)
+                statMap.put(Stats.DEFENSE, e.getAttribute(Attribute.GENERIC_ARMOR).getBaseValue());
+            if (Objects.nonNull(e.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED)))
+                statMap.put(Stats.SPEED, e.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getBaseValue() * 1000);
+
+            StatManager.getBaseStatMap().put(uuid, statMap);
+            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(-1000);
+            e.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).setBaseValue(-1000);
         }
     }
 
@@ -627,8 +634,13 @@ public class EntityManager implements Listener {
     }
 
     private void addDisplay(LivingEntity e) {
-        if (!e.getType().equals(EntityType.PLAYER) || !e.getType().equals(EntityType.TEXT_DISPLAY)) {
+        if (!(e instanceof TextDisplay) && !(e instanceof Player)) {
             if (e.getPassengers().isEmpty()) {
+                try {
+                    e.getPassengers().removeFirst();
+                } catch (NoSuchElementException ignored) {
+                }
+
                 TextDisplay display = e.getWorld().spawn(e.getLocation(), TextDisplay.class);
                 display.setAlignment(TextDisplay.TextAlignment.CENTER);
                 display.setSeeThrough(false);
@@ -646,7 +658,12 @@ public class EntityManager implements Listener {
                 String text = name + " " + ChatColor.GREEN + shortNumber(e.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(e.getMaxHealth()) + ChatColor.RED + "❤";
                 display.setText(text);
 
-                e.addPassenger(display);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        e.addPassenger(display);
+                    }
+                }.runTaskLater(plugin, 1);
             }
         }
     }
