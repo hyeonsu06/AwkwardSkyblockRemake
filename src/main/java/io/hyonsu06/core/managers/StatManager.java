@@ -339,7 +339,7 @@ public class StatManager {
         for (Stats stat : Stats.values()) {
             double accValue = 0, addValue = 0, mulValue = 1, reforgeValue = 0;
             double total;
-            if (baseMap == null) {
+            if (baseMap == null || baseMap.isEmpty()) {
                 e.remove();
                 StatManager.remove(entityId);
                 return;

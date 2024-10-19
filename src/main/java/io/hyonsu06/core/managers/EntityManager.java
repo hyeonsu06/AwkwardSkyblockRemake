@@ -93,6 +93,10 @@ public class EntityManager implements Listener {
                             if (statMap.containsKey(e.getUniqueId())) {
                                 if (e.getUniqueId().equals(uuid)) {
                                     Map<Stats, Double> entityStatMap = statMap.get(e.getUniqueId());
+                                    if (entityStatMap == null) {
+                                        e.remove();
+                                        break;
+                                    }
                                     double health = entityStatMap.get(Stats.HEALTH);
                                     double damage = 0d;
                                     if (Objects.nonNull(entityStatMap.get(Stats.DAMAGE)))
@@ -105,13 +109,21 @@ public class EntityManager implements Listener {
                                     e.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed / 1000);
                                 }
                             }
+                            /*
+                            for (Stats stats : Stats.values()) {
+                                if (statMap.get(e.getUniqueId()) == null || statMap.get(e.getUniqueId()).isEmpty()) {
+                                    for (Entity ent : e.getPassengers()) ent.remove();
+                                    e.remove();
+                                    return;
+                                }
+                                if (statMap.get(e.getUniqueId()).get(stats) != null)
+                                    if (statMap.get(e.getUniqueId()).get(stats) < 0)
+                                        statMap.get(e.getUniqueId()).put(stats, 0d);
+                            }
+                            StatManager.getBaseStatMap().put(e.getUniqueId(), statMap.get(e.getUniqueId()));
+
+                             */
                         }
-                    }
-                    Map<UUID, Map<Stats, Double>> statMap = StatManager.getBaseStatMap();
-                    if (statMap.keySet().stream().findFirst().isEmpty()) return;
-                    for (int i = 0; i < statMap.keySet().size(); i++) {
-                        UUID uuid = statMap.keySet().iterator().next();
-                        if (uuid == null) return;
                     }
                 }
             }
@@ -136,11 +148,15 @@ public class EntityManager implements Listener {
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
         for (Entity e : event.getWorld().getEntities()) {
-            if (e instanceof LivingEntity le) addDisplay(le);
+            if (e instanceof LivingEntity le) {
+                if (e.getPassengers().isEmpty()){
+                    addDisplay(le);
+                }
+            }
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler
     public void onSpawn(EntitySpawnEvent event) {
         if (event.getEntity() instanceof LivingEntity e) {
             if (!(e instanceof TextDisplay) && !(e instanceof Player)) {
@@ -149,34 +165,28 @@ public class EntityManager implements Listener {
 
                     switch (event) {
                         case CreatureSpawnEvent ignored -> {
-                            if (e.getPassengers().isEmpty()) {
                                 initEntity(e);
                                 addDisplay(e);
-                            }
                         }
                         case SpawnerSpawnEvent ignored -> {
                             if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
-                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 10);
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 3);
                             if (e.getAttribute(Attribute.GENERIC_ARMOR) != null)
                                 e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(1);
                             if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
-                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 75);
-                            if (e.getPassengers().isEmpty()) {
-                                initEntity(e);
-                                addDisplay(e);
-                            }
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 10);
+                            initEntity(e);
+                            addDisplay(e);
                         }
                         case TrialSpawnerSpawnEvent ignored -> {
                             if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
-                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 25);
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 10);
                             if (e.getAttribute(Attribute.GENERIC_ARMOR) != null)
                                 e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(9);
                             if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
-                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 300);
-                            if (e.getPassengers().isEmpty()) {
-                                initEntity(e);
-                                addDisplay(e);
-                            }
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 100);
+                            initEntity(e);
+                            addDisplay(e);
                         }
                         default -> throw new IllegalStateException("Unexpected value: " + event);
                     }
@@ -191,10 +201,6 @@ public class EntityManager implements Listener {
         p.setHealthScale(20);
         double intelligence = 100d;
         Map<UUID, Map<Stats, Double>> map = StatManager.getBaseStatMap();
-        if (map == null) {
-            map = new HashMap<>();
-            map.put(p.getUniqueId(), new HashMap<>());
-        }
         Map<Stats, Double> statMap = map.get(p.getUniqueId());
         if (statMap == null || statMap.isEmpty()) {
             statMap = new HashMap<>();
@@ -217,7 +223,6 @@ public class EntityManager implements Listener {
 
             statMap.put(Stats.LUCK, 100d);
 
-            if (StatManager.getBaseStatMap() == null) StatManager.getBaseStatMap().put(p.getUniqueId(), new HashMap<>());
             StatManager.getBaseStatMap().put(p.getUniqueId(), statMap);
         }
 
@@ -336,15 +341,16 @@ public class EntityManager implements Listener {
                                 if (!(attacker instanceof Player)) {
                                     if (attacker instanceof Warden) {
                                         if (event.getCause().equals(EntityDamageEvent.DamageCause.SONIC_BOOM)) {
-                                            baseDamage = 1_000_000_000_000d;
+                                            baseDamage = 1_000_000_000_000d * (defense / (defense + 1));
                                             if (victim instanceof Player)
                                                 victim.sendMessage(message("Warden's Sonic Boom hitting your for {0} true damage.", new long[]{(long) baseDamage}));
+                                            baseDamage = 1_000_000_000_000d;
                                         }
                                     }
                                     if (attacker instanceof AreaEffectCloud cloud) {
-                                        if (getEntity(cloud.getOwnerUniqueId()).getType().equals(EntityType.ENDER_DRAGON)) {
+                                        if (getEntity(cloud.getOwnerUniqueId()) instanceof EnderDragon) {
                                             if (event.getCause().equals(EntityDamageEvent.DamageCause.DRAGON_BREATH)) {
-                                                baseDamage = 1_000_000d;
+                                                baseDamage = 100_000d;
                                                 if (victim instanceof Player)
                                                     victim.sendMessage(message("Ender Dragon's Acid Breath hitting your for {0} damage.", new long[]{(long) baseDamage}));
                                             }
@@ -352,9 +358,15 @@ public class EntityManager implements Listener {
                                     }
                                     if (attacker instanceof ElderGuardian) {
                                         if (event.getCause().equals(EntityDamageEvent.DamageCause.THORNS)) {
-                                            baseDamage = 1_000_000d;
+                                            baseDamage = 10_000d;
                                             if (victim instanceof Player)
                                                 victim.sendMessage(message("Elder Guardian's Thorns hitting your for {0} damage.", new long[]{(long) baseDamage}));
+                                        }
+                                        if (event.getCause().equals(EntityDamageEvent.DamageCause.MAGIC)) {
+                                            baseDamage = 150d;
+                                            if (victim instanceof Player)
+                                                victim.sendMessage(message("Elder Guardian's Thorns hitting your for {0} true damage.", new long[]{(long) baseDamage}));
+
                                         }
                                     }
                                     if (attacker instanceof Fireball) {
@@ -364,11 +376,11 @@ public class EntityManager implements Listener {
                                                 victim.sendMessage(message("Ghast's Fireball hitting your for {0} damage.", new long[]{(long) baseDamage}));
                                         }
                                     }
-                                    if (attacker instanceof Arrow) {
-                                        if (((Arrow) attacker).getShooter() instanceof BlockProjectileSource) {
-                                            baseDamage = 100_000d;
+                                    if (attacker instanceof Projectile) {
+                                        if (((Projectile) attacker).getShooter() instanceof BlockProjectileSource) {
+                                            baseDamage = 50_000d;
                                             if (victim instanceof Player)
-                                                victim.sendMessage(message("Hidden Arrow Trap hit you for {0} damage!", new long[]{(long) baseDamage}));
+                                                victim.sendMessage(message("Hidden Trap hit you for {0} damage!", new long[]{(long) baseDamage}));
                                         }
                                     }
                                 }
@@ -577,15 +589,15 @@ public class EntityManager implements Listener {
     }
 
     public static void initEntity(LivingEntity e) {
-        if (!(e instanceof TextDisplay) && !(e instanceof Player)) {
+        if (!(e instanceof TextDisplay)) {
             UUID uuid = e.getUniqueId();
             Map<Stats, Double> statMap = new HashMap<>();
             for (Stats stat : Stats.values()) statMap.put(stat, 0d);
 
             if (Objects.nonNull(e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)))
-                statMap.put(Stats.DAMAGE, e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 10);
+                statMap.put(Stats.DAMAGE, e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue());
             if (Objects.nonNull(e.getAttribute(Attribute.GENERIC_MAX_HEALTH))) {
-                statMap.put(Stats.HEALTH, e.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() * 5);
+                statMap.put(Stats.HEALTH, e.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
                 e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(statMap.get(Stats.HEALTH));
                 e.setHealth(statMap.get(Stats.HEALTH));
             }

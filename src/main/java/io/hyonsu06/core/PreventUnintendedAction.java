@@ -16,8 +16,8 @@ import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getItemID;
 public class PreventUnintendedAction implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEvent event) {
-        if (Objects.nonNull(getItemID(event.getItem()))) {
-            if (!isArmor(event.getItem()) && event.getAction().isLeftClick()) {
+        if (Objects.nonNull(getItemID(event.getItem())) && !isArmor(event.getItem())) {
+            if (event.getAction().isLeftClick()) {
                 event.setCancelled(true);
                 return;
             }
@@ -30,9 +30,6 @@ public class PreventUnintendedAction implements Listener {
         if (event.getDamager() instanceof LivingEntity e) {
             if (e.getEquipment().getItemInMainHand().getType().equals(Material.BOW) || e.getEquipment().getItemInMainHand().getType().equals(Material.CROSSBOW)) {
                 event.setCancelled(true);
-                if (event.getEntity() instanceof LivingEntity le) {
-                    le.setNoDamageTicks(0);
-                }
             }
         }
     }

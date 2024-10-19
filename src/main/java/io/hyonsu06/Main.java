@@ -71,8 +71,8 @@ public final class Main extends JavaPlugin {
         }
 
         getPluginManager().registerEvents(new PreventUnintendedAction(), plugin);
-        getPluginManager().registerEvents(new EntityManager(), plugin);
         getPluginManager().registerEvents(new VanillaManager(), plugin);
+        getPluginManager().registerEvents(new EntityManager(), plugin);
         getPluginManager().registerEvents(new SkillManager(), plugin);
         getPluginManager().registerEvents(new AllItemsListener(), plugin);
         getPluginManager().registerEvents(new AccessoriesListener(), plugin);

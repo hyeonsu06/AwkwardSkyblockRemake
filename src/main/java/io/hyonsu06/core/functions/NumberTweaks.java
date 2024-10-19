@@ -29,12 +29,18 @@ public class NumberTweaks {
     }
 
     public static String shortNumber(double value) {
-        if (value >= 1_000_000_000) {
-            return String.format("%.1fB", value / 1_000_000_000); // Billions
+        if (value >= 1_000_000_000_000_000_000d) {
+            return String.format("%.1fQi", value / 1_000_000_000_000_000_000d);
+        } else if (value >= 1_000_000_000_000_000d) {
+            return String.format("%.1fQa", value / 1_000_000_000_000_000d);
+        } else if (value >= 1_000_000_000_000d) {
+            return String.format("%.1fT", value / 1_000_000_000_000d);
+        } else if (value >= 1_000_000_000) {
+            return String.format("%.1fB", value / 1_000_000_000);
         } else if (value >= 1_000_000) {
-            return String.format("%.1fM", value / 1_000_000); // Millions
+            return String.format("%.1fM", value / 1_000_000);
         } else if (value >= 1_000) {
-            return String.format("%.1fK", value / 1_000); // Thousands
+            return String.format("%.1fk", value / 1_000);
         } else {
             return String.valueOf((long) value); // No formatting for small numbers
         }
