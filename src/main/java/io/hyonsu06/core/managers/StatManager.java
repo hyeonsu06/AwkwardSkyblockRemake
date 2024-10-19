@@ -349,6 +349,9 @@ public class StatManager {
 
             if (e instanceof Player p) {
                 ItemStack[] accessories = AccessoriesUtils.getAccessories().get(p.getUniqueId());
+                if (accessories == null) {
+                    accessories = new ItemStack[]{};
+                }
                 for (int i = 0; i < accessories.length; i++) {
                     ItemStack accessory = accessories[i];
                     for (Class<?> clazz : getItemClasses()) {
