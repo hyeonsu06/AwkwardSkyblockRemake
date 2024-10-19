@@ -21,6 +21,7 @@ import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerLoadEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -124,6 +125,7 @@ public class EntityManager implements Listener {
             }
         }.runTaskTimer(plugin, 0, 1);
     }
+
     @EventHandler
     public void onServerLoad(ServerLoadEvent event) {
         loadData();
@@ -136,6 +138,13 @@ public class EntityManager implements Listener {
                     initEntity(e);
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent event) {
+        for (Entity e : event.getWorld().getEntities()) {
+            if (e instanceof LivingEntity le) addDisplay(le);
         }
     }
 
