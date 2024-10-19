@@ -58,17 +58,29 @@ public class DataMapManager {
         Map<UUID, Map<Stats, Double>> map = new HashMap<>();
         if (config.contains("players")) {
             for (String key : config.getConfigurationSection("players").getKeys(false)) {
-                UUID uuid = UUID.fromString(key);
-                Map<Stats, Double> statsMap = new HashMap<>();
-                if (config.contains("players." + key + ".stats")) {
-                    for (String statKey : config.getConfigurationSection("players." + key + ".stats").getKeys(false)) {
-                        Stats stat = Stats.valueOf(statKey.toUpperCase()); // Assuming Stats enum names match the keys
-                        double value = config.getDouble("players." + key + ".stats." + statKey);
-                        statsMap.put(stat, value);
+                try {
+                    UUID uuid = UUID.fromString(key);
+                    Map<Stats, Double> statsMap = new HashMap<>();
+                    if (config.contains("players." + key + ".stats")) {
+                        for (String statKey : config.getConfigurationSection("players." + key + ".stats").getKeys(false)) {
+                            try {
+                                Stats stat = Stats.valueOf(statKey.toUpperCase()); // Assuming Stats enum names match the keys
+                                double value = config.getDouble("players." + key + ".stats." + statKey);
+                                statsMap.put(stat, value);
+                            } catch (IllegalArgumentException e) {
+                                System.err.println("Invalid Stat key: " + statKey);
+                            }
+                        }
+                    } else {
+                        System.out.println("No stats found for player: " + key);
                     }
+                    map.put(uuid, statsMap);
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Invalid UUID format for key: " + key);
                 }
-                map.put(uuid, statsMap);
             }
+        } else {
+            System.out.println("No players section found in config.");
         }
         return map;
     }

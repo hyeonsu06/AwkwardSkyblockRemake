@@ -509,11 +509,7 @@ public class EntityManager implements Listener {
 
     @EventHandler
     public void onEntityRemove(EntityRemoveFromWorldEvent event) {
-        if (!(event.getEntity() instanceof Player)) {
-            try {
-                StatManager.remove(event.getEntity().getUniqueId());
-            } catch (NullPointerException ignored) {}
-        }
+        StatManager.remove(event.getEntity().getUniqueId());
     }
 
     @EventHandler

@@ -14,9 +14,7 @@ import io.hyonsu06.command.stat.setStatTabCompleter;
 import io.hyonsu06.command.stat.setStatCommand;
 import io.hyonsu06.core.*;
 import io.hyonsu06.core.Refresher;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,11 +25,9 @@ import org.bukkit.util.Vector;
 
 import java.io.*;
 import java.util.Comparator;
-import java.util.HashMap;
 
 import static io.hyonsu06.core.EntityManager.loadData;
 import static io.hyonsu06.core.functions.getClasses.*;
-import static org.bukkit.Bukkit.getLogger;
 import static org.bukkit.Bukkit.getPluginManager;
 
 public final class Main extends JavaPlugin implements Listener {
@@ -96,10 +92,7 @@ public final class Main extends JavaPlugin implements Listener {
         new Refresher();
         new LoadItems().registerAllItems();
 
-        if (isReloading) {
-            loadData();
-            isReloading = false;
-        }
+        loadData();
 
         //TODO: enchants
         //TODO: save/load data
