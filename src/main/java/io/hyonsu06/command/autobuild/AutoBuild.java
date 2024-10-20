@@ -37,9 +37,8 @@ public class AutoBuild extends Command implements CommandExecutor {
                     String s = "[AutoBuild] " + scanner.nextLine();
                     getLogger().info(s);
                 }
-            } catch (IOException e) {
+            } catch (IOException | NoSuchElementException e) {
                 e.printStackTrace();
-            } catch (NoSuchElementException ignored) {
             }
         });
 
