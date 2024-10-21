@@ -20,7 +20,7 @@ public class NumberTweaks {
 
     // This method is based on generation of ChatGPT
     public static String numberFormat(double number) {
-        return NumberFormat.getInstance().format(number);
+        return NumberFormat.getInstance().format((long) number);
     }
 
     public static String shortNumber(double value) {
