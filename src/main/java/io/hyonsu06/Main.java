@@ -124,7 +124,6 @@ public final class Main extends JavaPlugin {
         StatManager.setBaseStatMap(null);
         AccessoriesUtils.setAccessories(null);
         setSkillMapOfEntity.setSkillMap(null);
-        SkillManager.setCooldownMap(null);
     }
 
     // Save all data
