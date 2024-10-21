@@ -24,7 +24,7 @@ public class NumberTweaks {
             return String.format("%,d", (long) number);
         } else {
             // Format with decimal points (if needed)
-            return String.format("%,f", number);
+            return String.format("%,1f", number);
         }
     }
 
