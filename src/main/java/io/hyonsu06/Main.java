@@ -93,9 +93,6 @@ public final class Main extends JavaPlugin {
             getLogger().info("Seems plugin is on reload, remapping stat map...");
             loadData();
         }
-
-        //TODO: enchantments
-        //TODO: fix entity gone on restart
     }
 
     @Override
