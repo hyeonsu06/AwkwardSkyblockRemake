@@ -31,7 +31,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.projectiles.BlockProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
 import java.util.*;
 
 import static io.hyonsu06.Main.*;
@@ -830,8 +829,6 @@ public class EntityManager implements Listener {
     public static void loadData() {
         StatManager.setBaseStatMap(dataMapManager1.loadStatsMap());
         AccessoriesUtils.setAccessories(dataMapManager2.loadItemStackMap());
-        new File(plugin.getDataFolder(), "baseMap.yml").delete();
-        new File(plugin.getDataFolder(), "accessories.yml").delete();
         getLogger().info("Data loaded successfully.");
     }
 }
