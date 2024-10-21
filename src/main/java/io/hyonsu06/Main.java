@@ -23,7 +23,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -66,6 +65,8 @@ public final class Main extends JavaPlugin {
             getSkillClasses();
             getItemClasses();
             getReforgeClasses();
+
+            new LoadItems().registerAllItems();
         }
         plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
         plugin.getCommand("stat").setExecutor(new setStatCommand());
@@ -97,7 +98,6 @@ public final class Main extends JavaPlugin {
         new StatManager();
         new NoParticle();
         new Refresher();
-        new LoadItems().registerAllItems();
 
         for (World w : Bukkit.getWorlds())
             for (Entity e : w.getEntities())
