@@ -18,6 +18,7 @@ import io.hyonsu06.command.stat.setStatCommand;
 import io.hyonsu06.core.*;
 import io.hyonsu06.core.Refresher;
 import io.hyonsu06.core.managers.*;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -99,6 +100,7 @@ public final class Main extends JavaPlugin {
     public void onDisable() {
         saveData();
         for (BukkitTask task : getScheduler().getPendingTasks()) if (task.getOwner().equals(plugin)) if (!EntityManager.getPlayerTaskMap().containsValue(task.getTaskId())) task.cancel();
+        HandlerList.unregisterAll(plugin);
     }
 
     // Save all data
