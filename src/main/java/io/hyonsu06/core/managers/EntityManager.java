@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Block;
+import org.bukkit.block.TrialSpawner;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -29,16 +31,18 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.projectiles.BlockProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
 import java.util.*;
 
 import static io.hyonsu06.Main.*;
+import static io.hyonsu06.core.Refresher.findClassById;
 import static io.hyonsu06.core.functions.NumberTweaks.*;
 import static io.hyonsu06.core.functions.customCauseAndAttacker.causeAndAttacker;
-import static io.hyonsu06.core.functions.getClasses.getItemClasses;
 import static io.hyonsu06.core.functions.getClasses.getSkillClasses;
 import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getItemID;
 import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getPDC;
 import static io.hyonsu06.core.functions.setImmuneTime.setNoDamageTicks;
+import static io.hyonsu06.core.managers.VanillaEntityManager.modifyData;
 import static org.bukkit.Bukkit.*;
 
 public class EntityManager implements Listener {
@@ -93,10 +97,6 @@ public class EntityManager implements Listener {
                             if (statMap.containsKey(e.getUniqueId())) {
                                 if (e.getUniqueId().equals(uuid)) {
                                     Map<Stats, Double> entityStatMap = statMap.get(e.getUniqueId());
-                                    if (entityStatMap == null) {
-                                        e.remove();
-                                        break;
-                                    }
                                     double health = entityStatMap.get(Stats.HEALTH);
                                     double damage = 0d;
                                     if (Objects.nonNull(entityStatMap.get(Stats.DAMAGE)))
@@ -109,20 +109,6 @@ public class EntityManager implements Listener {
                                     e.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed / 1000);
                                 }
                             }
-                            /*
-                            for (Stats stats : Stats.values()) {
-                                if (statMap.get(e.getUniqueId()) == null || statMap.get(e.getUniqueId()).isEmpty()) {
-                                    for (Entity ent : e.getPassengers()) ent.remove();
-                                    e.remove();
-                                    return;
-                                }
-                                if (statMap.get(e.getUniqueId()).get(stats) != null)
-                                    if (statMap.get(e.getUniqueId()).get(stats) < 0)
-                                        statMap.get(e.getUniqueId()).put(stats, 0d);
-                            }
-                            StatManager.getBaseStatMap().put(e.getUniqueId(), statMap.get(e.getUniqueId()));
-
-                             */
                         }
                     }
                 }
@@ -143,6 +129,9 @@ public class EntityManager implements Listener {
                 }
             }
         }
+        int i = 0;
+        for (World world : getWorlds()) for (Entity ignored : world.getEntities()) i++;
+        getLogger().info("entity count: " + i);
     }
 
     @EventHandler
@@ -156,21 +145,23 @@ public class EntityManager implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onSpawn(EntitySpawnEvent event) {
         if (event.getEntity() instanceof LivingEntity e) {
             if (!(e instanceof TextDisplay) && !(e instanceof Player)) {
                 if (!e.getPersistentDataContainer().has(getPDC("displayAdded"), PersistentDataType.BYTE)) {
                     e.getPersistentDataContainer().set(getPDC("displayAdded"), PersistentDataType.BYTE, (byte) 1);
 
+                    modifyData(event);
+
                     switch (event) {
                         case CreatureSpawnEvent ignored -> {
-                                initEntity(e);
-                                addDisplay(e);
+                            initEntity(e);
+                            addDisplay(e);
                         }
                         case SpawnerSpawnEvent ignored -> {
                             if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
-                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 3);
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 30);
                             if (e.getAttribute(Attribute.GENERIC_ARMOR) != null)
                                 e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(1);
                             if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
@@ -179,12 +170,21 @@ public class EntityManager implements Listener {
                             addDisplay(e);
                         }
                         case TrialSpawnerSpawnEvent ignored -> {
-                            if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
-                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 10);
-                            if (e.getAttribute(Attribute.GENERIC_ARMOR) != null)
-                                e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(9);
-                            if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
-                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 100);
+                            if (hasOminousTrialSpawner(getBlocksInRadius(e, 5))) {
+                                if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
+                                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 10000);
+                                if (e.getAttribute(Attribute.GENERIC_ARMOR) != null)
+                                    e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(9);
+                                if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
+                                    e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 2000);
+                                e.getPersistentDataContainer().set(getPDC("ominous"), PersistentDataType.BOOLEAN, true);
+                            } else {
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 1000);
+                                if (e.getAttribute(Attribute.GENERIC_ARMOR) != null)
+                                    e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(4);
+                                if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
+                                    e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 100);
+                            }
                             initEntity(e);
                             addDisplay(e);
                         }
@@ -241,7 +241,7 @@ public class EntityManager implements Listener {
         }
 
         Map<UUID, ItemStack[]> accessories = AccessoriesUtils.getAccessories();
-        if (accessories == null) {
+        if (accessories == null || accessories.isEmpty()) {
             accessories = new HashMap<>(); // Initialize if it's null
             AccessoriesUtils.setAccessories(accessories); // Assume you have a way to set it
             accessories.putIfAbsent(p.getUniqueId(), new ItemStack[]{});
@@ -270,7 +270,7 @@ public class EntityManager implements Listener {
                     regen = 100;
                 }
 
-                double heal = (max / 20) * asPercentageMultiplier(regen);
+                double heal = (max / 25) * asPercentageMultiplier(regen);
                 playerIntelligence.put(p.getUniqueId(), Math.min(max, current + heal));
             }
         };
@@ -558,19 +558,23 @@ public class EntityManager implements Listener {
         event.setDamage(0);
         ItemStack i = event.getItem();
         if (getItemID(i) == null) return;
+        Integer level = i.getPersistentDataContainer().get(getPDC("unbreaking"), PersistentDataType.INTEGER);
+        if (level == null) level = 0;
         Player p = event.getPlayer();
 
-        long damage = i.getItemMeta().getPersistentDataContainer().get(getPDC("damage"), PersistentDataType.LONG);
-        long durability = findClassById(getItemID(i)).getAnnotation(ItemMetadata.class).durability() - damage;
-        durability--;
-        ItemMeta meta = i.getItemMeta();
-        meta.getPersistentDataContainer().set(getPDC("damage"), PersistentDataType.LONG, damage + 1);
-        i.setItemMeta(meta);
+        if (new Random().nextInt(100) > (20 * level)) {
+            long damage = i.getItemMeta().getPersistentDataContainer().get(getPDC("damage"), PersistentDataType.LONG);
+            long durability = findClassById(getItemID(i)).getAnnotation(ItemMetadata.class).durability() - damage;
+            durability--;
+            ItemMeta meta = i.getItemMeta();
+            meta.getPersistentDataContainer().set(getPDC("damage"), PersistentDataType.LONG, damage + 1);
+            i.setItemMeta(meta);
 
-        if (durability <= 0) {
-            ((Inventory) ((LivingEntity) p).getEquipment()).remove(i);
-            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
-            p.sendMessage(ChatColor.RED + "Your Item " + i.getItemMeta().getDisplayName() + ChatColor.RED + " broke!");
+            if (durability <= 0) {
+                ((Inventory) ((LivingEntity) p).getEquipment()).remove(i);
+                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
+                p.sendMessage(ChatColor.RED + "Your Item " + i.getItemMeta().getDisplayName() + ChatColor.RED + " broke!");
+            }
         }
     }
 
@@ -581,7 +585,7 @@ public class EntityManager implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onDismount(EntityDismountEvent event) {
         if (event.getEntity() instanceof TextDisplay display) {
             display.remove();
@@ -598,7 +602,6 @@ public class EntityManager implements Listener {
                 statMap.put(Stats.DAMAGE, e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue());
             if (Objects.nonNull(e.getAttribute(Attribute.GENERIC_MAX_HEALTH))) {
                 statMap.put(Stats.HEALTH, e.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(statMap.get(Stats.HEALTH));
                 e.setHealth(statMap.get(Stats.HEALTH));
             }
             if (Objects.nonNull(e.getAttribute(Attribute.GENERIC_ARMOR)) || e.getAttribute(Attribute.GENERIC_ARMOR).getBaseValue() == -1000)
@@ -631,15 +634,6 @@ public class EntityManager implements Listener {
         }
 
         return Pair.of(baseDamage, crit);
-    }
-
-    private Class<?> findClassById(String id) {
-        for (Class<?> clazz : getItemClasses()) {
-            if (clazz.getAnnotation(ItemMetadata.class).ID().equals(id)) {
-                return clazz;
-            }
-        }
-        return null; // Placeholder return
     }
 
     private void addDisplay(LivingEntity e) {
@@ -803,9 +797,41 @@ public class EntityManager implements Listener {
                 cause.equals(EntityDamageEvent.DamageCause.ENTITY_EXPLOSION));
     }
 
+    private Set<Block> getBlocksInRadius(Entity entity, int radius) {
+        Set<Block> blocks = new HashSet<>();
+        Location loc = entity.getLocation();
+        int x = loc.getBlockX();
+        int y = loc.getBlockY();
+        int z = loc.getBlockZ();
+
+        // Loop through all blocks in the cubic area
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dy = -radius; dy <= radius; dy++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    blocks.add(loc.getWorld().getBlockAt(x + dx, y + dy, z + dz));
+                }
+            }
+        }
+        return blocks;
+    }
+
+    public boolean hasOminousTrialSpawner(Set<Block> blocks) {
+        for (Block block : blocks) {
+            // Check if the block is a spawner (or your custom block type)
+            if (block.getType() == Material.TRIAL_SPAWNER) {
+                if (((TrialSpawner) block.getState()).isOminous()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public static void loadData() {
         StatManager.setBaseStatMap(dataMapManager1.loadStatsMap());
         AccessoriesUtils.setAccessories(dataMapManager2.loadItemStackMap());
+        new File(plugin.getDataFolder(), "baseMap.yml").delete();
+        new File(plugin.getDataFolder(), "accessories.yml").delete();
         getLogger().info("Data loaded successfully.");
     }
 }

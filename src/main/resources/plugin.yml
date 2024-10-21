@@ -44,3 +44,7 @@ commands:
     description: "Apply potato books to your item."
     permission: op
     permission-message: "You cannot access this command!"
+  addenchant:
+    description: "Apply Enchants to your item."
+    permission: op
+    permission-message: "You cannot access this command!"

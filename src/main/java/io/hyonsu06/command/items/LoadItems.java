@@ -33,7 +33,7 @@ import static org.bukkit.Bukkit.getLogger;
 
 public class LoadItems {
     public static ArrayList<ItemStack> items = new ArrayList<>();
-    public static final int WORDS_PER_LINE = 5;
+    public static final int WORDS_PER_LINE = 4;
 
     public ItemStack get(Class<?> clazz) {
 
@@ -65,7 +65,8 @@ public class LoadItems {
                     stats.health(), stats.defense(), stats.speed(), stats.intelligence(), stats.agility(),
                     stats.healthRegen(), stats.manaRegen(),
                     stats.luck(),
-                    new HashMap<>(), 0, 0, getReforgeType(metadata.type())
+                    new HashMap<>(), 0, 0, getReforgeType(metadata.type()),
+                    null
             );
         }
 
@@ -74,11 +75,11 @@ public class LoadItems {
             ItemAdditiveBonus bonus1 = clazz.getAnnotation(ItemAdditiveBonus.class);
             additiveStatLore(
                     lore,
-                    bonus1.damage(), bonus1.strength(), bonus1.critChance(), bonus1.critDamage(),
-                    bonus1.ferocity(), bonus1.attackSpeed(),
-                    bonus1.health(), bonus1.defense(), bonus1.speed(), bonus1.intelligence(), bonus1.agility(),
-                    bonus1.healthRegen(), bonus1.manaRegen(),
-                    bonus1.luck()
+                    bonus1.add_damage(), bonus1.add_strength(), bonus1.add_critChance(), bonus1.add_critDamage(),
+                    bonus1.add_ferocity(), bonus1.add_attackSpeed(),
+                    bonus1.add_health(), bonus1.add_defense(), bonus1.add_speed(), bonus1.add_intelligence(), bonus1.add_agility(),
+                    bonus1.add_healthRegen(), bonus1.add_manaRegen(),
+                    bonus1.add_luck()
             );
         }
 
@@ -87,11 +88,11 @@ public class LoadItems {
             ItemMultiplicativeBonus bonus2 = clazz.getAnnotation(ItemMultiplicativeBonus.class);
             multiplicativeStatLore(
                     lore,
-                    bonus2.damage(), bonus2.strength(), bonus2.critChance(), bonus2.critDamage(),
-                    bonus2.ferocity(), bonus2.attackSpeed(),
-                    bonus2.health(), bonus2.defense(), bonus2.speed(), bonus2.intelligence(), bonus2.agility(),
-                    bonus2.healthRegen(), bonus2.manaRegen(),
-                    bonus2.luck()
+                    bonus2.mul_damage(), bonus2.mul_strength(), bonus2.mul_critChance(), bonus2.mul_critDamage(),
+                    bonus2.mul_ferocity(), bonus2.mul_attackSpeed(),
+                    bonus2.mul_health(), bonus2.mul_defense(), bonus2.mul_speed(), bonus2.mul_intelligence(), bonus2.mul_agility(),
+                    bonus2.mul_healthRegen(), bonus2.mul_manaRegen(),
+                    bonus2.mul_luck()
             );
         }
 
@@ -135,6 +136,7 @@ public class LoadItems {
         meta.setDisplayName(metadata.rarity().getColor() + metadata.name());
 
         meta.getPersistentDataContainer().set(getPDC("id"), PersistentDataType.STRING, metadata.ID());
+        meta.getPersistentDataContainer().set(getPDC("type"), PersistentDataType.STRING, metadata.type().getDisplay().toLowerCase().replace(" ", "_"));
         meta.getPersistentDataContainer().set(getPDC("damage"), PersistentDataType.LONG, 0L);
 
         lore.add(metadata.rarity().getColor() + "" + ChatColor.BOLD + (metadata.rarity().getDisplay() + " " + metadata.type().getDisplay()).toUpperCase());
@@ -161,18 +163,6 @@ public class LoadItems {
         item.setItemMeta(meta);
         item.setType(metadata.material());
         return item;
-    }
-
-    private String returnTypeName(String method) {
-        return switch(method) {
-            case "onRightClick" -> "RIGHT CLICK";
-            case "onLeftClick" -> "LEFT CLICK";
-            case "onSneakRightClick" -> "SNEAK RIGHT CLICK";
-            case "onSneak LeftClick" -> "SNEAK LEFT CLICK";
-            case "onSneak" -> "SNEAK";
-            case "onJump" -> "JUMP";
-            default -> "";
-        };
     }
 
     public void registerAllItems() {

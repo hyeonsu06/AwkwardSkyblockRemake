@@ -8,22 +8,22 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ItemMultiplicativeBonus {
-    double damage() default 1;
-    double strength() default 1;
-    double critChance() default 1;
-    double critDamage() default 1;
+    double mul_damage() default 1;
+    double mul_strength() default 1;
+    double mul_critChance() default 1;
+    double mul_critDamage() default 1;
 
-    double ferocity() default 1;
-    double attackSpeed() default 1;
+    double mul_ferocity() default 1;
+    double mul_attackSpeed() default 1;
 
-    double health() default 1;
-    double defense() default 1;
-    double speed() default 1;
-    double intelligence() default 1;
-    double agility() default 1;
+    double mul_health() default 1;
+    double mul_defense() default 1;
+    double mul_speed() default 1;
+    double mul_intelligence() default 1;
+    double mul_agility() default 1;
 
-    double healthRegen() default 1;
-    double manaRegen() default 1;
+    double mul_healthRegen() default 1;
+    double mul_manaRegen() default 1;
 
-    double luck() default 1;
+    double mul_luck() default 1;
 }

@@ -4,6 +4,8 @@ import io.hyonsu06.command.accessories.AccessoriesListener;
 import io.hyonsu06.command.accessories.AccessoriesUtils;
 import io.hyonsu06.command.accessories.ShowAccessoriesCommand;
 import io.hyonsu06.command.autobuild.AutoBuild;
+import io.hyonsu06.command.enchant.AddEnchantmentCommand;
+import io.hyonsu06.command.enchant.AddEnchantmentTabCompleter;
 import io.hyonsu06.command.items.LoadItems;
 import io.hyonsu06.command.items.ShowAllItemsCommand;
 import io.hyonsu06.command.items.AllItemsListener;
@@ -62,6 +64,8 @@ public final class Main extends JavaPlugin {
         plugin.getCommand("accessories").setExecutor(new ShowAccessoriesCommand());
         plugin.getCommand("recombobulate").setExecutor(new RecombobulatorCommand());
         plugin.getCommand("potato").setExecutor(new PotatoBookCommand());
+        plugin.getCommand("addenchant").setExecutor(new AddEnchantmentCommand());
+        plugin.getCommand("addenchant").setTabCompleter(new AddEnchantmentTabCompleter());
         plugin.getCommand("autobuild").setExecutor(new AutoBuild());
 
         if (!isReloading) {
@@ -70,30 +74,28 @@ public final class Main extends JavaPlugin {
             getReforgeClasses();
         }
 
-        getPluginManager().registerEvents(new PreventUnintendedAction(), plugin);
-        getPluginManager().registerEvents(new VanillaManager(), plugin);
+        getPluginManager().registerEvents(new ModifySomeFeatures(), plugin);
+        getPluginManager().registerEvents(new EnchantManager(), plugin);
+        getPluginManager().registerEvents(new VanillaEntityManager(), plugin);
         getPluginManager().registerEvents(new EntityManager(), plugin);
         getPluginManager().registerEvents(new SkillManager(), plugin);
         getPluginManager().registerEvents(new AllItemsListener(), plugin);
         getPluginManager().registerEvents(new AccessoriesListener(), plugin);
+
         getPluginManager().registerEvents(new DragonHoming(), plugin);
 
-        new NoParticle();
         new StatManager();
+        new NoParticle();
         new Refresher();
         new LoadItems().registerAllItems();
 
         if (isReloading) {
             getLogger().info("Seems plugin is on reload, remapping stat map...");
             loadData();
-
-            itemReflections = null;
-            skillReflections = null;
-            reforgeReflections = null;
         }
 
-        //TODO: enchants
-        //TODO: save/load data
+        //TODO: enchantments
+        //TODO: fix entity gone on restart
     }
 
     @Override

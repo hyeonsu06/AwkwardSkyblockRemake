@@ -9,6 +9,8 @@ import io.hyonsu06.core.annotations.skills.Skill;
 import io.hyonsu06.core.annotations.tags.SkillTagged;
 import io.hyonsu06.core.enums.ReforgeType;
 import io.hyonsu06.core.enums.Stats;
+import io.hyonsu06.item.enchantments.Enchantment;
+import io.hyonsu06.item.enchantments.EnchantmentUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -19,13 +21,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.hyonsu06.Main.plugin;
 import static io.hyonsu06.command.items.LoadItems.WORDS_PER_LINE;
+import static io.hyonsu06.core.functions.MapPDCConverter.PDCToMap;
 import static io.hyonsu06.core.managers.StatManager.rarityToIndex;
 import static io.hyonsu06.core.enums.ItemRarity.next;
 import static io.hyonsu06.core.functions.ItemTypeForSlot.getReforgeType;
@@ -122,7 +123,8 @@ public class Refresher {
                         stats.luck(),
                         reforgeMap, rarityToIndex(next(next(metadata.rarity()))),
                         potatoBooks,
-                        getReforgeType(clazz.getAnnotation(ItemMetadata.class).type())
+                        getReforgeType(clazz.getAnnotation(ItemMetadata.class).type()),
+                        item
                 );
             } else if (isRecombobulatorPresent) {
                 baseStatLore(
@@ -134,30 +136,34 @@ public class Refresher {
                         stats.luck(),
                         reforgeMap, rarityToIndex(next(metadata.rarity())),
                         potatoBooks,
-                        getReforgeType(clazz.getAnnotation(ItemMetadata.class).type())
+                        getReforgeType(clazz.getAnnotation(ItemMetadata.class).type()),
+                        item
                 );
-            } else baseStatLore(
-                    lore,
-                    stats.damage(), stats.strength(), stats.critChance(), stats.critDamage(),
-                    stats.ferocity(), stats.attackSpeed(),
-                    stats.health(), stats.defense(), stats.speed(), stats.intelligence(), stats.agility(),
-                    stats.healthRegen(), stats.manaRegen(),
-                    stats.luck(),
-                    reforgeMap, rarityToIndex(metadata.rarity()),
-                    potatoBooks,
-                    getReforgeType(clazz.getAnnotation(ItemMetadata.class).type())
-            );
+            } else {
+                baseStatLore(
+                        lore,
+                        stats.damage(), stats.strength(), stats.critChance(), stats.critDamage(),
+                        stats.ferocity(), stats.attackSpeed(),
+                        stats.health(), stats.defense(), stats.speed(), stats.intelligence(), stats.agility(),
+                        stats.healthRegen(), stats.manaRegen(),
+                        stats.luck(),
+                        reforgeMap, rarityToIndex(metadata.rarity()),
+                        potatoBooks,
+                        getReforgeType(clazz.getAnnotation(ItemMetadata.class).type()),
+                        item
+                );
+            }
         }
 
         if (clazz.isAnnotationPresent(ItemAdditiveBonus.class)) {
             ItemAdditiveBonus bonus1 = clazz.getAnnotation(ItemAdditiveBonus.class);
             additiveStatLore(
                     lore,
-                    bonus1.damage(), bonus1.strength(), bonus1.critChance(), bonus1.critDamage(),
-                    bonus1.ferocity(), bonus1.attackSpeed(),
-                    bonus1.health(), bonus1.defense(), bonus1.speed(), bonus1.intelligence(), bonus1.agility(),
-                    bonus1.healthRegen(), bonus1.manaRegen(),
-                    bonus1.luck()
+                    bonus1.add_damage(), bonus1.add_strength(), bonus1.add_critChance(), bonus1.add_critDamage(),
+                    bonus1.add_ferocity(), bonus1.add_attackSpeed(),
+                    bonus1.add_health(), bonus1.add_defense(), bonus1.add_speed(), bonus1.add_intelligence(), bonus1.add_agility(),
+                    bonus1.add_healthRegen(), bonus1.add_manaRegen(),
+                    bonus1.add_luck()
             );
         }
 
@@ -165,17 +171,48 @@ public class Refresher {
             ItemMultiplicativeBonus bonus2 = clazz.getAnnotation(ItemMultiplicativeBonus.class);
             multiplicativeStatLore(
                     lore,
-                    bonus2.damage(), bonus2.strength(), bonus2.critChance(), bonus2.critDamage(),
-                    bonus2.ferocity(), bonus2.attackSpeed(),
-                    bonus2.health(), bonus2.defense(), bonus2.speed(), bonus2.intelligence(), bonus2.agility(),
-                    bonus2.healthRegen(), bonus2.manaRegen(),
-                    bonus2.luck()
+                    bonus2.mul_damage(), bonus2.mul_strength(), bonus2.mul_critChance(), bonus2.mul_critDamage(),
+                    bonus2.mul_ferocity(), bonus2.mul_attackSpeed(),
+                    bonus2.mul_health(), bonus2.mul_defense(), bonus2.mul_speed(), bonus2.mul_intelligence(), bonus2.mul_agility(),
+                    bonus2.mul_healthRegen(), bonus2.mul_manaRegen(),
+                    bonus2.mul_luck()
             );
         }
 
         // Add additional lore if present
         if (!metadata.description().isEmpty()) {
             lore.addAll(addSkillDescription(metadata.description(), WORDS_PER_LINE, new long[]{}, ChatColor.GRAY, ChatColor.AQUA));
+            lore.add(" ");
+        }
+
+        StringBuilder builder = new StringBuilder();
+        List<String> temp = new ArrayList<>();
+        int count = 0;
+        Map<Enchantment, Integer> enchantments = (EnchantmentUtils.getEnchantments(item));
+
+        Map<Enchantment, Integer> sortedMap = enchantments.entrySet()
+                .stream()
+                .sorted(Comparator.comparing(entry -> entry.getKey().getName())) // Sort by Enchantment's key
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1, // Merge function (not used here)
+                        LinkedHashMap::new // Preserve insertion order
+                ));
+
+        for (Map.Entry<Enchantment, Integer> entry : sortedMap.entrySet()) {
+            String name = entry.getKey().getName();
+            int level = entry.getValue();
+            builder.append(ChatColor.BLUE).append(name).append(" ").append(level).append(", ");
+            count++;
+            if (count == 3 || count == enchantments.size()) {
+                temp.add(builder.delete(builder.length() - 2, builder.length()).toString());
+                count = 0;
+            }
+        }
+
+        if (!temp.isEmpty()) {
+            lore.addAll(temp);
             lore.add(" ");
         }
 
@@ -249,7 +286,7 @@ public class Refresher {
         item.setType(metadata.material());
     }
 
-    private Class<?> findClassById(String id) {
+    public static Class<?> findClassById(String id) {
         for (Class<?> clazz : getItemClasses()) {
             if (clazz.getAnnotation(ItemMetadata.class).ID().equals(id)) {
                 return clazz;
@@ -258,31 +295,20 @@ public class Refresher {
         return null; // Placeholder return
     }
 
-    public static void baseStatLore(List<String> lore, double damage, double strength, double critChance, double critDamage, double ferocity, double attackSpeed, double health, double defense, double speed, double intelligence, double agility, double healthRegen, double manaRegen, double luck, Map<Stats, Double[]> map, int rarity, int potato, ReforgeType type) {
+    public static void baseStatLore(List<String> lore, double damage, double strength, double critChance, double critDamage, double ferocity, double attackSpeed, double health, double defense, double speed, double intelligence, double agility, double healthRegen, double manaRegen, double luck, Map<Stats, Double[]> map, int rarity, int potato, ReforgeType type, ItemStack item) {
         Double[] defaultMap = new Double[]{0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d};
-        map.putIfAbsent(Stats.DAMAGE, defaultMap);
-        map.putIfAbsent(Stats.STRENGTH, defaultMap);
-        map.putIfAbsent(Stats.CRITCHANCE, defaultMap);
-        map.putIfAbsent(Stats.CRITDAMAGE, defaultMap);
+        for (Stats stat : Stats.values()) map.putIfAbsent(stat, defaultMap);
 
-        map.putIfAbsent(Stats.FEROCITY, defaultMap);
-        map.putIfAbsent(Stats.ATTACKSPEED, defaultMap);
+        Map<Stats, Double> map2 = new EnumMap<>(Stats.class);
+        for (Stats stats : Stats.values()) map2.put(stats, 0d);
 
-        map.putIfAbsent(Stats.HEALTH, defaultMap);
-        map.putIfAbsent(Stats.DEFENSE, defaultMap);
-        map.putIfAbsent(Stats.SPEED, defaultMap);
-        map.putIfAbsent(Stats.INTELLIGENCE, defaultMap);
-        map.putIfAbsent(Stats.AGILITY, defaultMap);
+        if (item != null) if (item.getPersistentDataContainer().has(getPDC("enchants"), PersistentDataType.STRING)) map2 = PDCToMap(item, "enchants");
 
-        map.putIfAbsent(Stats.HEALTHREGEN, defaultMap);
-        map.putIfAbsent(Stats.MANAREGEN, defaultMap);
-
-        map.putIfAbsent(Stats.LUCK, defaultMap);
-
-        if (damage != 0 || map.get(Stats.DAMAGE)[rarity] != 0 || (potato > 0 && (type == ReforgeType.MELEE || type == ReforgeType.RANGED))) {
+        if (damage != 0 || map.get(Stats.DAMAGE)[rarity] != 0 || (potato > 0 && (type == ReforgeType.MELEE || type == ReforgeType.RANGED)) || (map2.get(Stats.DAMAGE) != null && map2.get(Stats.DAMAGE) != 0)) {
             String stat = ChatColor.GRAY + "Damage: ";
             String ref = "", potatoBook = "";
             double value = damage;
+            if (map2.get(Stats.DAMAGE) != null) value += map2.get(Stats.DAMAGE);
             if (map.get(Stats.DAMAGE)[rarity] != 0) {
                 value += map.get(Stats.DAMAGE)[rarity];
                 ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(Stats.DAMAGE)[rarity]) + ")";
@@ -294,10 +320,11 @@ public class Refresher {
             lore.add(stat + ChatColor.RED + addPlusIfPositive(value) + ref + potatoBook);
             damage = value;
         } // Damage
-        if (strength != 0 || map.get(Stats.STRENGTH)[rarity] != 0 || (potato > 0 && (type == ReforgeType.MELEE || type == ReforgeType.RANGED))) {
+        if (strength != 0 || map.get(Stats.STRENGTH)[rarity] != 0 || (potato > 0 && (type == ReforgeType.MELEE || type == ReforgeType.RANGED)) || (map2.get(Stats.STRENGTH) != null && map2.get(Stats.STRENGTH) != 0)) {
             String stat = ChatColor.GRAY + "Strength: ";
             String ref = "", potatoBook = "";
             double value = strength;
+            if (map2.get(Stats.STRENGTH) != null) value += map2.get(Stats.STRENGTH);
             if (map.get(Stats.STRENGTH)[rarity] != 0) {
                 value += map.get(Stats.STRENGTH)[rarity];
                 ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(Stats.STRENGTH)[rarity]) + ")";
@@ -309,46 +336,63 @@ public class Refresher {
             lore.add(stat + ChatColor.RED + addPlusIfPositive(value) + ref + potatoBook);
             strength = value;
         } // Strength
-        if (critChance != 0 || map.get(Stats.CRITCHANCE)[rarity] != 0) {
-            String stat = ChatColor.GRAY + "Crit Damage: ";
-            String value = ChatColor.RED + addPlusIfPositive(critChance);
-            if (map.get(Stats.CRITCHANCE)[rarity] != 0) {
-                double number = critChance + map.get(Stats.CRITCHANCE)[rarity];
-                value = ChatColor.RED + addPlusIfPositive(number) + ChatColor.BLUE + " (+" + map.get(Stats.CRITCHANCE)[rarity] + ")";
+        if (critChance != 0 || map.get(Stats.CRITCHANCE)[rarity] != 0 || (map2.get(Stats.CRITCHANCE) != null && map2.get(Stats.CRITCHANCE) != 0)) {
+            String stat = ChatColor.GRAY + "Crit Chance: ";
+            String ref = "";
+            double value = critChance;
+            Stats thisStat = Stats.CRITCHANCE;
+            if (map2.get(thisStat) != null) value += map2.get(thisStat);
+            if (map.get(thisStat)[rarity] != 0) {
+                value += map.get(thisStat)[rarity];
+                ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(thisStat)[rarity]) + ")";
             }
-            lore.add(stat + value);
+            lore.add(stat + ChatColor.RED + addPlusIfPositive(value) + ref);
+            critChance = value;
         } // Crit Chance
-        if (critDamage != 0 || map.get(Stats.CRITDAMAGE)[rarity] != 0) {
+        if (critDamage != 0 || map.get(Stats.CRITDAMAGE)[rarity] != 0 || (map2.get(Stats.CRITDAMAGE) != null && map2.get(Stats.CRITCHANCE) != 0)) {
             String stat = ChatColor.GRAY + "Crit Damage: ";
-            String value = ChatColor.RED + addPlusIfPositive(critDamage);
-            if (map.get(Stats.CRITDAMAGE)[rarity] != 0) {
-                double number = critDamage + map.get(Stats.CRITDAMAGE)[rarity];
-                value = ChatColor.RED + addPlusIfPositive(number) + ChatColor.BLUE + " (+" + map.get(Stats.CRITDAMAGE)[rarity] + ")";
+            String ref = "";
+            double value = critDamage;
+            Stats thisStat = Stats.CRITDAMAGE;
+            if (map2.get(thisStat) != null) value += map2.get(thisStat);
+            if (map.get(thisStat)[rarity] != 0) {
+                value += map.get(thisStat)[rarity];
+                ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(thisStat)[rarity]) + ")";
             }
-            lore.add(stat + value);
+            lore.add(stat + ChatColor.RED + addPlusIfPositive(value) + ref);
+            critDamage = value;
         } // Crit Damage
-        if (ferocity != 0 || map.get(Stats.FEROCITY)[rarity] != 0) {
+        if (ferocity != 0 || map.get(Stats.FEROCITY)[rarity] != 0 || (map2.get(Stats.FEROCITY) != null && map2.get(Stats.FEROCITY) != 0)) {
             String stat = ChatColor.GRAY + "Ferocity: ";
-            String value = ChatColor.RED + addPlusIfPositive(ferocity);
-            if (map.get(Stats.FEROCITY)[rarity] != 0) {
-                double number = ferocity + map.get(Stats.FEROCITY)[rarity];
-                value = ChatColor.RED + addPlusIfPositive(number) + ChatColor.BLUE + " (+" + map.get(Stats.FEROCITY)[rarity] + ")";
+            String ref = "";
+            double value = ferocity;
+            Stats thisStat = Stats.FEROCITY;
+            if (map2.get(thisStat) != null) value += map2.get(thisStat);
+            if (map.get(thisStat)[rarity] != 0) {
+                value += map.get(thisStat)[rarity];
+                ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(thisStat)[rarity]) + ")";
             }
-            lore.add(stat + value);
+            lore.add(stat + ChatColor.RED + addPlusIfPositive(value) + ref);
+            ferocity = value;
         } // Ferocity
-        if (attackSpeed != 0 || map.get(Stats.ATTACKSPEED)[rarity] != 0) {
+        if (attackSpeed != 0 || map.get(Stats.ATTACKSPEED)[rarity] != 0 || (map2.get(Stats.ATTACKSPEED) != null && map2.get(Stats.ATTACKSPEED) != 0)) {
             String stat = ChatColor.GRAY + "Bonus Attack Speed: ";
-            String value = ChatColor.YELLOW + addPlusIfPositive(attackSpeed);
-            if (map.get(Stats.ATTACKSPEED)[rarity] != 0) {
-                double number = attackSpeed + map.get(Stats.ATTACKSPEED)[rarity];
-                value = ChatColor.YELLOW + addPlusIfPositive(number) + ChatColor.BLUE + " (+" + map.get(Stats.ATTACKSPEED)[rarity] + ")";
+            String ref = "";
+            double value = attackSpeed;
+            Stats thisStat = Stats.ATTACKSPEED;
+            if (map2.get(thisStat) != null) value += map2.get(thisStat);
+            if (map.get(thisStat)[rarity] != 0) {
+                value += map.get(thisStat)[rarity];
+                ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(thisStat)[rarity]) + ")";
             }
-            lore.add(stat + value);
+            lore.add(stat + ChatColor.YELLOW + addPlusIfPositive(value) + ref);
+            attackSpeed = value;
         } // Attack Speed
-        if (health != 0 || map.get(Stats.HEALTH)[rarity] != 0 || (potato > 0 && type == ReforgeType.ARMOR)) {
+        if (health != 0 || map.get(Stats.HEALTH)[rarity] != 0 || (potato > 0 && type == ReforgeType.ARMOR) || (map2.get(Stats.HEALTH) != null && map2.get(Stats.HEALTH) != 0)) {
             String stat = ChatColor.GRAY + "Health: ";
             String ref = "", potatoBook = "";
             double value = health;
+            if (map2.get(Stats.HEALTH) != null) value += map2.get(Stats.HEALTH);
             if (map.get(Stats.HEALTH)[rarity] != 0) {
                 value += map.get(Stats.HEALTH)[rarity];
                 ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(Stats.HEALTH)[rarity]) + ")";
@@ -360,10 +404,11 @@ public class Refresher {
             lore.add(stat + ChatColor.GREEN + addPlusIfPositive(value) + ref + potatoBook);
             health = value;
         } // Health
-        if (defense != 0 || map.get(Stats.DEFENSE)[rarity] != 0 || (potato > 0 && type == ReforgeType.ARMOR)) {
+        if (defense != 0 || map.get(Stats.DEFENSE)[rarity] != 0 || (potato > 0 && type == ReforgeType.ARMOR) || (map2.get(Stats.DEFENSE) != null && map2.get(Stats.DEFENSE) != 0)) {
             String stat = ChatColor.GRAY + "Defense: ";
             String ref = "", potatoBook = "";
             double value = defense;
+            if (map2.get(Stats.DEFENSE) != null) value += map2.get(Stats.DEFENSE);
             if (map.get(Stats.DEFENSE)[rarity] != 0) {
                 value += map.get(Stats.DEFENSE)[rarity];
                 ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(Stats.DEFENSE)[rarity]) + ")";
@@ -375,59 +420,81 @@ public class Refresher {
             lore.add(stat + ChatColor.GREEN + addPlusIfPositive(value) + ref + potatoBook);
             defense = value;
         } // Defense
-        if (speed != 0 || map.get(Stats.SPEED)[rarity] != 0) {
+        if (speed != 0 || map.get(Stats.SPEED)[rarity] != 0 || (map2.get(Stats.SPEED) != null && map2.get(Stats.SPEED) != 0)) {
             String stat = ChatColor.GRAY + "Walk Speed: ";
-            String value = ChatColor.GREEN + addPlusIfPositive(speed);
-            if (map.get(Stats.SPEED)[rarity] != 0) {
-                double number = speed + map.get(Stats.SPEED)[rarity];
-                value = ChatColor.GREEN + addPlusIfPositive(number) + ChatColor.BLUE + " (+" + map.get(Stats.SPEED)[rarity] + ")";
+            String ref = "";
+            double value = speed;
+            Stats thisStat = Stats.SPEED;
+            if (map2.get(thisStat) != null) value += map2.get(thisStat);
+            if (map2.get(thisStat) != null) value += map2.get(thisStat);
+            if (map.get(thisStat)[rarity] != 0) {
+                value += map.get(thisStat)[rarity];
+                ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(thisStat)[rarity]) + ")";
             }
-            lore.add(stat + value);
+            lore.add(stat + ChatColor.WHITE + addPlusIfPositive(value) + ref);
         } // Speed
-        if (intelligence != 0 || map.get(Stats.INTELLIGENCE)[rarity] != 0) {
+        if (intelligence != 0 || map.get(Stats.INTELLIGENCE)[rarity] != 0 || (map2.get(Stats.INTELLIGENCE) != null && map2.get(Stats.INTELLIGENCE) != 0)) {
             String stat = ChatColor.GRAY + "Intelligence: ";
-            String value = ChatColor.AQUA + addPlusIfPositive(intelligence);
-            if (map.get(Stats.INTELLIGENCE)[rarity] != 0) {
-                double number = intelligence + map.get(Stats.INTELLIGENCE)[rarity];
-                value = ChatColor.AQUA + addPlusIfPositive(number) + ChatColor.BLUE + " (+" + map.get(Stats.INTELLIGENCE)[rarity] + ")";
+            String ref = "";
+            double value = intelligence;
+            Stats thisStat = Stats.INTELLIGENCE;
+            if (map2.get(thisStat) != null) value += map2.get(thisStat);
+            if (map.get(thisStat)[rarity] != 0) {
+                value += map.get(thisStat)[rarity];
+                ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(thisStat)[rarity]) + ")";
             }
-            lore.add(stat + value);
+            lore.add(stat + ChatColor.AQUA + addPlusIfPositive(value) + ref);
         } // Intelligence
-        if (agility != 0 || map.get(Stats.AGILITY)[rarity] != 0) {
+        if (agility != 0 || map.get(Stats.AGILITY)[rarity] != 0 || (map2.get(Stats.AGILITY) != null && map2.get(Stats.AGILITY) != 0)) {
             String stat = ChatColor.GRAY + "Agility: ";
-            String value = ChatColor.GREEN + addPlusIfPositive(agility);
-            if (map.get(Stats.AGILITY)[rarity] != 0) {
-                double number = agility + map.get(Stats.AGILITY)[rarity];
-                value = ChatColor.GREEN + addPlusIfPositive(number) + ChatColor.BLUE + " (+" + map.get(Stats.AGILITY)[rarity] + ")";
+            String ref = "";
+            double value = agility;
+            Stats thisStat = Stats.AGILITY;
+            if (map2.get(thisStat) != null) value += map2.get(thisStat);
+            if (map.get(thisStat)[rarity] != 0) {
+                value += map.get(thisStat)[rarity];
+                ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(thisStat)[rarity]) + ")";
             }
-            lore.add(stat + value);
+            lore.add(stat + ChatColor.GREEN + addPlusIfPositive(value) + ref);
+            agility = value;
         } // Agility
-        if (healthRegen != 0 || map.get(Stats.HEALTHREGEN)[rarity] != 0) {
+        if (healthRegen != 0 || map.get(Stats.HEALTHREGEN)[rarity] != 0 || (map2.get(Stats.HEALTHREGEN) != null && map2.get(Stats.HEALTHREGEN) != 0)) {
             String stat = ChatColor.GRAY + "Health Regen: ";
-            String value = ChatColor.GREEN + addPlusIfPositive(healthRegen);
-            if (map.get(Stats.HEALTHREGEN)[rarity] != 0) {
-                double number = healthRegen + map.get(Stats.HEALTHREGEN)[rarity];
-                value = ChatColor.GREEN + addPlusIfPositive(number) + ChatColor.BLUE + " (+" + map.get(Stats.HEALTHREGEN)[rarity] + ")";
+            String ref = "";
+            double value = healthRegen;
+            Stats thisStat = Stats.HEALTHREGEN;
+            if (map2.get(thisStat) != null) value += map2.get(thisStat);
+            if (map.get(thisStat)[rarity] != 0) {
+                value += map.get(thisStat)[rarity];
+                ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(thisStat)[rarity]) + ")";
             }
-            lore.add(stat + value);
+            lore.add(stat + ChatColor.RED + addPlusIfPositive(value) + ref);
+            healthRegen = value;
         } // Health Regen
-        if (manaRegen != 0 || map.get(Stats.MANAREGEN)[rarity] != 0) {
+        if (manaRegen != 0 || map.get(Stats.MANAREGEN)[rarity] != 0 || (map2.get(Stats.MANAREGEN) != null && map2.get(Stats.MANAREGEN) != 0)) {
             String stat = ChatColor.GRAY + "Mana Regen: ";
-            String value = ChatColor.GREEN + addPlusIfPositive(manaRegen);
-            if (map.get(Stats.MANAREGEN)[rarity] != 0) {
-                double number = manaRegen + map.get(Stats.MANAREGEN)[rarity];
-                value = ChatColor.GREEN + addPlusIfPositive(number) + ChatColor.BLUE + " (+" + map.get(Stats.MANAREGEN)[rarity] + ")";
+            String ref = "";
+            double value = manaRegen;
+            Stats thisStat = Stats.MANAREGEN;
+            if (map2.get(thisStat) != null) value += map2.get(thisStat);
+            if (map.get(thisStat)[rarity] != 0) {
+                value += map.get(thisStat)[rarity];
+                ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(thisStat)[rarity]) + ")";
             }
-            lore.add(stat + value);
+            lore.add(stat + ChatColor.AQUA + addPlusIfPositive(value) + ref);
+            manaRegen = value;
         } // Mana Regen
-        if (luck != 0 || map.get(Stats.LUCK)[rarity] != 0) {
+        if (luck != 0 || map.get(Stats.LUCK)[rarity] != 0 || (map2.get(Stats.LUCK) != null && map2.get(Stats.LUCK) != 0)) {
             String stat = ChatColor.GRAY + "Luckiness: ";
-            String value = ChatColor.GREEN + addPlusIfPositive(luck);
-            if (map.get(Stats.LUCK)[rarity] != 0) {
-                double number = luck + map.get(Stats.LUCK)[rarity];
-                value = ChatColor.GREEN + addPlusIfPositive(number) + ChatColor.BLUE + " (+" + map.get(Stats.LUCK)[rarity] + ")";
+            String ref = "";
+            double value = luck;
+            Stats thisStat = Stats.LUCK;
+            if (map2.get(thisStat) != null) value += map2.get(thisStat);
+            if (map.get(thisStat)[rarity] != 0) {
+                value += map.get(thisStat)[rarity];
+                ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(thisStat)[rarity]) + ")";
             }
-            lore.add(stat + value);
+            lore.add(stat + ChatColor.GREEN + addPlusIfPositive(value) + ref);
         } // Luck
         boolean b = damage != 0 || strength != 0 || critChance != 0 || critDamage != 0 || ferocity != 0 || attackSpeed != 0 || health != 0 || defense != 0 || speed != 0 || intelligence != 0 || agility != 0 || healthRegen != 0 || manaRegen != 0 || luck != 0;
         if (b) lore.add(" ");

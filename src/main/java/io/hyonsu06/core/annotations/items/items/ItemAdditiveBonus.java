@@ -8,22 +8,22 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ItemAdditiveBonus {
-    double damage() default 0;
-    double strength() default 0;
-    double critChance() default 0;
-    double critDamage() default 0;
+    double add_damage() default 0;
+    double add_strength() default 0;
+    double add_critChance() default 0;
+    double add_critDamage() default 0;
 
-    double ferocity() default 0;
-    double attackSpeed() default 0;
+    double add_ferocity() default 0;
+    double add_attackSpeed() default 0;
 
-    double health() default 0;
-    double defense() default 0;
-    double speed() default 0;
-    double intelligence() default 0;
-    double agility() default 0;
+    double add_health() default 0;
+    double add_defense() default 0;
+    double add_speed() default 0;
+    double add_intelligence() default 0;
+    double add_agility() default 0;
 
-    double healthRegen() default 0;
-    double manaRegen() default 0;
+    double add_healthRegen() default 0;
+    double add_manaRegen() default 0;
 
-    double luck() default 0;
+    double add_luck() default 0;
 }

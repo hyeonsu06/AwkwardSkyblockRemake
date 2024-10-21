@@ -44,7 +44,6 @@ public class AutoBuild extends Command implements CommandExecutor {
 
         thread.start();
         try {
-            // Wait for the thread to complete its work
             thread.join();
 
             isReloading = true;

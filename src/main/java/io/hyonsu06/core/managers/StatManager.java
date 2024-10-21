@@ -30,6 +30,8 @@ import static io.hyonsu06.core.Refresher.*;
 import static io.hyonsu06.core.enums.ItemRarity.next;
 import static io.hyonsu06.core.functions.ArmorTweaks.getItems;
 import static io.hyonsu06.core.functions.ItemTypeForSlot.getReforgeType;
+import static io.hyonsu06.core.functions.MapPDCConverter.PDCToMap;
+import static io.hyonsu06.core.functions.WeaponType.itemTypeFromItemStack;
 import static io.hyonsu06.core.functions.convertStringTypeToItemType.stringTypeToItemType;
 import static io.hyonsu06.core.functions.getClasses.getItemClasses;
 import static io.hyonsu06.core.functions.getClasses.getReforgeClasses;
@@ -38,10 +40,9 @@ import static org.bukkit.Bukkit.getLogger;
 import static org.bukkit.persistence.PersistentDataType.STRING;
 
 public class StatManager {
-    @Getter
     private static Map<UUID, Map<EquipmentSlot, Map<Stats, Double>>> itemStatMap = new HashMap<>();
-    private static Map<UUID, Map<EquipmentSlot, Map<Stats, Double>>> additiveStatMap = new HashMap<>();
-    private static Map<UUID, Map<EquipmentSlot, Map<Stats, Double>>> multiplicativeStatMap = new HashMap<>();
+    private static Map<UUID, Map<EquipmentSlot, Map<Stats, Double>>> itemAdditiveStatMap = new HashMap<>();
+    private static Map<UUID, Map<EquipmentSlot, Map<Stats, Double>>> itemMultiplicativeStatMap = new HashMap<>();
 
     private static Map<UUID, Map<Integer, Map<Stats, Double>>> accessoryStatMap = new HashMap<>();
     private static Map<UUID, Map<Integer, Map<Stats, Double>>> accessoryAdditiveStatMap = new HashMap<>();
@@ -54,12 +55,15 @@ public class StatManager {
     private static Map<UUID, Map<Stats, Double>> skillBonusMap = new HashMap<>();
 
     @Getter
+    private static Map<UUID, Map<EquipmentSlot, Map<Stats, Double>>> enchantStatMap = new HashMap<>();
+
+    @Getter
     @Setter
     public static Map<UUID, Map<Stats, Double>> baseStatMap = new HashMap<>();
     @Getter
     private static Map<UUID, Map<Stats, Double>> finalStatMap = new HashMap<>();
 
-    private static EquipmentSlot[] slots = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.BODY, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.HAND};
+    public static EquipmentSlot[] slots = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.BODY, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.HAND};
 
     double FEROCITY_CAP = 400;
     double ATTACK_SPEED_CAP = 100;
@@ -137,13 +141,18 @@ public class StatManager {
     }
 
     private void applyStat(LivingEntity e, EquipmentSlot slot, ItemStats value1, ItemAdditiveBonus value2, ItemMultiplicativeBonus value3) {
-        Map<Stats, Double> map1 = itemStatMap.get(e.getUniqueId()).get(slot);
-        ItemStack item;
+        ItemStack item = null;
         if (slot == EquipmentSlot.HEAD) item = e.getEquipment().getHelmet();
         else if (slot == EquipmentSlot.BODY) item = e.getEquipment().getChestplate();
         else if (slot == EquipmentSlot.LEGS) item = e.getEquipment().getLeggings();
         else if (slot == EquipmentSlot.FEET) item = e.getEquipment().getBoots();
-        else item = e.getEquipment().getItemInMainHand();
+        else if (slot == EquipmentSlot.HAND) item = e.getEquipment().getItemInMainHand();
+
+        Map<Stats, Double> defaultMap = new EnumMap<>(Stats.class);
+        for (Stats stat : Stats.values()) defaultMap.put(stat, 0d);
+
+        Map<Stats, Double> defaultMapMul = new EnumMap<>(Stats.class);
+        for (Stats stat : Stats.values()) defaultMapMul.put(stat, 1d);
 
         int potato_damage = 0, potato_strength = 0, potato_health = 0, potato_defense = 0;
 
@@ -168,69 +177,80 @@ public class StatManager {
         }
 
         if (value1 != null) {
-            map1.put(Stats.DAMAGE, value1.damage() + potato_damage);
-            map1.put(Stats.STRENGTH, value1.strength() + potato_strength);
-            map1.put(Stats.CRITCHANCE, value1.critChance());
-            map1.put(Stats.CRITDAMAGE, value1.critDamage());
+            Map<Stats, Double> temp = new EnumMap<>(Stats.class);
+            temp.put(Stats.DAMAGE, value1.damage() + potato_damage);
+            temp.put(Stats.STRENGTH, value1.strength() + potato_strength);
+            temp.put(Stats.CRITCHANCE, value1.critChance());
+            temp.put(Stats.CRITDAMAGE, value1.critDamage());
 
-            map1.put(Stats.FEROCITY, value1.ferocity());
-            map1.put(Stats.ATTACKSPEED, value1.attackSpeed());
+            temp.put(Stats.FEROCITY, value1.ferocity());
+            temp.put(Stats.ATTACKSPEED, value1.attackSpeed());
 
-            map1.put(Stats.HEALTH, value1.health() + potato_health);
-            map1.put(Stats.DEFENSE, value1.defense() + potato_defense);
-            map1.put(Stats.SPEED, value1.speed());
-            map1.put(Stats.INTELLIGENCE, value1.intelligence());
-            map1.put(Stats.AGILITY, value1.agility());
+            temp.put(Stats.HEALTH, value1.health() + potato_health);
+            temp.put(Stats.DEFENSE, value1.defense() + potato_defense);
+            temp.put(Stats.SPEED, value1.speed());
+            temp.put(Stats.INTELLIGENCE, value1.intelligence());
+            temp.put(Stats.AGILITY, value1.agility());
 
-            map1.put(Stats.HEALTHREGEN, value1.healthRegen());
-            map1.put(Stats.MANAREGEN, value1.manaRegen());
+            temp.put(Stats.HEALTHREGEN, value1.healthRegen());
+            temp.put(Stats.MANAREGEN, value1.manaRegen());
 
-            map1.put(Stats.LUCK, value1.luck());
+            temp.put(Stats.LUCK, value1.luck());
+            itemStatMap.get(e.getUniqueId()).put(slot, temp);
+        } else {
+            itemStatMap.get(e.getUniqueId()).put(slot, defaultMap);
         }
 
-        Map<Stats, Double> map2 = additiveStatMap.get(e.getUniqueId()).get(slot);
         if (value2 != null) {
-            map2.put(Stats.DAMAGE, value2.damage());
-            map2.put(Stats.STRENGTH, value2.strength());
-            map2.put(Stats.CRITCHANCE, value2.critChance());
-            map2.put(Stats.CRITDAMAGE, value2.critDamage());
+            Map<Stats, Double> temp3 = new EnumMap<>(Stats.class);
+            temp3.put(Stats.DAMAGE, value2.add_damage());
+            temp3.put(Stats.STRENGTH, value2.add_strength());
+            temp3.put(Stats.CRITCHANCE, value2.add_critChance());
+            temp3.put(Stats.CRITDAMAGE, value2.add_critDamage());
 
-            map2.put(Stats.FEROCITY, value2.ferocity());
-            map2.put(Stats.ATTACKSPEED, value2.attackSpeed());
+            temp3.put(Stats.FEROCITY, value2.add_ferocity());
+            temp3.put(Stats.ATTACKSPEED, value2.add_attackSpeed());
 
-            map2.put(Stats.HEALTH, value2.health());
-            map2.put(Stats.DEFENSE, value2.defense());
-            map2.put(Stats.SPEED, value2.speed());
-            map2.put(Stats.INTELLIGENCE, value2.intelligence());
-            map2.put(Stats.AGILITY, value2.agility());
+            temp3.put(Stats.HEALTH, value2.add_health());
+            temp3.put(Stats.DEFENSE, value2.add_defense());
+            temp3.put(Stats.SPEED, value2.add_speed());
+            temp3.put(Stats.INTELLIGENCE, value2.add_intelligence());
+            temp3.put(Stats.AGILITY, value2.add_agility());
 
-            map2.put(Stats.HEALTHREGEN, value2.healthRegen());
-            map2.put(Stats.MANAREGEN, value2.manaRegen());
+            temp3.put(Stats.HEALTHREGEN, value2.add_healthRegen());
+            temp3.put(Stats.MANAREGEN, value2.add_manaRegen());
 
-            map2.put(Stats.LUCK, value2.luck());
+            temp3.put(Stats.LUCK, value2.add_luck());
+            itemAdditiveStatMap.get(e.getUniqueId()).put(slot, temp3);
+        } else {
+            itemAdditiveStatMap.get(e.getUniqueId()).put(slot, defaultMap);
         }
 
-        Map<Stats, Double> map3 = multiplicativeStatMap.get(e.getUniqueId()).get(slot);
         if (value3 != null) {
-            map3.put(Stats.DAMAGE, value3.damage());
-            map3.put(Stats.STRENGTH, value3.strength());
-            map3.put(Stats.CRITCHANCE, value3.critChance());
-            map3.put(Stats.CRITDAMAGE, value3.critDamage());
+            Map<Stats, Double> temp = new EnumMap<>(Stats.class);
+            temp.put(Stats.DAMAGE, value3.mul_damage());
+            temp.put(Stats.STRENGTH, value3.mul_strength());
+            temp.put(Stats.CRITCHANCE, value3.mul_critChance());
+            temp.put(Stats.CRITDAMAGE, value3.mul_critDamage());
 
-            map3.put(Stats.FEROCITY, value3.ferocity());
-            map3.put(Stats.ATTACKSPEED, value3.attackSpeed());
+            temp.put(Stats.FEROCITY, value3.mul_ferocity());
+            temp.put(Stats.ATTACKSPEED, value3.mul_attackSpeed());
 
-            map3.put(Stats.HEALTH, value3.health());
-            map3.put(Stats.DEFENSE, value3.defense());
-            map3.put(Stats.SPEED, value3.speed());
-            map3.put(Stats.INTELLIGENCE, value3.intelligence());
-            map3.put(Stats.AGILITY, value3.agility());
+            temp.put(Stats.HEALTH, value3.mul_health());
+            temp.put(Stats.DEFENSE, value3.mul_defense());
+            temp.put(Stats.SPEED, value3.mul_speed());
+            temp.put(Stats.INTELLIGENCE, value3.mul_intelligence());
+            temp.put(Stats.AGILITY, value3.mul_agility());
 
-            map3.put(Stats.HEALTHREGEN, value3.healthRegen());
-            map3.put(Stats.MANAREGEN, value3.manaRegen());
+            temp.put(Stats.HEALTHREGEN, value3.mul_healthRegen());
+            temp.put(Stats.MANAREGEN, value3.mul_manaRegen());
 
-            map3.put(Stats.LUCK, value3.luck());
+            temp.put(Stats.LUCK, value3.mul_luck());
+            itemMultiplicativeStatMap.get(e.getUniqueId()).put(slot, temp);
+        } else {
+            itemMultiplicativeStatMap.get(e.getUniqueId()).put(slot, defaultMapMul);
         }
+
     }
 
     private void applyAccessoryStat(LivingEntity e, Integer i, ItemStats value1, ItemAdditiveBonus value2, ItemMultiplicativeBonus value3) {
@@ -255,54 +275,60 @@ public class StatManager {
                 map1.put(Stats.MANAREGEN, value1.manaRegen());
 
                 map1.put(Stats.LUCK, value1.luck());
+
+                accessoryStatMap.get(e.getUniqueId()).put(i, map1);
             }
         }
 
         Map<Stats, Double> map2 = accessoryAdditiveStatMap.get(e.getUniqueId()).get(i);
         if (value2 != null) {
             if (map2 != null) {
-                map2.put(Stats.DAMAGE, value2.damage());
-                map2.put(Stats.STRENGTH, value2.strength());
-                map2.put(Stats.CRITCHANCE, value2.critChance());
-                map2.put(Stats.CRITDAMAGE, value2.critDamage());
+                map2.put(Stats.DAMAGE, value2.add_damage());
+                map2.put(Stats.STRENGTH, value2.add_strength());
+                map2.put(Stats.CRITCHANCE, value2.add_critChance());
+                map2.put(Stats.CRITDAMAGE, value2.add_critDamage());
 
-                map2.put(Stats.FEROCITY, value2.ferocity());
-                map2.put(Stats.ATTACKSPEED, value2.attackSpeed());
+                map2.put(Stats.FEROCITY, value2.add_ferocity());
+                map2.put(Stats.ATTACKSPEED, value2.add_attackSpeed());
 
-                map2.put(Stats.HEALTH, value2.health());
-                map2.put(Stats.DEFENSE, value2.defense());
-                map2.put(Stats.SPEED, value2.speed());
-                map2.put(Stats.INTELLIGENCE, value2.intelligence());
-                map2.put(Stats.AGILITY, value2.agility());
+                map2.put(Stats.HEALTH, value2.add_health());
+                map2.put(Stats.DEFENSE, value2.add_defense());
+                map2.put(Stats.SPEED, value2.add_speed());
+                map2.put(Stats.INTELLIGENCE, value2.add_intelligence());
+                map2.put(Stats.AGILITY, value2.add_agility());
 
-                map2.put(Stats.HEALTHREGEN, value2.healthRegen());
-                map2.put(Stats.MANAREGEN, value2.manaRegen());
+                map2.put(Stats.HEALTHREGEN, value2.add_healthRegen());
+                map2.put(Stats.MANAREGEN, value2.add_manaRegen());
 
-                map2.put(Stats.LUCK, value2.luck());
+                map2.put(Stats.LUCK, value2.add_luck());
+
+                accessoryAdditiveStatMap.get(e.getUniqueId()).put(i, map1);
             }
         }
 
         Map<Stats, Double> map3 = accessoryMultiplicativeStatMap.get(e.getUniqueId()).get(i);
         if (value3 != null) {
             if (map3 != null) {
-                map3.put(Stats.DAMAGE, value3.damage());
-                map3.put(Stats.STRENGTH, value3.strength());
-                map3.put(Stats.CRITCHANCE, value3.critChance());
-                map3.put(Stats.CRITDAMAGE, value3.critDamage());
+                map3.put(Stats.DAMAGE, value3.mul_damage());
+                map3.put(Stats.STRENGTH, value3.mul_strength());
+                map3.put(Stats.CRITCHANCE, value3.mul_critChance());
+                map3.put(Stats.CRITDAMAGE, value3.mul_critDamage());
 
-                map3.put(Stats.FEROCITY, value3.ferocity());
-                map3.put(Stats.ATTACKSPEED, value3.attackSpeed());
+                map3.put(Stats.FEROCITY, value3.mul_ferocity());
+                map3.put(Stats.ATTACKSPEED, value3.mul_attackSpeed());
 
-                map3.put(Stats.HEALTH, value3.health());
-                map3.put(Stats.DEFENSE, value3.defense());
-                map3.put(Stats.SPEED, value3.speed());
-                map3.put(Stats.INTELLIGENCE, value3.intelligence());
-                map3.put(Stats.AGILITY, value3.agility());
+                map3.put(Stats.HEALTH, value3.mul_health());
+                map3.put(Stats.DEFENSE, value3.mul_defense());
+                map3.put(Stats.SPEED, value3.mul_speed());
+                map3.put(Stats.INTELLIGENCE, value3.mul_intelligence());
+                map3.put(Stats.AGILITY, value3.mul_agility());
 
-                map3.put(Stats.HEALTHREGEN, value3.healthRegen());
-                map3.put(Stats.MANAREGEN, value3.manaRegen());
+                map3.put(Stats.HEALTHREGEN, value3.mul_healthRegen());
+                map3.put(Stats.MANAREGEN, value3.mul_manaRegen());
 
-                map3.put(Stats.LUCK, value3.luck());
+                map3.put(Stats.LUCK, value3.mul_luck());
+
+                accessoryMultiplicativeStatMap.get(e.getUniqueId()).put(i, map1);
             }
         }
     }
@@ -325,8 +351,8 @@ public class StatManager {
         Map<Stats, Double> finalStats = finalStatMap.get(entityId);
 
         Map<EquipmentSlot, Map<Stats, Double>> itemMap = itemStatMap.get(entityId);
-        Map<EquipmentSlot, Map<Stats, Double>> addMap = additiveStatMap.get(entityId);
-        Map<EquipmentSlot, Map<Stats, Double>> mulMap = multiplicativeStatMap.get(entityId);
+        Map<EquipmentSlot, Map<Stats, Double>> addMap = itemAdditiveStatMap.get(entityId);
+        Map<EquipmentSlot, Map<Stats, Double>> mulMap = itemMultiplicativeStatMap.get(entityId);
 
         Map<Integer, Map<Stats, Double>> accMap = accessoryStatMap.get(entityId);
         Map<Integer, Map<Stats, Double>> accAddMap = accessoryAdditiveStatMap.get(entityId);
@@ -337,16 +363,18 @@ public class StatManager {
         Map<Stats, Double> skillMap = skillBonusMap.get(entityId);
 
         for (Stats stat : Stats.values()) {
-            double accValue = 0, addValue = 0, mulValue = 1, reforgeValue = 0;
             double total;
-            if (baseMap == null || baseMap.isEmpty()) {
+            double base;
+            if (baseMap == null) {
                 e.remove();
                 StatManager.remove(entityId);
                 return;
             } else {
-                total = baseMap.get(stat);
+                base = baseMap.get(stat);
             }
 
+            double accValue = 0, accAddValue = 0, accMulValue = 0, reforgeValue = 0;
+            double finalBaseValue = 0, finalAddValue = 0, finalMulValue = 1;
             if (e instanceof Player p) {
                 ItemStack[] accessories = AccessoriesUtils.getAccessories().get(p.getUniqueId());
                 if (accessories == null) {
@@ -367,8 +395,8 @@ public class StatManager {
                     }
 
                     accValue += accMap.get(i).get(stat);
-                    addValue += accAddMap.get(i).get(stat);
-                    mulValue += accMulMap.get(i).get(stat) - 1;
+                    accAddValue += accAddMap.get(i).get(stat);
+                    accMulValue += accMulMap.get(i).get(stat) - 1;
                 }
 
                 ItemStack[] items = getItems(e);
@@ -435,24 +463,35 @@ public class StatManager {
                 }
             }
 
-            double finalBaseValue, finalAddValue = 0, finalMulValue = 0;
-            finalBaseValue = reforgeValue;
+            for (int i = 0; i < getItems(e).length; i++) {
+                ItemStack item = getItems(e)[i];
+                if (item == null) continue;
+                EquipmentSlot eq = itemTypeFromItemStack(item);
+                if (i == 0 && eq.equals(EquipmentSlot.HEAD)) finalBaseValue += PDCToMap(item, "enchants").get(stat);
+                if (i == 1 && eq.equals(EquipmentSlot.BODY)) finalBaseValue += PDCToMap(item, "enchants").get(stat);
+                if (i == 2 && eq.equals(EquipmentSlot.LEGS)) finalBaseValue += PDCToMap(item, "enchants").get(stat);
+                if (i == 3 && eq.equals(EquipmentSlot.FEET)) finalBaseValue += PDCToMap(item, "enchants").get(stat);
+                if (i == 4 && eq.equals(EquipmentSlot.HAND)) finalBaseValue += PDCToMap(item, "enchants").get(stat);
+            }
+
+            finalBaseValue += reforgeValue;
+
+            finalBaseValue += accValue;
+            finalAddValue += accAddValue;
+            finalMulValue += accMulValue;
 
             for (EquipmentSlot slot : slots) {
                 finalBaseValue += itemMap.get(slot).get(stat);
                 finalAddValue += addMap.get(slot).get(stat);
-                finalMulValue *= (mulMap.get(slot).get(stat) - 1);
+                finalMulValue += (mulMap.get(slot).get(stat) - 1);
             }
 
-            finalBaseValue += accValue;
-            finalAddValue += addValue;
-            finalMulValue += mulValue;
-
-            total += (finalBaseValue * finalMulValue) + finalAddValue;
+            total = ((base + finalBaseValue) * (finalMulValue)) + finalAddValue;
             if (e instanceof Player p) {
                 if (skillMap == null) {
                     StatManager.getSkillBonusMap().put(p.getUniqueId(), new HashMap<>());
-                    for (Stats stat2 : Stats.values()) StatManager.getSkillBonusMap().get(p.getUniqueId()).put(stat2, 0d);
+                    for (Stats stat2 : Stats.values())
+                        StatManager.getSkillBonusMap().get(p.getUniqueId()).put(stat2, 0d);
                 } else total += skillMap.get(stat);
             }
 
@@ -490,8 +529,8 @@ public class StatManager {
     public static void remove(UUID uuid) {
         baseStatMap.remove(uuid);
         itemStatMap.remove(uuid);
-        additiveStatMap.remove(uuid);
-        multiplicativeStatMap.remove(uuid);
+        itemAdditiveStatMap.remove(uuid);
+        itemMultiplicativeStatMap.remove(uuid);
         finalStatMap.remove(uuid);
     }
 
@@ -507,27 +546,26 @@ public class StatManager {
 
         // Loop through all slots and stats
         for (EquipmentSlot slot : slots) {
-            Map<Stats, Double> statMap = new EnumMap<>(Stats.class); // EnumMap for performance
+            Map<Stats, Double> statMap = new HashMap<>(); // EnumMap for performance
             Map<Stats, Double> additiveStatMap = new EnumMap<>(Stats.class);
             Map<Stats, Double> multiplicativeStatMap = new EnumMap<>(Stats.class);
 
             for (Stats stat : Stats.values()) {
-                statMap.put(stat, 0d);               // Initialize base stats
-                additiveStatMap.put(stat, 0d);       // Initialize additive stats
+                statMap.put(stat, 0d);
+                additiveStatMap.put(stat, 0d);               // Initialize base stats
                 multiplicativeStatMap.put(stat, 1d); // Initialize multiplicative stats
             }
 
             // Add the stat maps for the current slot
             itemStat.put(slot, statMap);
-            additiveStat.put(slot, additiveStatMap);
+            additiveStat.put(slot, statMap);
             multiplicativeStat.put(slot, multiplicativeStatMap);
         }
 
         // Finally, put the fully built maps in the main maps
         itemStatMap.put(entityId, itemStat);
-        additiveStatMap.put(entityId, additiveStat);
-        multiplicativeStatMap.put(entityId, multiplicativeStat);
-
+        itemAdditiveStatMap.put(entityId, additiveStat);
+        itemMultiplicativeStatMap.put(entityId, multiplicativeStat);
 
         accessoryStatMap.put(e.getUniqueId(), new HashMap<>());
         accessoryAdditiveStatMap.put(e.getUniqueId(), new HashMap<>());
