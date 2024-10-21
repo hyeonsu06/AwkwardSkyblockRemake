@@ -120,7 +120,13 @@ public class VanillaEntityManager implements Listener {
 
     public static void modifyData(EntitySpawnEvent e) {
         if (e.getEntity() instanceof LivingEntity){
-            if (e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.NATURAL) || e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.SPAWNER) || e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.TRIAL_SPAWNER)) {
+            if (
+                    e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.NATURAL) ||
+                    e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.SPAWNER) ||
+                    e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.TRIAL_SPAWNER) ||
+                    e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.POTION_EFFECT) ||
+                    e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.SLIME_SPLIT)
+            ) {
                 EntityType type = e.getEntity().getType();
                 if (type.equals(EntityType.WITHER)) {
                     ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(10000000);
