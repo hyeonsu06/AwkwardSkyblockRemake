@@ -78,21 +78,22 @@ public final class Main extends JavaPlugin {
             plugin.getCommand("addenchant").setTabCompleter(new AddEnchantmentTabCompleter());
             plugin.getCommand("autobuild").setExecutor(new AutoBuild());
 
-            getPluginManager().registerEvents(new ModifySomeFeatures(), plugin);
-            getPluginManager().registerEvents(new EnchantManager(), plugin);
-            getPluginManager().registerEvents(new VanillaEntityManager(), plugin);
-            getPluginManager().registerEvents(new EntityManager(), plugin);
-            getPluginManager().registerEvents(new SkillManager(), plugin);
-            getPluginManager().registerEvents(new AllItemsListener(), plugin);
-            getPluginManager().registerEvents(new AccessoriesListener(), plugin);
-
-            getPluginManager().registerEvents(new DragonHoming(), plugin);
 
             new StatManager();
             new NoParticle();
             new Refresher();
             new LoadItems().registerAllItems();
         }
+
+        getPluginManager().registerEvents(new ModifySomeFeatures(), plugin);
+        getPluginManager().registerEvents(new EnchantManager(), plugin);
+        getPluginManager().registerEvents(new VanillaEntityManager(), plugin);
+        getPluginManager().registerEvents(new EntityManager(), plugin);
+        getPluginManager().registerEvents(new SkillManager(), plugin);
+        getPluginManager().registerEvents(new AllItemsListener(), plugin);
+        getPluginManager().registerEvents(new AccessoriesListener(), plugin);
+
+        getPluginManager().registerEvents(new DragonHoming(), plugin);
 
         if (isReloading) {
             getLogger().info("Seems plugin is on reload, remapping stat map...");
