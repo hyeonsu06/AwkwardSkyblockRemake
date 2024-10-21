@@ -78,11 +78,6 @@ public final class Main extends JavaPlugin {
             plugin.getCommand("addenchant").setTabCompleter(new AddEnchantmentTabCompleter());
             plugin.getCommand("autobuild").setExecutor(new AutoBuild());
 
-
-            new StatManager();
-            new NoParticle();
-            new Refresher();
-            new LoadItems().registerAllItems();
         }
 
         getPluginManager().registerEvents(new ModifySomeFeatures(), plugin);
@@ -99,6 +94,11 @@ public final class Main extends JavaPlugin {
             getLogger().info("Seems plugin is on reload, remapping stat map...");
             loadData();
         }
+
+        new StatManager();
+        new NoParticle();
+        new Refresher();
+        new LoadItems().registerAllItems();
 
         for (World w : Bukkit.getWorlds())
             for (Entity e : w.getEntities())
