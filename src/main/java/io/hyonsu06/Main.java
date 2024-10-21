@@ -18,6 +18,10 @@ import io.hyonsu06.command.stat.setStatCommand;
 import io.hyonsu06.core.*;
 import io.hyonsu06.core.Refresher;
 import io.hyonsu06.core.managers.*;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -94,6 +98,8 @@ public final class Main extends JavaPlugin {
             getLogger().info("Seems plugin is on reload, remapping stat map...");
             loadData();
         }
+
+        for (World w : Bukkit.getWorlds()) for (Entity e : w.getEntities()) if (e instanceof TextDisplay display) if (display.getVehicle() == null) display.remove();
     }
 
     @Override
