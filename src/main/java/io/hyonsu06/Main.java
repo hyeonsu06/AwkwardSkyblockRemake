@@ -65,20 +65,18 @@ public final class Main extends JavaPlugin {
             getSkillClasses();
             getItemClasses();
             getReforgeClasses();
-
-            plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
-            plugin.getCommand("stat").setExecutor(new setStatCommand());
-            plugin.getCommand("stat").setTabCompleter(new setStatTabCompleter());
-            plugin.getCommand("reforge").setExecutor(new ReforgeCommand());
-            plugin.getCommand("reforge").setTabCompleter(new ReforgeTabCompleter());
-            plugin.getCommand("accessories").setExecutor(new ShowAccessoriesCommand());
-            plugin.getCommand("recombobulate").setExecutor(new RecombobulatorCommand());
-            plugin.getCommand("potato").setExecutor(new PotatoBookCommand());
-            plugin.getCommand("addenchant").setExecutor(new AddEnchantmentCommand());
-            plugin.getCommand("addenchant").setTabCompleter(new AddEnchantmentTabCompleter());
-            plugin.getCommand("autobuild").setExecutor(new AutoBuild());
-
         }
+        plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
+        plugin.getCommand("stat").setExecutor(new setStatCommand());
+        plugin.getCommand("stat").setTabCompleter(new setStatTabCompleter());
+        plugin.getCommand("reforge").setExecutor(new ReforgeCommand());
+        plugin.getCommand("reforge").setTabCompleter(new ReforgeTabCompleter());
+        plugin.getCommand("accessories").setExecutor(new ShowAccessoriesCommand());
+        plugin.getCommand("recombobulate").setExecutor(new RecombobulatorCommand());
+        plugin.getCommand("potato").setExecutor(new PotatoBookCommand());
+        plugin.getCommand("addenchant").setExecutor(new AddEnchantmentCommand());
+        plugin.getCommand("addenchant").setTabCompleter(new AddEnchantmentTabCompleter());
+        plugin.getCommand("autobuild").setExecutor(new AutoBuild());
 
         getPluginManager().registerEvents(new ModifySomeFeatures(), plugin);
         getPluginManager().registerEvents(new EnchantManager(), plugin);
