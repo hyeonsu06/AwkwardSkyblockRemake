@@ -42,83 +42,72 @@ public final class Main extends JavaPlugin {
     File myPluginFolder = new File(getDataFolder().getAbsolutePath());
     @Override
     public void onEnable() {
-        plugin = this;
-
-        File dataFile1 = new File(getDataFolder(), "baseMap.yml");
-        dataMapManager1 = new DataMapManager(dataFile1);
-
-        File dataFile2 = new File(getDataFolder(), "accessories.yml");
-        dataMapManager2 = new DataMapManager(dataFile2);
-
-        if (!myPluginFolder.exists()) {
-            boolean created = myPluginFolder.mkdirs();
-            if (created) {
-                getLogger().info("[" + this.getName() + "] Successfully created plugin directory to: " + myPluginFolder.getAbsolutePath());
-            } else {
-                getLogger().warning("[" + this.getName() + "] Could not create plugin directory to: " + myPluginFolder.getAbsolutePath());
-            }
-        } else {
-            getLogger().info("[" + this.getName() + "] Plugin directory already exists, skipping creating it");
-        }
-
-        plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
-        plugin.getCommand("stat").setExecutor(new setStatCommand());
-        plugin.getCommand("stat").setTabCompleter(new setStatTabCompleter());
-        plugin.getCommand("reforge").setExecutor(new ReforgeCommand());
-        plugin.getCommand("reforge").setTabCompleter(new ReforgeTabCompleter());
-        plugin.getCommand("accessories").setExecutor(new ShowAccessoriesCommand());
-        plugin.getCommand("recombobulate").setExecutor(new RecombobulatorCommand());
-        plugin.getCommand("potato").setExecutor(new PotatoBookCommand());
-        plugin.getCommand("addenchant").setExecutor(new AddEnchantmentCommand());
-        plugin.getCommand("addenchant").setTabCompleter(new AddEnchantmentTabCompleter());
-        plugin.getCommand("autobuild").setExecutor(new AutoBuild());
-
         if (!isReloading) {
+            plugin = this;
+
+            File dataFile1 = new File(getDataFolder(), "baseMap.yml");
+            dataMapManager1 = new DataMapManager(dataFile1);
+
+            File dataFile2 = new File(getDataFolder(), "accessories.yml");
+            dataMapManager2 = new DataMapManager(dataFile2);
+
+            if (!myPluginFolder.exists()) {
+                boolean created = myPluginFolder.mkdirs();
+                if (created) {
+                    getLogger().info("[" + this.getName() + "] Successfully created plugin directory to: " + myPluginFolder.getAbsolutePath());
+                } else {
+                    getLogger().warning("[" + this.getName() + "] Could not create plugin directory to: " + myPluginFolder.getAbsolutePath());
+                }
+            } else {
+                getLogger().info("[" + this.getName() + "] Plugin directory already exists, skipping creating it");
+            }
+
             getSkillClasses();
             getItemClasses();
             getReforgeClasses();
+
+            plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
+            plugin.getCommand("stat").setExecutor(new setStatCommand());
+            plugin.getCommand("stat").setTabCompleter(new setStatTabCompleter());
+            plugin.getCommand("reforge").setExecutor(new ReforgeCommand());
+            plugin.getCommand("reforge").setTabCompleter(new ReforgeTabCompleter());
+            plugin.getCommand("accessories").setExecutor(new ShowAccessoriesCommand());
+            plugin.getCommand("recombobulate").setExecutor(new RecombobulatorCommand());
+            plugin.getCommand("potato").setExecutor(new PotatoBookCommand());
+            plugin.getCommand("addenchant").setExecutor(new AddEnchantmentCommand());
+            plugin.getCommand("addenchant").setTabCompleter(new AddEnchantmentTabCompleter());
+            plugin.getCommand("autobuild").setExecutor(new AutoBuild());
+
+            getPluginManager().registerEvents(new ModifySomeFeatures(), plugin);
+            getPluginManager().registerEvents(new EnchantManager(), plugin);
+            getPluginManager().registerEvents(new VanillaEntityManager(), plugin);
+            getPluginManager().registerEvents(new EntityManager(), plugin);
+            getPluginManager().registerEvents(new SkillManager(), plugin);
+            getPluginManager().registerEvents(new AllItemsListener(), plugin);
+            getPluginManager().registerEvents(new AccessoriesListener(), plugin);
+
+            getPluginManager().registerEvents(new DragonHoming(), plugin);
+
+            new StatManager();
+            new NoParticle();
+            new Refresher();
+            new LoadItems().registerAllItems();
         }
-
-        getPluginManager().registerEvents(new ModifySomeFeatures(), plugin);
-        getPluginManager().registerEvents(new EnchantManager(), plugin);
-        getPluginManager().registerEvents(new VanillaEntityManager(), plugin);
-        getPluginManager().registerEvents(new EntityManager(), plugin);
-        getPluginManager().registerEvents(new SkillManager(), plugin);
-        getPluginManager().registerEvents(new AllItemsListener(), plugin);
-        getPluginManager().registerEvents(new AccessoriesListener(), plugin);
-
-        getPluginManager().registerEvents(new DragonHoming(), plugin);
-
-        new StatManager();
-        new NoParticle();
-        new Refresher();
-        new LoadItems().registerAllItems();
 
         if (isReloading) {
             getLogger().info("Seems plugin is on reload, remapping stat map...");
             loadData();
         }
 
-        for (World w : Bukkit.getWorlds()) for (Entity e : w.getEntities()) if (e instanceof TextDisplay display) if (display.getVehicle() == null) display.remove();
+        for (World w : Bukkit.getWorlds())
+            for (Entity e : w.getEntities())
+                if (e instanceof TextDisplay display) if (display.getVehicle() == null) display.remove();
     }
 
     @Override
     public void onDisable() {
         saveData();
         for (BukkitTask task : getScheduler().getPendingTasks()) if (task.getOwner().equals(plugin)) if (!EntityManager.getPlayerTaskMap().containsValue(task.getTaskId())) task.cancel();
-        HandlerList.unregisterAll(plugin);
-
-        plugin.getCommand("items").setExecutor(null);
-        plugin.getCommand("stat").setExecutor(null);
-        plugin.getCommand("stat").setTabCompleter(null);
-        plugin.getCommand("reforge").setExecutor(null);
-        plugin.getCommand("reforge").setTabCompleter(null);
-        plugin.getCommand("accessories").setExecutor(null);
-        plugin.getCommand("recombobulate").setExecutor(null);
-        plugin.getCommand("potato").setExecutor(null);
-        plugin.getCommand("addenchant").setExecutor(null);
-        plugin.getCommand("addenchant").setTabCompleter(null);
-        plugin.getCommand("autobuild").setExecutor(null);
 
         StatManager.setBaseStatMap(null);
         AccessoriesUtils.setAccessories(null);
