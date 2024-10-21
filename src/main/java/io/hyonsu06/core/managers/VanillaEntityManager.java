@@ -356,14 +356,6 @@ public class VanillaEntityManager implements Listener {
                     ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(100);
                 }
                 if (type.equals(EntityType.ENDERMAN)) {
-                    if (e.getLocation().getWorld().getEnvironment().equals(World.Environment.THE_END)) {
-                        ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20000);
-                        ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(5000);
-                    }
-                    if (e.getLocation().getWorld().getEnvironment().equals(World.Environment.NETHER)) {
-                        ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(5000);
-                        ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(2000);
-                    }
                     if (e.getLocation().getWorld().getEnvironment().equals(World.Environment.NORMAL)) {
                         ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(500);
                         ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(50);

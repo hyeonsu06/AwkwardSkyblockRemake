@@ -155,23 +155,29 @@ public class EntityManager implements Listener {
 
                     switch (event) {
                         case CreatureSpawnEvent ignored -> {
+                            if (e.getWorld().getEnvironment().equals(World.Environment.NETHER)) {
+                                if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
+                                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 200);
+                                if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
+                                    e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 3000);
+                            }
                             initEntity(e);
                             addDisplay(e);
                         }
                         case SpawnerSpawnEvent ignored -> {
                             if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
-                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 30);
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 20);
                             if (e.getAttribute(Attribute.GENERIC_ARMOR) != null)
                                 e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(1);
                             if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
-                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 10);
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 50);
                             initEntity(e);
                             addDisplay(e);
                         }
                         case TrialSpawnerSpawnEvent ignored -> {
                             if (hasOminousTrialSpawner(getBlocksInRadius(e, 5))) {
                                 if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
-                                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 10000);
+                                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 1000);
                                 if (e.getAttribute(Attribute.GENERIC_ARMOR) != null)
                                     e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(9);
                                 if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
