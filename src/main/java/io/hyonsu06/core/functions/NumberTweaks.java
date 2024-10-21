@@ -24,23 +24,23 @@ public class NumberTweaks {
             return String.format("%,d", (long) number);
         } else {
             // Format with decimal points (if needed)
-            return String.format("%,.0f", number);
+            return String.format("%,1f", number);
         }
     }
 
     public static String shortNumber(double value) {
         if (value >= 1_000_000_000_000_000_000d) {
-            return String.format("%.1fQi", value / 1_000_000_000_000_000_000d);
+            return String.format("%.0fQi", value / 1_000_000_000_000_000_000d);
         } else if (value >= 1_000_000_000_000_000d) {
-            return String.format("%.1fQa", value / 1_000_000_000_000_000d);
+            return String.format("%.0fQa", value / 1_000_000_000_000_000d);
         } else if (value >= 1_000_000_000_000d) {
-            return String.format("%.1fT", value / 1_000_000_000_000d);
+            return String.format("%.0fT", value / 1_000_000_000_000d);
         } else if (value >= 1_000_000_000) {
-            return String.format("%.1fB", value / 1_000_000_000);
+            return String.format("%.0fB", value / 1_000_000_000);
         } else if (value >= 1_000_000) {
-            return String.format("%.1fM", value / 1_000_000);
+            return String.format("%.0fM", value / 1_000_000);
         } else if (value >= 1_000) {
-            return String.format("%.1fk", value / 1_000);
+            return String.format("%.0fk", value / 1_000);
         } else {
             return String.valueOf((long) value); // No formatting for small numbers
         }
