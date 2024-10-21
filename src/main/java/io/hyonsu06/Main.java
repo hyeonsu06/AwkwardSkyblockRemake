@@ -17,6 +17,7 @@ import io.hyonsu06.command.stat.setStatTabCompleter;
 import io.hyonsu06.command.stat.setStatCommand;
 import io.hyonsu06.core.*;
 import io.hyonsu06.core.Refresher;
+import io.hyonsu06.core.functions.setSkillMapOfEntity;
 import io.hyonsu06.core.managers.*;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -122,6 +123,8 @@ public final class Main extends JavaPlugin {
 
         StatManager.setBaseStatMap(null);
         AccessoriesUtils.setAccessories(null);
+        setSkillMapOfEntity.setSkillMap(null);
+        SkillManager.setCooldownMap(null);
     }
 
     // Save all data

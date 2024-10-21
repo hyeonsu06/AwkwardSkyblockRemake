@@ -374,7 +374,7 @@ public class StatManager {
             }
 
             double accValue = 0, accAddValue = 0, accMulValue = 0, reforgeValue = 0;
-            double finalBaseValue = 0, finalAddValue = 0, finalMulValue = 1;
+            double finalBaseValue, finalAddValue = 0, finalMulValue = 1;
             if (e instanceof Player p) {
                 ItemStack[] accessories = AccessoriesUtils.getAccessories().get(p.getUniqueId());
                 if (accessories == null) {
@@ -463,6 +463,8 @@ public class StatManager {
                 }
             }
 
+            finalBaseValue = reforgeValue;
+
             for (int i = 0; i < getItems(e).length; i++) {
                 ItemStack item = getItems(e)[i];
                 if (item == null) continue;
@@ -473,8 +475,6 @@ public class StatManager {
                 if (i == 3 && eq.equals(EquipmentSlot.FEET)) finalBaseValue += PDCToMap(item, "enchants").get(stat);
                 if (i == 4 && eq.equals(EquipmentSlot.HAND)) finalBaseValue += PDCToMap(item, "enchants").get(stat);
             }
-
-            finalBaseValue += reforgeValue;
 
             finalBaseValue += accValue;
             finalAddValue += accAddValue;
