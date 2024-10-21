@@ -110,6 +110,18 @@ public final class Main extends JavaPlugin {
         saveData();
         for (BukkitTask task : getScheduler().getPendingTasks()) if (task.getOwner().equals(plugin)) if (!EntityManager.getPlayerTaskMap().containsValue(task.getTaskId())) task.cancel();
 
+        plugin.getCommand("items").setExecutor(null);
+        plugin.getCommand("stat").setExecutor(null);
+        plugin.getCommand("stat").setTabCompleter(null);
+        plugin.getCommand("reforge").setExecutor(null);
+        plugin.getCommand("reforge").setTabCompleter(null);
+        plugin.getCommand("accessories").setExecutor(null);
+        plugin.getCommand("recombobulate").setExecutor(null);
+        plugin.getCommand("potato").setExecutor(null);
+        plugin.getCommand("addenchant").setExecutor(null);
+        plugin.getCommand("addenchant").setTabCompleter(null);
+        plugin.getCommand("autobuild").setExecutor(null);
+
         StatManager.setBaseStatMap(null);
         AccessoriesUtils.setAccessories(null);
     }
