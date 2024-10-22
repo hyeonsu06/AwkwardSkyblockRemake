@@ -161,7 +161,7 @@ public class EntityManager implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler
     public void onSpawn(EntitySpawnEvent event) {
         if (event.getEntity() instanceof LivingEntity e) {
             if (!(e instanceof TextDisplay) && !(e instanceof Player)) {
@@ -170,6 +170,9 @@ public class EntityManager implements Listener {
 
                     if (
                             e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.NATURAL) ||
+                                    e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.BUILD_WITHER) ||
+                                    e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.BUILD_SNOWMAN) ||
+                                    e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.BUILD_IRONGOLEM) ||
                                     e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.SPAWNER) ||
                                     e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.TRIAL_SPAWNER) ||
                                     e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.POTION_EFFECT) ||
