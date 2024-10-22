@@ -311,10 +311,10 @@ public class SkillManager implements Listener {
                             if (m.getName().equals("onHit")) {
                                 Object skillInstance = skillClass.getDeclaredConstructor().newInstance();
                                 Skill skill = skillClass.getAnnotation(Skill.class);
-                                Map<String, Integer> temp1 = Map.of(skill.ID(), 0);
-                                Map<String, Boolean> temp2 = Map.of(skill.ID(), false);
+                                Map<String, Integer> temp1 = new HashMap<>(Map.of(skill.ID(), 0));
                                 cooldownMap.putIfAbsent(p.getUniqueId(), temp1);
-                                setSkillMapOfEntity.getSkillMap().putIfAbsent(p.getUniqueId(), temp2);
+                                if (setSkillMapOfEntity.getSkillMap() == null) setSkillMapOfEntity.getSkillMap().put(p.getUniqueId(), new HashMap<>());
+                                setSkillMapOfEntity.getSkillMap().computeIfAbsent(p.getUniqueId(), k -> Map.of(skill.ID(), false));
                                 if (setSkillMapOfEntity.getSkillMap().get(p.getUniqueId()).get(skill.ID())) {
                                     m.invoke(skillInstance, p, event.getEntity(), event.getDamage());
                                 }
