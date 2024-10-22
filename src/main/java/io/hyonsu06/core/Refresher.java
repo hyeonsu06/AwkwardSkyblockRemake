@@ -661,8 +661,10 @@ public class Refresher {
 
         // Append words and collect into lines based on character limit
         for (String word : words) {
+            int wordLength = word.length();
+
             // Check if adding this word would exceed the max character count
-            if (charCount + word.length() + (currentLine.length() > 0 ? 1 : 0) > maxCharCount) {
+            if (charCount + wordLength + (!currentLine.isEmpty() ? 1 : 0) > maxCharCount) {
                 // If so, add the current line to the result list and reset for the next line
                 result.add(currentLine.toString().trim());
                 currentLine.setLength(0);
@@ -671,7 +673,7 @@ public class Refresher {
 
             // Add the word to the current line
             currentLine.append(word).append(" ");
-            charCount += word.length() + 1;  // Include the space after the word
+            charCount += wordLength + 1;  // Include the space after the word
         }
 
         // Add any remaining words in the current line
@@ -681,6 +683,7 @@ public class Refresher {
 
         return result;
     }
+
 /*
     public static List<String> addSkillDescription(String template, int wordsPerLine, long[] args, ChatColor color1, ChatColor color2) {
         String formatted = template;
