@@ -182,8 +182,8 @@ public class EntityManager implements Listener {
                         e.getPersistentDataContainer().set(getPDC("natural"), PersistentDataType.BOOLEAN, true);
 
                         if (type.equals(EntityType.WITHER)) {
-                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100000000);
-                            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(2);
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(500000);
+                            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(9);
                             e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(3000);
                         }
                         if (type.equals(EntityType.WARDEN)) {
@@ -418,13 +418,13 @@ public class EntityManager implements Listener {
                         case CreatureSpawnEvent ignored -> {
                             if (e.getWorld().getEnvironment().equals(World.Environment.NETHER)) {
                                 if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
-                                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 200);
+                                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 400);
                                 if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
                                     e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 3000);
                             }
-                            if (e.getWorld().getEnvironment().equals(World.Environment.NETHER)) {
+                            if (e.getWorld().getEnvironment().equals(World.Environment.THE_END)) {
                                 if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
-                                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 2000);
+                                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 3000);
                                 if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
                                     e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 10000);
                             }
@@ -433,7 +433,7 @@ public class EntityManager implements Listener {
                         }
                         case SpawnerSpawnEvent ignored -> {
                             if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
-                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 20);
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 30);
                             if (e.getAttribute(Attribute.GENERIC_ARMOR) != null)
                                 e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(1);
                             if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
@@ -444,11 +444,11 @@ public class EntityManager implements Listener {
                         case TrialSpawnerSpawnEvent ignored -> {
                             if (hasOminousTrialSpawner(getBlocksInRadius(e, 5))) {
                                 if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
-                                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 1000);
+                                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 3000);
                                 if (e.getAttribute(Attribute.GENERIC_ARMOR) != null)
                                     e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(9);
                                 if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
-                                    e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 2000);
+                                    e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 8000);
                                 e.getPersistentDataContainer().set(getPDC("ominous"), PersistentDataType.BOOLEAN, true);
                             } else {
                                 e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 1000);
@@ -567,9 +567,8 @@ public class EntityManager implements Listener {
     public void onHeal(EntityRegainHealthEvent event) {
         Map<Stats, Double> statMap = StatManager.getFinalStatMap().get(event.getEntity().getUniqueId());
         double health = statMap.get(Stats.HEALTH);
-        double healthRegen = 100;
-        if (event.getEntity() instanceof Player) healthRegen = statMap.get(Stats.HEALTHREGEN);
-        double regen = health / 80 * asPercentageMultiplier(healthRegen);
+        double healthRegen = statMap.get(Stats.HEALTHREGEN);
+        double regen = health / 40 * asPercentageMultiplier(healthRegen);
         event.setAmount(regen);
         updateDisplay((LivingEntity) event.getEntity());
     }
@@ -683,7 +682,7 @@ public class EntityManager implements Listener {
                                         @Override
                                         public void run() {
                                             if (victim.isValid() || hits == guaranteed) {
-                                                this.cancel();
+                                                cancel();
 
                                                 new BukkitRunnable() {
                                                     @Override
@@ -831,7 +830,7 @@ public class EntityManager implements Listener {
 
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event) {
-        if (!(event.getEntity() instanceof Player)) {
+        if (event.getEntity() instanceof Creeper) {
             StatManager.remove(event.getEntity().getUniqueId());
         }
     }
@@ -900,6 +899,7 @@ public class EntityManager implements Listener {
 
     public static Pair<Double, Boolean> getFinalDamage(Entity attacker) {
         Map<Stats, Double> attackerMap = StatManager.getFinalStatMap().get(attacker.getUniqueId());
+        getLogger().info("getFinalDamage: " + attacker.getUniqueId());
 
         double damage = attackerMap.get(Stats.DAMAGE);
         double strength = 0;
