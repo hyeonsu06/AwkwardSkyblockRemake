@@ -70,6 +70,7 @@ public final class Main extends JavaPlugin {
             new NoParticle();
             new Refresher();
         }
+
         plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
         plugin.getCommand("stat").setExecutor(new setStatCommand());
         plugin.getCommand("stat").setTabCompleter(new setStatTabCompleter());

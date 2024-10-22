@@ -4,7 +4,7 @@ main: io.hyonsu06.Main
 api-version: '1.21'
 prefix: AwkwardSkyblockRemake
 load: STARTUP
-authors: [ (Discord) nuriadofai ]
+authors: [ "(Discord) nuriadofai" ]
 description: something dumbass thing that simulates hypixel skyblock
 website: nope
 depend: [ProtocolLib]
