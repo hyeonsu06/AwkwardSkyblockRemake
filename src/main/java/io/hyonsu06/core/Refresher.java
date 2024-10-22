@@ -6,7 +6,6 @@ import io.hyonsu06.core.annotations.items.items.ItemAdditiveBonus;
 import io.hyonsu06.core.annotations.items.items.ItemMultiplicativeBonus;
 import io.hyonsu06.core.annotations.items.reforge.ReforgeMetadata;
 import io.hyonsu06.core.annotations.skills.Skill;
-import io.hyonsu06.core.annotations.tags.SkillTagged;
 import io.hyonsu06.core.enums.ReforgeType;
 import io.hyonsu06.core.enums.Stats;
 import io.hyonsu06.item.enchantments.Enchantment;
@@ -33,7 +32,6 @@ import static io.hyonsu06.core.functions.ItemTypeForSlot.getReforgeType;
 import static io.hyonsu06.core.functions.NumberTweaks.*;
 import static io.hyonsu06.core.functions.getClasses.getItemClasses;
 import static io.hyonsu06.core.functions.getClasses.getReforgeClasses;
-import static io.hyonsu06.core.functions.getMagicDamage.magicDamage;
 import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getItemID;
 import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getPDC;
 import static io.hyonsu06.core.functions.getStatText.*;
@@ -65,17 +63,18 @@ public class Refresher {
             public void run() {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     for (int slot = 0; slot < p.getInventory().getSize(); slot++) {
-                        if (p.getInventory().getItem(slot) != null) refreshItemVisuals(p, p.getInventory().getItem(slot));
+                        if (p.getInventory().getItem(slot) != null) refreshItemVisuals(p.getInventory().getItem(slot));
                     }
                 }
             }
         }.runTaskTimer(plugin, 0, 1);
     }
 
-    public void refreshItemVisuals(Player player, ItemStack item) {
+    public void refreshItemVisuals(ItemStack item) {
         // Check if item has ItemMetadata
         ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.getPersistentDataContainer().has(getPDC("id"), PersistentDataType.STRING)) return; // No valid item metadata
+        if (meta == null || !meta.getPersistentDataContainer().has(getPDC("id"), PersistentDataType.STRING))
+            return; // No valid item metadata
 
         String reforge = meta.getPersistentDataContainer().get(getPDC("reforge"), PersistentDataType.STRING);
         Class<?> reforgeClass = null;
@@ -117,12 +116,15 @@ public class Refresher {
         boolean isRecombobulatorEXPresent;
         Object temp1 = meta.getPersistentDataContainer().get(getPDC("recombobulator"), PersistentDataType.BOOLEAN);
         Object temp2 = meta.getPersistentDataContainer().get(getPDC("recombobulatorEX"), PersistentDataType.BOOLEAN);
-        if (temp1 == null) isRecombobulatorPresent = false; else isRecombobulatorPresent = (boolean) temp1;
-        if (temp2 == null) isRecombobulatorEXPresent = false; else isRecombobulatorEXPresent = (boolean) temp2;
+        if (temp1 == null) isRecombobulatorPresent = false;
+        else isRecombobulatorPresent = (boolean) temp1;
+        if (temp2 == null) isRecombobulatorEXPresent = false;
+        else isRecombobulatorEXPresent = (boolean) temp2;
 
         int potatoBooks;
         Object temp3 = meta.getPersistentDataContainer().get(getPDC("potato"), PersistentDataType.INTEGER);
-        if (temp3 == null) potatoBooks = 0; else potatoBooks = (int) temp3;
+        if (temp3 == null) potatoBooks = 0;
+        else potatoBooks = (int) temp3;
 
         if (clazz.isAnnotationPresent(ItemStats.class)) {
             ItemStats stats = clazz.getAnnotation(ItemStats.class);
@@ -260,7 +262,9 @@ public class Refresher {
         long customDurability = 0;
         Long customCurrentDamage = item.getItemMeta().getPersistentDataContainer().get(getPDC("damage"), PersistentDataType.LONG);
         if (customCurrentDamage == null) customCurrentDamage = 0L;
-        for (Class<?> clazz2 : getItemClasses()) if (clazz2.getAnnotation(ItemMetadata.class).ID().equals(getItemID(item))) customDurability = clazz2.getAnnotation(ItemMetadata.class).durability();
+        for (Class<?> clazz2 : getItemClasses())
+            if (clazz2.getAnnotation(ItemMetadata.class).ID().equals(getItemID(item)))
+                customDurability = clazz2.getAnnotation(ItemMetadata.class).durability();
 
         double customDurabilityPercentage = ((double) (customDurability - customCurrentDamage) / customDurability);
         short finalDurability = (short) ((item.getType().getMaxDurability() - (item.getType().getMaxDurability() - ((1 - customDurabilityPercentage) * item.getType().getMaxDurability()))));
@@ -286,7 +290,8 @@ public class Refresher {
             lore.add(color + "" + ChatColor.BOLD + ChatColor.MAGIC + "xx" + ChatColor.RESET + color + " " + ChatColor.BOLD + next(next(metadata.rarity())).getDisplay().toUpperCase() + " " + metadata.type().getDisplay().toUpperCase() + " " + ChatColor.MAGIC + "xx");
         } else if (isRecombobulatorPresent) {
             lore.add(color + "" + ChatColor.BOLD + ChatColor.MAGIC + "x" + ChatColor.RESET + color + " " + ChatColor.BOLD + next(metadata.rarity()).getDisplay().toUpperCase() + " " + metadata.type().getDisplay().toUpperCase() + " " + ChatColor.MAGIC + "x");
-        } else lore.add(color + "" + ChatColor.BOLD + metadata.rarity().getDisplay().toUpperCase() + " " + metadata.type().getDisplay().toUpperCase());
+        } else
+            lore.add(color + "" + ChatColor.BOLD + metadata.rarity().getDisplay().toUpperCase() + " " + metadata.type().getDisplay().toUpperCase());
         meta.setLore(lore);
 
         // Reapply meta to item
@@ -311,7 +316,8 @@ public class Refresher {
         Map<Stats, Double> map2 = new EnumMap<>(Stats.class);
         for (Stats stats : Stats.values()) map2.put(stats, 0d);
 
-        if (item != null) if (item.getPersistentDataContainer().has(getPDC("enchants"), PersistentDataType.STRING)) map2 = PDCToMap(item, "enchants");
+        if (item != null) if (item.getPersistentDataContainer().has(getPDC("enchants"), PersistentDataType.STRING))
+            map2 = PDCToMap(item, "enchants");
 
         if (damage != 0 || map.get(Stats.DAMAGE)[rarity] != 0 || (potato > 0 && (type == ReforgeType.MELEE || type == ReforgeType.RANGED)) || (map2.get(Stats.DAMAGE) != null && map2.get(Stats.DAMAGE) != 0)) {
             String stat = ChatColor.GRAY + "Damage: ";
@@ -637,6 +643,50 @@ public class Refresher {
 
     public static List<String> addSkillDescription(String template, int wordsPerLine, long[] args, ChatColor color1, ChatColor color2) {
         String formatted = template;
+
+        // Replace placeholders in the template with colored arguments
+        for (int i = 0; i < args.length; i++) {
+            String placeholder = "{" + i + "}";
+            String coloredArg = color2 + numberFormat(args[i]) + color1;  // Apply the placeholder color
+            formatted = formatted.replace(placeholder, coloredArg);
+        }
+
+        // Split the formatted string into words
+        String[] words = formatted.split(" ");
+        List<String> result = new ArrayList<>();
+        StringBuilder currentLine = new StringBuilder();
+
+        // Variables to track word and character count
+        int wordCount = 0;
+        int charCount = 0;
+
+        // Append words and collect into lines based on word or character limits
+        for (String word : words) {
+            // Check if adding this word will exceed 30 characters
+            if (charCount + word.length() > 50 || wordCount >= wordsPerLine) {
+                // If so, add the current line to the result list and reset counts
+                result.add(currentLine.toString().trim());
+                currentLine.setLength(0);
+                wordCount = 0;
+                charCount = 0;
+            }
+
+            // Add the word to the current line
+            currentLine.append(color1).append(word).append(" ");
+            wordCount++;
+            charCount += word.length() + 1;  // Include the space after each word
+        }
+
+        // Add any remaining words in the current line
+        if (!currentLine.isEmpty()) {
+            result.add(currentLine.toString().trim());
+        }
+
+        return result;
+    }
+/*
+    public static List<String> addSkillDescription(String template, int wordsPerLine, long[] args, ChatColor color1, ChatColor color2) {
+        String formatted = template;
         for (int i = 0; i < args.length; i++) {
             String placeholder = "{" + i + "}";
             String coloredArg = color2 + numberFormat(args[i]) + color1;  // Apply the placeholder color
@@ -669,4 +719,5 @@ public class Refresher {
 
         return result;  // Return the list of split lines
     }
+ */
 }
