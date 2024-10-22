@@ -401,7 +401,7 @@ public class StatManager {
                 StatManager.remove(entityId);
                 return;
             } else {
-                base = baseMap.get(stat);
+                base = baseMap.getOrDefault(stat, 0d);
             }
 
             double accValue = 0, accAddValue = 0, accMulValue = 0, reforgeValue = 0;
@@ -501,11 +501,11 @@ public class StatManager {
                 ItemStack item = getItems(e)[i];
                 if (item == null) continue;
                 EquipmentSlot eq = itemTypeFromItemStack(item);
-                if (i == 0 && eq.equals(EquipmentSlot.HEAD)) finalBaseValue += PDCToMap(item, "enchants").get(stat);
-                if (i == 1 && eq.equals(EquipmentSlot.BODY)) finalBaseValue += PDCToMap(item, "enchants").get(stat);
-                if (i == 2 && eq.equals(EquipmentSlot.LEGS)) finalBaseValue += PDCToMap(item, "enchants").get(stat);
-                if (i == 3 && eq.equals(EquipmentSlot.FEET)) finalBaseValue += PDCToMap(item, "enchants").get(stat);
-                if (i == 4 && eq.equals(EquipmentSlot.HAND)) finalBaseValue += PDCToMap(item, "enchants").get(stat);
+                if (i == 0 && eq.equals(EquipmentSlot.HEAD)) finalBaseValue += PDCToMap(item, "enchants").getOrDefault(stat, 0d);
+                if (i == 1 && eq.equals(EquipmentSlot.BODY)) finalBaseValue += PDCToMap(item, "enchants").getOrDefault(stat, 0d);
+                if (i == 2 && eq.equals(EquipmentSlot.LEGS)) finalBaseValue += PDCToMap(item, "enchants").getOrDefault(stat, 0d);
+                if (i == 3 && eq.equals(EquipmentSlot.FEET)) finalBaseValue += PDCToMap(item, "enchants").getOrDefault(stat, 0d);
+                if (i == 4 && eq.equals(EquipmentSlot.HAND)) finalBaseValue += PDCToMap(item, "enchants").getOrDefault(stat, 0d);
             }
 
             finalBaseValue += accValue;
