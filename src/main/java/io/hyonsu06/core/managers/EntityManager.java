@@ -494,8 +494,6 @@ public class EntityManager implements Listener {
 
         if (!map.get(p.getUniqueId()).containsKey(Stats.LUCK)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.LUCK, 0d);
 
-        p.sendMessage(StatManager.getBaseStatMap().get(p.getUniqueId()).toString());
-
         if (!StatManager.getSkillBonusMap().containsKey(p.getUniqueId())) {
             StatManager.getSkillBonusMap().put(p.getUniqueId(), new HashMap<>());
             for (Stats stat : Stats.values()) StatManager.getSkillBonusMap().get(p.getUniqueId()).put(stat, 0d);
