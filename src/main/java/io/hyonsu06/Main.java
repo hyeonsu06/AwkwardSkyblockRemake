@@ -66,9 +66,6 @@ public final class Main extends JavaPlugin {
             getItemClasses();
             getReforgeClasses();
 
-            new LoadItems().registerAllItems();
-            new NoParticle();
-            new Refresher();
         }
 
         plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
@@ -99,6 +96,9 @@ public final class Main extends JavaPlugin {
         }
 
         new StatManager();
+        new LoadItems().registerAllItems();
+        new NoParticle();
+        new Refresher();
 
         for (World w : Bukkit.getWorlds())
             for (Entity e : w.getEntities())
