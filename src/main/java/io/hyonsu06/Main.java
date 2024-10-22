@@ -42,6 +42,7 @@ public final class Main extends JavaPlugin {
     public static DataMapManager dataMapManager2;
 
     File myPluginFolder = new File(getDataFolder().getAbsolutePath());
+
     @Override
     public void onEnable() {
         if (!isReloading) {
@@ -82,9 +83,9 @@ public final class Main extends JavaPlugin {
         plugin.getCommand("addenchant").setTabCompleter(new AddEnchantmentTabCompleter());
         plugin.getCommand("autobuild").setExecutor(new AutoBuild());
 
-        StatManager.instance();
-        NoParticle.instance();
-        Refresher.instance();
+        new StatManager();
+        new NoParticle();
+        new Refresher();
 
         getPluginManager().registerEvents(new ModifySomeFeatures(), plugin);
         getPluginManager().registerEvents(new VanillaEntityManager(), plugin);
