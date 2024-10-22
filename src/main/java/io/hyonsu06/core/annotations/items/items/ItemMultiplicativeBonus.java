@@ -25,5 +25,7 @@ public @interface ItemMultiplicativeBonus {
     double mul_healthRegen() default 1;
     double mul_manaRegen() default 1;
 
+    double mul_swingRange() default 1;
+
     double mul_luck() default 1;
 }

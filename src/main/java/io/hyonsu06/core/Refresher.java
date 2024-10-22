@@ -135,6 +135,7 @@ public class Refresher {
                         stats.ferocity(), stats.attackSpeed(),
                         stats.health(), stats.defense(), stats.speed(), stats.intelligence(), stats.agility(),
                         stats.healthRegen(), stats.manaRegen(),
+                        stats.swingRange(),
                         stats.luck(),
                         reforgeMap, rarityToIndex(next(next(metadata.rarity()))),
                         potatoBooks,
@@ -148,6 +149,7 @@ public class Refresher {
                         stats.ferocity(), stats.attackSpeed(),
                         stats.health(), stats.defense(), stats.speed(), stats.intelligence(), stats.agility(),
                         stats.healthRegen(), stats.manaRegen(),
+                        stats.swingRange(),
                         stats.luck(),
                         reforgeMap, rarityToIndex(next(metadata.rarity())),
                         potatoBooks,
@@ -161,6 +163,7 @@ public class Refresher {
                         stats.ferocity(), stats.attackSpeed(),
                         stats.health(), stats.defense(), stats.speed(), stats.intelligence(), stats.agility(),
                         stats.healthRegen(), stats.manaRegen(),
+                        stats.swingRange(),
                         stats.luck(),
                         reforgeMap, rarityToIndex(metadata.rarity()),
                         potatoBooks,
@@ -178,6 +181,7 @@ public class Refresher {
                     bonus1.add_ferocity(), bonus1.add_attackSpeed(),
                     bonus1.add_health(), bonus1.add_defense(), bonus1.add_speed(), bonus1.add_intelligence(), bonus1.add_agility(),
                     bonus1.add_healthRegen(), bonus1.add_manaRegen(),
+                    bonus1.add_swingRange(),
                     bonus1.add_luck()
             );
         }
@@ -190,6 +194,7 @@ public class Refresher {
                     bonus2.mul_ferocity(), bonus2.mul_attackSpeed(),
                     bonus2.mul_health(), bonus2.mul_defense(), bonus2.mul_speed(), bonus2.mul_intelligence(), bonus2.mul_agility(),
                     bonus2.mul_healthRegen(), bonus2.mul_manaRegen(),
+                    bonus2.mul_swingRange(),
                     bonus2.mul_luck()
             );
         }
@@ -309,7 +314,18 @@ public class Refresher {
         return null; // Placeholder return
     }
 
-    public static void baseStatLore(List<String> lore, double damage, double strength, double critChance, double critDamage, double ferocity, double attackSpeed, double health, double defense, double speed, double intelligence, double agility, double healthRegen, double manaRegen, double luck, Map<Stats, Double[]> map, int rarity, int potato, ReforgeType type, ItemStack item) {
+    public static void baseStatLore(
+            List<String> lore,
+            double damage, double strength, double critChance, double critDamage,
+            double ferocity, double attackSpeed,
+            double health, double defense, double speed, double intelligence, double agility,
+            double healthRegen, double manaRegen,
+            double swingRange,
+            double luck,
+            Map<Stats, Double[]> map, int rarity,
+            int potato, ReforgeType type,
+            ItemStack item
+    ) {
         Double[] defaultMap = new Double[]{0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d};
         for (Stats stat : Stats.values()) map.putIfAbsent(stat, defaultMap);
 
@@ -499,6 +515,19 @@ public class Refresher {
             lore.add(stat + ChatColor.AQUA + addPlusIfPositive(value) + ref);
             manaRegen = value;
         } // Mana Regen
+        if (swingRange != 0 || map.get(Stats.SWING_RANGE)[rarity] != 0 || (map2.get(Stats.SWING_RANGE) != null && map2.get(Stats.SWING_RANGE) != 0)) {
+            String stat = ChatColor.GRAY + "Swing Range: ";
+            String ref = "";
+            double value = manaRegen;
+            Stats thisStat = Stats.SWING_RANGE;
+            if (map2.get(thisStat) != null) value += map2.get(thisStat);
+            if (map.get(thisStat)[rarity] != 0) {
+                value += map.get(thisStat)[rarity];
+                ref = ChatColor.BLUE + " (" + addPlusIfPositive(map.get(thisStat)[rarity]) + ")";
+            }
+            lore.add(stat + ChatColor.AQUA + addPlusIfPositive(value) + ref);
+            swingRange = value;
+        } // Swing Range
         if (luck != 0 || map.get(Stats.LUCK)[rarity] != 0 || (map2.get(Stats.LUCK) != null && map2.get(Stats.LUCK) != 0)) {
             String stat = ChatColor.GRAY + "Luckiness: ";
             String ref = "";
@@ -511,11 +540,18 @@ public class Refresher {
             }
             lore.add(stat + ChatColor.GREEN + addPlusIfPositive(value) + ref);
         } // Luck
-        boolean b = damage != 0 || strength != 0 || critChance != 0 || critDamage != 0 || ferocity != 0 || attackSpeed != 0 || health != 0 || defense != 0 || speed != 0 || intelligence != 0 || agility != 0 || healthRegen != 0 || manaRegen != 0 || luck != 0;
+        boolean b = damage != 0 || strength != 0 || critChance != 0 || critDamage != 0 || ferocity != 0 || attackSpeed != 0 || health != 0 || defense != 0 || speed != 0 || intelligence != 0 || agility != 0 || healthRegen != 0 || manaRegen != 0 || swingRange != 0 || luck != 0;
         if (b) lore.add(" ");
     }
 
-    public static void additiveStatLore(List<String> lore, double damage, double strength, double critChance, double critDamage, double ferocity, double attackSpeed, double health, double defense, double speed, double intelligence, double agility, double healthRegen, double manaRegen, double luck) {
+    public static void additiveStatLore(
+            List<String> lore,
+            double damage, double strength, double critChance, double critDamage,
+            double ferocity, double attackSpeed,
+            double health, double defense, double speed, double intelligence, double agility,
+            double healthRegen, double manaRegen,
+            double swingRange,
+            double luck) {
         String baseText = ChatColor.GRAY + "Grants {0} {1}" + ChatColor.GRAY + ".";
 
         if (damage != 0) lore.add(format(baseText, ChatColor.GREEN + String.valueOf(damage), DAMAGE));
@@ -535,19 +571,30 @@ public class Refresher {
         if (healthRegen != 0) lore.add(format(baseText, ChatColor.GREEN + String.valueOf(healthRegen), HEALTHREGEN));
         if (manaRegen != 0) lore.add(format(baseText, ChatColor.GREEN + String.valueOf(manaRegen), MANAREGEN));
 
+        if (swingRange != 0) lore.add(format(baseText, ChatColor.GREEN + String.valueOf(swingRange), SWING_RANGE));
+
         if (luck != 0) lore.add(format(baseText, ChatColor.GREEN + String.valueOf(luck), LUCK));
         if (
                 damage != 0 || strength != 0 || critChance != 0 || critDamage != 0 ||
                         ferocity != 0 || attackSpeed != 0 ||
                         health != 0 || defense != 0 || speed != 0 || intelligence != 0 || agility != 0 ||
                         healthRegen != 0 || manaRegen != 0 ||
+                        swingRange != 0 ||
                         luck != 0
         ) {
             lore.add(" ");
         }
     }
 
-    public static void multiplicativeStatLore(List<String> lore, double damage, double strength, double critChance, double critDamage, double ferocity, double attackSpeed, double health, double defense, double speed, double intelligence, double agility, double healthRegen, double manaRegen, double luck) {
+    public static void multiplicativeStatLore(
+            List<String> lore,
+            double damage, double strength, double critChance, double critDamage,
+            double ferocity, double attackSpeed,
+            double health, double defense, double speed, double intelligence, double agility,
+            double healthRegen, double manaRegen,
+            double swingRange,
+            double luck
+    ) {
         String baseText1 = ChatColor.GRAY + "Grants x{0} {1}.";
         String baseText2 = ChatColor.GRAY + "Divides {1} by {0}!";
 
@@ -616,6 +663,11 @@ public class Refresher {
         } else if (manaRegen < 1) {
             lore.add(format(baseText2, ChatColor.GREEN + String.valueOf(getDenominator(manaRegen)), MANAREGEN));
         }
+        if (swingRange > 1) {
+            lore.add(format(baseText1, ChatColor.GREEN + String.valueOf(swingRange), SWING_RANGE));
+        } else if (swingRange < 1) {
+            lore.add(format(baseText2, ChatColor.GREEN + String.valueOf(getDenominator(swingRange)), SWING_RANGE));
+        }
         if (luck > 1) {
             lore.add(format(baseText1, ChatColor.GREEN + String.valueOf(luck), LUCK));
         } else if (luck < 1) {
@@ -626,6 +678,7 @@ public class Refresher {
                         ferocity != 1 || attackSpeed != 1 ||
                         health != 1 || defense != 1 || speed != 1 || intelligence != 1 || agility != 1 ||
                         healthRegen != 1 || manaRegen != 1 ||
+                        swingRange != 1 ||
                         luck != 1
         ) {
             lore.add(" ");

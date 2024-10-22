@@ -51,8 +51,6 @@ public class LoadItems {
                 ItemFlag.HIDE_UNBREAKABLE
         );
 
-        // Display material, lore, and data
-
         // Base item stat
         if (clazz.isAnnotationPresent(ItemStats.class)) {
             ItemStats stats = clazz.getAnnotation(ItemStats.class);
@@ -62,6 +60,7 @@ public class LoadItems {
                     stats.ferocity(), stats.attackSpeed(),
                     stats.health(), stats.defense(), stats.speed(), stats.intelligence(), stats.agility(),
                     stats.healthRegen(), stats.manaRegen(),
+                    stats.swingRange(),
                     stats.luck(),
                     new HashMap<>(), 0, 0, getReforgeType(metadata.type()),
                     null
@@ -77,6 +76,7 @@ public class LoadItems {
                     bonus1.add_ferocity(), bonus1.add_attackSpeed(),
                     bonus1.add_health(), bonus1.add_defense(), bonus1.add_speed(), bonus1.add_intelligence(), bonus1.add_agility(),
                     bonus1.add_healthRegen(), bonus1.add_manaRegen(),
+                    bonus1.add_swingRange(),
                     bonus1.add_luck()
             );
         }
@@ -90,6 +90,7 @@ public class LoadItems {
                     bonus2.mul_ferocity(), bonus2.mul_attackSpeed(),
                     bonus2.mul_health(), bonus2.mul_defense(), bonus2.mul_speed(), bonus2.mul_intelligence(), bonus2.mul_agility(),
                     bonus2.mul_healthRegen(), bonus2.mul_manaRegen(),
+                    bonus2.mul_swingRange(),
                     bonus2.mul_luck()
             );
         }

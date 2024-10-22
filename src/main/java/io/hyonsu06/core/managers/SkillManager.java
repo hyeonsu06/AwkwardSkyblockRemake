@@ -306,19 +306,23 @@ public class SkillManager implements Listener {
                 String id = getItemID(item);
                 if (id == null) continue;
                 try { // Invoke
-                    for (Class<?> skillClass : getMatchedSkill(id))
-                        for (Method m : skillClass.getDeclaredMethods())
+                    for (Class<?> skillClass : getMatchedSkill(id)) {
+                        Skill skill = skillClass.getAnnotation(Skill.class);
+                        for (Method m : skillClass.getDeclaredMethods()) {
                             if (m.getName().equals("onHit")) {
-                                Object skillInstance = skillClass.getDeclaredConstructor().newInstance();
-                                Skill skill = skillClass.getAnnotation(Skill.class);
                                 Map<String, Integer> temp1 = new HashMap<>(Map.of(skill.ID(), 0));
                                 cooldownMap.putIfAbsent(p.getUniqueId(), temp1);
-                                if (setSkillMapOfEntity.getSkillMap() == null) setSkillMapOfEntity.getSkillMap().put(p.getUniqueId(), new HashMap<>());
-                                setSkillMapOfEntity.getSkillMap().computeIfAbsent(p.getUniqueId(), k -> Map.of(skill.ID(), false));
+                                if (setSkillMapOfEntity.getSkillMap() == null)
+                                    setSkillMapOfEntity.getSkillMap().put(p.getUniqueId(), new HashMap<>());
+                                setSkillMapOfEntity.getSkillMap().computeIfAbsent(p.getUniqueId(), k -> new HashMap<>());
+                                setSkillMapOfEntity.getSkillMap().get(p.getUniqueId()).putIfAbsent(skill.ID(), false);
                                 if (setSkillMapOfEntity.getSkillMap().get(p.getUniqueId()).get(skill.ID())) {
+                                    Object skillInstance = skillClass.getDeclaredConstructor().newInstance();
                                     m.invoke(skillInstance, p, event.getEntity(), event.getDamage());
                                 }
                             }
+                        }
+                    }
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException |
                          InstantiationException e) {
                     e.printStackTrace();

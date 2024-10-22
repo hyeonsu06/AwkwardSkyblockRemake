@@ -25,5 +25,7 @@ public @interface ItemAdditiveBonus {
     double add_healthRegen() default 0;
     double add_manaRegen() default 0;
 
+    double add_swingRange() default 0;
+
     double add_luck() default 0;
 }

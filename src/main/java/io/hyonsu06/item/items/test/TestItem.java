@@ -41,6 +41,7 @@ import org.bukkit.Material;
         agility = 10,
         healthRegen = 10,
         manaRegen = 10,
+        swingRange = 10,
         luck = 10
 )
 @ItemAdditiveBonus(
@@ -57,6 +58,7 @@ import org.bukkit.Material;
         add_agility = 20,
         add_healthRegen = 20,
         add_manaRegen = 20,
+        add_swingRange = 20,
         add_luck = 20
 )
 @ItemMultiplicativeBonus(
@@ -73,6 +75,7 @@ import org.bukkit.Material;
         mul_agility = 2,
         mul_healthRegen = 2,
         mul_manaRegen = 2,
+        mul_swingRange = 2,
         mul_luck = 0.5)
 public class TestItem {
 }

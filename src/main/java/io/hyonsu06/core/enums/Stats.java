@@ -12,5 +12,7 @@ public enum Stats {
 
     HEALTHREGEN, MANAREGEN,
 
+    SWING_RANGE,
+
     LUCK
 }

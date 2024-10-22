@@ -5,6 +5,7 @@ import io.hyonsu06.command.accessories.AccessoriesUtils;
 import io.hyonsu06.core.annotations.items.items.ItemMetadata;
 import io.hyonsu06.core.annotations.skills.Skill;
 import io.hyonsu06.core.enums.Stats;
+import io.hyonsu06.core.functions.setSkillMapOfEntity;
 import io.papermc.paper.event.entity.EntityDamageItemEvent;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
@@ -41,7 +42,6 @@ import static io.hyonsu06.core.functions.getClasses.getSkillClasses;
 import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getItemID;
 import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getPDC;
 import static io.hyonsu06.core.functions.setImmuneTime.setNoDamageTicks;
-import static io.hyonsu06.core.managers.VanillaEntityManager.modifyData;
 import static org.bukkit.Bukkit.*;
 
 public class EntityManager implements Listener {
@@ -54,7 +54,7 @@ public class EntityManager implements Listener {
     @Getter @Setter
     private static Map<UUID, Integer> rangedHits = new HashMap<>();
 
-    final int FEROCITY_DELAY = 3;
+    final int FEROCITY_DELAY = 5;
 
     public static EnchantManager instance;
 
@@ -91,6 +91,8 @@ public class EntityManager implements Listener {
 
                             p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
                             p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed / 1000);
+                            p.getAttribute(Attribute.PLAYER_ENTITY_INTERACTION_RANGE).setBaseValue(statMap.get(Stats.SWING_RANGE));
+                            p.getAttribute(Attribute.PLAYER_BLOCK_INTERACTION_RANGE).setBaseValue(statMap.get(Stats.SWING_RANGE));
 
                             StringBuilder message = new StringBuilder();
 
@@ -166,7 +168,248 @@ public class EntityManager implements Listener {
                 if (!e.getPersistentDataContainer().has(getPDC("displayAdded"), PersistentDataType.BYTE)) {
                     e.getPersistentDataContainer().set(getPDC("displayAdded"), PersistentDataType.BYTE, (byte) 1);
 
-                    modifyData(event);
+                    if (
+                            e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.NATURAL) ||
+                                    e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.SPAWNER) ||
+                                    e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.TRIAL_SPAWNER) ||
+                                    e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.POTION_EFFECT) ||
+                                    e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.SLIME_SPLIT)
+                    ) {
+                        EntityType type = e.getType();
+                        e.getPersistentDataContainer().set(getPDC("natural"), PersistentDataType.BOOLEAN, true);
+
+                        if (type.equals(EntityType.WITHER)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100000000);
+                            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(2);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(3000);
+                        }
+                        if (type.equals(EntityType.WARDEN)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(2000000000d);
+                            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(199);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(4000000);
+                        }
+                        if (type.equals(EntityType.ENDERMITE)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(50);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(50);
+                        }
+                        if (type.equals(EntityType.PIGLIN) || type.equals(EntityType.ZOMBIFIED_PIGLIN)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(600);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(1000);
+                        }
+                        if (type.equals(EntityType.PIGLIN_BRUTE)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(800);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(5000);
+                        }
+                        if (type.equals(EntityType.HOGLIN) || type.equals(EntityType.ZOGLIN)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(800);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(1500);
+                        }
+                        if (type.equals(EntityType.GHAST)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(200);
+                        }
+                        if (type.equals(EntityType.MAGMA_CUBE)) {
+                            if (((MagmaCube) e).getSize() == 4) {
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(500);
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(400);
+                            } else if (((MagmaCube) e).getSize() == 3) {
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(300);
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(200);
+                            } else if (((MagmaCube) e).getSize() == 2) {
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(150);
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(10);
+                            } else if (((MagmaCube) e).getSize() == 1) {
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100);
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(50);
+                            }
+                        }
+                        if (type.equals(EntityType.STRIDER)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(200);
+                            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(9);
+                        }
+                        if (type.equals(EntityType.WITHER_SKELETON)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(1000);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(600);
+                        }
+                        if (type.equals(EntityType.BLAZE)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(700);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(400);
+                        }
+                        if (type.equals(EntityType.SHULKER)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(8000);
+                            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(99);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(6000);
+                        }
+                        if (type.equals(EntityType.ENDER_DRAGON)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(2000000000);
+                            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(2);
+                        }
+                        if (type.equals(EntityType.GUARDIAN)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(2500000);
+                            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(2);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(25000);
+                        }
+                        if (type.equals(EntityType.ELDER_GUARDIAN)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(2500000);
+                            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(2);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(25000);
+                        }
+                        if (type.equals(EntityType.ZOMBIE) || type.equals(EntityType.HUSK) || type.equals(EntityType.DROWNED) || type.equals(EntityType.ZOMBIE_VILLAGER)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100);
+                            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(0);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(25);
+                        }
+                        if (type.equals(EntityType.SKELETON) || type.equals(EntityType.STRAY) || type.equals(EntityType.BOGGED)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(50);
+                        }
+                        if (type.equals(EntityType.CREEPER)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(100);
+                        }
+                        if (type.equals(EntityType.SPIDER) || type.equals(EntityType.CAVE_SPIDER)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(80);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(30);
+                        }
+                        if (type.equals(EntityType.ENDERMAN)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(300);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(50);
+                        }
+                        if (type.equals(EntityType.PHANTOM)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(200);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(15);
+                        }
+                        if (type.equals(EntityType.SLIME)) {
+                            if (((Slime) e).getSize() == 4) {
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(250);
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(40);
+                            } else if (((Slime) e).getSize() == 3) {
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(120);
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(20);
+                            } else if (((Slime) e).getSize() == 2) {
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(60);
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(10);
+                            } else if (((Slime) e).getSize() == 1) {
+                                e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+                                e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(5);
+                            }
+                        }
+                        if (type.equals(EntityType.WOLF)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(50);
+                        }
+                        if (type.equals(EntityType.FOX)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(60);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(100);
+                        }
+                        if (type.equals(EntityType.LLAMA) || type.equals(EntityType.TRADER_LLAMA)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(120);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(70);
+                        }
+                        if (type.equals(EntityType.PANDA)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(250);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(200);
+                        }
+                        if (type.equals(EntityType.BEE)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(30);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(500);
+                        }
+                        if (type.equals(EntityType.HORSE) || type.equals(EntityType.SKELETON_HORSE) || type.equals(EntityType.DONKEY) || type.equals(EntityType.MULE)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(150);
+                        }
+                        if (type.equals(EntityType.GOAT)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(90);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(100);
+                        }
+                        if (type.equals(EntityType.COW) || type.equals(EntityType.MOOSHROOM) || type.equals(EntityType.SHEEP) || type.equals(EntityType.PIG)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(50);
+                        }
+                        if (type.equals(EntityType.SQUID) || type.equals(EntityType.GLOW_SQUID)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(70);
+                        }
+                        if (type.equals(EntityType.TROPICAL_FISH)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+                        }
+                        if (type.equals(EntityType.CHICKEN) || type.equals(EntityType.RABBIT)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(30);
+                        }
+                        if (type.equals(EntityType.POLAR_BEAR)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(200);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(70);
+                        }
+                        if (type.equals(EntityType.VILLAGER) || type.equals(EntityType.WANDERING_TRADER)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100);
+                        }
+                        if (type.equals(EntityType.CAT) || type.equals(EntityType.OCELOT)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(60);
+                        }
+                        if (type.equals(EntityType.VINDICATOR)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(150);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(125);
+                        }
+                        if (type.equals(EntityType.EVOKER)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(120);
+                        }
+                        if (type.equals(EntityType.ILLUSIONER)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(110);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(100);
+                        }
+                        if (type.equals(EntityType.VEX)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(50);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(40);
+                        }
+                        if (type.equals(EntityType.SILVERFISH)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(40);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(30);
+                        }
+                        if (type.equals(EntityType.BAT)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+                        }
+                        if (type.equals(EntityType.WITCH)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(666);
+                        }
+                        if (type.equals(EntityType.IRON_GOLEM)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(300);
+                            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(1);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(125);
+                        }
+                        if (type.equals(EntityType.SNOW_GOLEM)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(80);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(30);
+                        }
+                        if (type.equals(EntityType.TURTLE)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(50);
+                            e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(9);
+                        }
+                        if (type.equals(EntityType.COD) || type.equals(EntityType.SALMON)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+                        }
+                        if (type.equals(EntityType.DOLPHIN) || type.equals(EntityType.ALLAY)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100);
+                        }
+                        if (type.equals(EntityType.AXOLOTL)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(70);
+                        }
+                        if (type.equals(EntityType.FROG)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(50);
+                        }
+                        if (type.equals(EntityType.TADPOLE)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(15);
+                        }
+                        if (type.equals(EntityType.CAMEL)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(150);
+                        }
+                        if (type.equals(EntityType.SNIFFER)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(250);
+                        }
+                        if (type.equals(EntityType.BREEZE)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(150);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(100);
+                        }
+                        if (type.equals(EntityType.ENDERMAN)) {
+                            e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(500);
+                            e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(50);
+                        }
+                    }
 
                     switch (event) {
                         case CreatureSpawnEvent ignored -> {
@@ -228,42 +471,49 @@ public class EntityManager implements Listener {
         double intelligence = 100d;
         Map<UUID, Map<Stats, Double>> map = StatManager.getBaseStatMap();
         Map<Stats, Double> statMap = map.get(p.getUniqueId());
-        if (statMap == null || statMap.isEmpty()) {
-            statMap = new HashMap<>();
-            statMap.put(Stats.DAMAGE, 1d);
-            statMap.put(Stats.STRENGTH, 0d);
-            statMap.put(Stats.CRITCHANCE, 30d);
-            statMap.put(Stats.CRITDAMAGE, 50d);
+        if (statMap == null || statMap.isEmpty()) StatManager.getBaseStatMap().put(p.getUniqueId(), new HashMap<>());
 
-            statMap.put(Stats.FEROCITY, 0d);
-            statMap.put(Stats.ATTACKSPEED, 0d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.DAMAGE)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.DAMAGE, 1d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.STRENGTH)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.STRENGTH, 0d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.CRITCHANCE)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.CRITCHANCE, 25d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.CRITDAMAGE)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.CRITDAMAGE, 50d);
 
-            statMap.put(Stats.HEALTH, 100d);
-            statMap.put(Stats.DEFENSE, 0d);
-            statMap.put(Stats.SPEED, 100d);
-            statMap.put(Stats.INTELLIGENCE, 100d);
-            statMap.put(Stats.AGILITY, 0d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.FEROCITY)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.FEROCITY, 0d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.ATTACKSPEED)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.ATTACKSPEED, 0d);
 
-            statMap.put(Stats.HEALTHREGEN, 100d);
-            statMap.put(Stats.MANAREGEN, 100d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.HEALTH)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.HEALTH, 100d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.DEFENSE)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.DEFENSE, 0d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.INTELLIGENCE)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.INTELLIGENCE, 100d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.SPEED)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.SPEED, 100d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.AGILITY)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.AGILITY, 0d);
 
-            statMap.put(Stats.LUCK, 100d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.HEALTHREGEN)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.HEALTHREGEN, 100d);
+        if (!map.get(p.getUniqueId()).containsKey(Stats.MANAREGEN)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.MANAREGEN, 100d);
 
-            StatManager.getBaseStatMap().put(p.getUniqueId(), statMap);
-        }
+        if (!map.get(p.getUniqueId()).containsKey(Stats.SWING_RANGE)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.SWING_RANGE, 5d);
+
+        if (!map.get(p.getUniqueId()).containsKey(Stats.LUCK)) StatManager.getBaseStatMap().get(p.getUniqueId()).put(Stats.LUCK, 0d);
 
         if (!StatManager.getSkillBonusMap().containsKey(p.getUniqueId())) {
             StatManager.getSkillBonusMap().put(p.getUniqueId(), new HashMap<>());
             for (Stats stat : Stats.values()) StatManager.getSkillBonusMap().get(p.getUniqueId()).put(stat, 0d);
-            Map<UUID, Map<String, Integer>> map2 = SkillManager.getCooldownMap();
-            if (!map2.containsKey(p.getUniqueId()))
-                map2.put(p.getUniqueId(), new HashMap<>());  // Initialize if not present
+        }
 
+        if (!SkillManager.getCooldownMap().containsKey(p.getUniqueId())) {
+            if (!SkillManager.getCooldownMap().containsKey(p.getUniqueId()))
+                SkillManager.getCooldownMap().put(p.getUniqueId(), new HashMap<>());  // Initialize if not present
             for (Class<?> clazz : getSkillClasses()) {
                 Skill skill = clazz.getAnnotation(Skill.class);
-                if (!map2.get(p.getUniqueId()).containsKey(skill.ID())) map2.get(p.getUniqueId()).put(skill.ID(), 0);
+                SkillManager.getCooldownMap().get(p.getUniqueId()).put(skill.ID(), 0);
             }
-            SkillManager.setCooldownMap(map2);
+        }
+
+        if (!setSkillMapOfEntity.getSkillMap().containsKey(p.getUniqueId())) {
+            setSkillMapOfEntity.getSkillMap().put(p.getUniqueId(), new HashMap<>());
+            for (Class<?> clazz : getSkillClasses()) {
+                Skill skill = clazz.getAnnotation(Skill.class);
+                setSkillMapOfEntity.getSkillMap().get(p.getUniqueId()).put(skill.ID(), false);
+            }
         }
 
         Map<UUID, ItemStack[]> accessories = AccessoriesUtils.getAccessories();
@@ -364,17 +614,17 @@ public class EntityManager implements Listener {
 
                                 double defense = victimMap.get(Stats.DEFENSE);
 
-                                if (!(attacker instanceof Player)) {
+                                if (!(attacker instanceof Player && attacker.getPersistentDataContainer().has(getPDC("natural"), PersistentDataType.BOOLEAN))) {
                                     if (attacker instanceof Warden) {
                                         if (event.getCause().equals(EntityDamageEvent.DamageCause.SONIC_BOOM)) {
-                                            baseDamage = 1_000_000_000_000d * (defense / (defense + 1));
+                                            baseDamage = 1_000_000_000_000d;
                                             if (victim instanceof Player)
                                                 victim.sendMessage(message("Warden's Sonic Boom hitting your for {0} true damage.", new long[]{(long) baseDamage}));
-                                            baseDamage = 1_000_000_000_000d;
+                                            baseDamage = 1_000_000_000_000d / (1 - (defense / (defense + 1)));
                                         }
                                     }
                                     if (attacker instanceof AreaEffectCloud cloud) {
-                                        if (getEntity(cloud.getOwnerUniqueId()) instanceof EnderDragon) {
+                                        if (getEntity(cloud.getOwnerUniqueId()).getType().equals(EntityType.ENDER_DRAGON)) {
                                             if (event.getCause().equals(EntityDamageEvent.DamageCause.DRAGON_BREATH)) {
                                                 baseDamage = 100_000d;
                                                 if (victim instanceof Player)
@@ -382,31 +632,36 @@ public class EntityManager implements Listener {
                                             }
                                         }
                                     }
-                                    if (attacker instanceof ElderGuardian) {
+                                    if (attacker instanceof ElderGuardian && attacker.getPersistentDataContainer().has(getPDC("natural"), PersistentDataType.BOOLEAN)) {
                                         if (event.getCause().equals(EntityDamageEvent.DamageCause.THORNS)) {
-                                            baseDamage = 10_000d;
+                                            baseDamage = 7_500d;
                                             if (victim instanceof Player)
                                                 victim.sendMessage(message("Elder Guardian's Thorns hitting your for {0} damage.", new long[]{(long) baseDamage}));
                                         }
                                         if (event.getCause().equals(EntityDamageEvent.DamageCause.MAGIC)) {
-                                            baseDamage = 150d;
+                                            baseDamage = 300d;
                                             if (victim instanceof Player)
                                                 victim.sendMessage(message("Elder Guardian's Thorns hitting your for {0} true damage.", new long[]{(long) baseDamage}));
 
                                         }
                                     }
-                                    if (attacker instanceof Fireball) {
-                                        if (((Fireball) attacker).getShooter() instanceof Ghast) {
-                                            baseDamage = 25_000d;
-                                            if (victim instanceof Player)
-                                                victim.sendMessage(message("Ghast's Fireball hitting your for {0} damage.", new long[]{(long) baseDamage}));
-                                        }
-                                    }
                                     if (attacker instanceof Projectile) {
                                         if (((Projectile) attacker).getShooter() instanceof BlockProjectileSource) {
-                                            baseDamage = 50_000d;
+                                            baseDamage = StatManager.getFinalStatMap().get(victim.getUniqueId()).get(Stats.HEALTH) / 4;
                                             if (victim instanceof Player)
-                                                victim.sendMessage(message("Hidden Trap hit you for {0} damage!", new long[]{(long) baseDamage}));
+                                                victim.sendMessage(message("Hidden Projectile Trap hit you for {0} damage!", new long[]{(long) baseDamage}));
+                                            baseDamage = StatManager.getFinalStatMap().get(victim.getUniqueId()).get(Stats.HEALTH) / 4 / (1 - (defense / (defense + 1)));
+                                        }
+                                        if (((Projectile) attacker).getShooter() instanceof Drowned) {
+                                            baseDamage = StatManager.getFinalStatMap().get(victim.getUniqueId()).get(Stats.HEALTH) / 2;
+                                            if (victim instanceof Player)
+                                                victim.sendMessage(message("Drowned's thrown projectile hit you for {0} damage.", new long[]{(long) baseDamage}));
+                                            baseDamage = StatManager.getFinalStatMap().get(victim.getUniqueId()).get(Stats.HEALTH) / 2 / (1 - (defense / (defense + 1)));
+                                        }
+                                        if (((Projectile) attacker).getShooter() instanceof Ghast) {
+                                            baseDamage = 4_000d;
+                                            if (victim instanceof Player)
+                                                victim.sendMessage(message("Ghast's Fireball hitting your for {0} damage.", new long[]{(long) baseDamage}));
                                         }
                                     }
                                 }
@@ -422,10 +677,9 @@ public class EntityManager implements Listener {
                                 if (guaranteed != 0) {
                                     new BukkitRunnable() {
                                         int hits = 0;
-
                                         @Override
                                         public void run() {
-                                            if (victim.isDead() || hits == guaranteed) {
+                                            if (victim.isValid() || hits == guaranteed) {
                                                 this.cancel();
 
                                                 new BukkitRunnable() {
@@ -469,7 +723,7 @@ public class EntityManager implements Listener {
                                             meleeHits.put(uuid, count + 1);
                                             hits++;
                                         }
-                                    }.runTaskTimer(plugin, 0, FEROCITY_DELAY);
+                                    }.runTaskTimer(plugin, FEROCITY_DELAY, FEROCITY_DELAY);
                                 }
 
                                 if (attacker instanceof Projectile proj) {

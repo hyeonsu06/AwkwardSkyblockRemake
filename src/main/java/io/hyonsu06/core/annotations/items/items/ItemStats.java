@@ -122,6 +122,8 @@ public @interface ItemStats {
      */
     double manaRegen() default 0;
 
+    double swingRange() default 0;
+
     /**
      * The luck attribute affecting loot and other random outcomes.
      *

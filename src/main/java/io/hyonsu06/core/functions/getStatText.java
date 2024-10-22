@@ -20,5 +20,7 @@ public final class getStatText {
     public static final String HEALTHREGEN = ChatColor.RED + "❣ Health Regen";
     public static final String MANAREGEN = ChatColor.AQUA + "✎ Mana Regen";
 
+    public static final String SWING_RANGE = ChatColor.YELLOW + "Ⓢ Swing Range";
+
     public static final String LUCK = ChatColor.AQUA + "✯ Luckiness";
 }

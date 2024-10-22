@@ -69,6 +69,7 @@ public class StatManager {
     double ATTACK_SPEED_CAP = 100;
     double SPEED_CAP = 500;
     double AGILITY_CAP = 100;
+    double SWING_RANGE_CAP = 32;
 
     public static StatManager instance = null;
 
@@ -211,6 +212,8 @@ public class StatManager {
             temp.put(Stats.HEALTHREGEN, value1.healthRegen());
             temp.put(Stats.MANAREGEN, value1.manaRegen());
 
+            temp.put(Stats.SWING_RANGE, value1.swingRange());
+
             temp.put(Stats.LUCK, value1.luck());
             itemStatMap.get(e.getUniqueId()).put(slot, temp);
         } else {
@@ -218,26 +221,28 @@ public class StatManager {
         }
 
         if (value2 != null) {
-            Map<Stats, Double> temp3 = new EnumMap<>(Stats.class);
-            temp3.put(Stats.DAMAGE, value2.add_damage());
-            temp3.put(Stats.STRENGTH, value2.add_strength());
-            temp3.put(Stats.CRITCHANCE, value2.add_critChance());
-            temp3.put(Stats.CRITDAMAGE, value2.add_critDamage());
+            Map<Stats, Double> temp2 = new EnumMap<>(Stats.class);
+            temp2.put(Stats.DAMAGE, value2.add_damage());
+            temp2.put(Stats.STRENGTH, value2.add_strength());
+            temp2.put(Stats.CRITCHANCE, value2.add_critChance());
+            temp2.put(Stats.CRITDAMAGE, value2.add_critDamage());
 
-            temp3.put(Stats.FEROCITY, value2.add_ferocity());
-            temp3.put(Stats.ATTACKSPEED, value2.add_attackSpeed());
+            temp2.put(Stats.FEROCITY, value2.add_ferocity());
+            temp2.put(Stats.ATTACKSPEED, value2.add_attackSpeed());
 
-            temp3.put(Stats.HEALTH, value2.add_health());
-            temp3.put(Stats.DEFENSE, value2.add_defense());
-            temp3.put(Stats.SPEED, value2.add_speed());
-            temp3.put(Stats.INTELLIGENCE, value2.add_intelligence());
-            temp3.put(Stats.AGILITY, value2.add_agility());
+            temp2.put(Stats.HEALTH, value2.add_health());
+            temp2.put(Stats.DEFENSE, value2.add_defense());
+            temp2.put(Stats.SPEED, value2.add_speed());
+            temp2.put(Stats.INTELLIGENCE, value2.add_intelligence());
+            temp2.put(Stats.AGILITY, value2.add_agility());
 
-            temp3.put(Stats.HEALTHREGEN, value2.add_healthRegen());
-            temp3.put(Stats.MANAREGEN, value2.add_manaRegen());
+            temp2.put(Stats.HEALTHREGEN, value2.add_healthRegen());
+            temp2.put(Stats.MANAREGEN, value2.add_manaRegen());
 
-            temp3.put(Stats.LUCK, value2.add_luck());
-            itemAdditiveStatMap.get(e.getUniqueId()).put(slot, temp3);
+            temp2.put(Stats.SWING_RANGE, value2.add_swingRange());
+
+            temp2.put(Stats.LUCK, value2.add_luck());
+            itemAdditiveStatMap.get(e.getUniqueId()).put(slot, temp2);
         } else {
             itemAdditiveStatMap.get(e.getUniqueId()).put(slot, defaultMap);
         }
@@ -260,6 +265,8 @@ public class StatManager {
 
             temp.put(Stats.HEALTHREGEN, value3.mul_healthRegen());
             temp.put(Stats.MANAREGEN, value3.mul_manaRegen());
+
+            temp.put(Stats.SWING_RANGE, value3.mul_swingRange());
 
             temp.put(Stats.LUCK, value3.mul_luck());
             itemMultiplicativeStatMap.get(e.getUniqueId()).put(slot, temp);
@@ -290,6 +297,8 @@ public class StatManager {
                 map1.put(Stats.HEALTHREGEN, value1.healthRegen());
                 map1.put(Stats.MANAREGEN, value1.manaRegen());
 
+                map1.put(Stats.SWING_RANGE, value1.swingRange());
+
                 map1.put(Stats.LUCK, value1.luck());
 
                 accessoryStatMap.get(e.getUniqueId()).put(i, map1);
@@ -315,6 +324,8 @@ public class StatManager {
 
                 map2.put(Stats.HEALTHREGEN, value2.add_healthRegen());
                 map2.put(Stats.MANAREGEN, value2.add_manaRegen());
+
+                map2.put(Stats.SWING_RANGE, value2.add_swingRange());
 
                 map2.put(Stats.LUCK, value2.add_luck());
 
@@ -342,6 +353,8 @@ public class StatManager {
                 map3.put(Stats.HEALTHREGEN, value3.mul_healthRegen());
                 map3.put(Stats.MANAREGEN, value3.mul_manaRegen());
 
+                map3.put(Stats.SWING_RANGE, value3.mul_swingRange());
+
                 map3.put(Stats.LUCK, value3.mul_luck());
 
                 accessoryMultiplicativeStatMap.get(e.getUniqueId()).put(i, map1);
@@ -350,14 +363,16 @@ public class StatManager {
     }
 
     private void applyReforgeStat(LivingEntity e, Integer i, int rarity, Map<Stats, Double[]> value1) {
-        Map<Stats, Double> map1 = reforgeStatMap.get(e.getUniqueId()).get(i);
+        Map<Stats, Double> map = reforgeStatMap.get(e.getUniqueId()).get(i);
         if (value1 != null) {
-            if (map1 == null) {
-                map1 = new EnumMap<>(Stats.class);
-                for (Stats s : Stats.values()) map1.put(s, 0d);
+            if (map == null) {
+                map = new EnumMap<>(Stats.class);
+                for (Stats s : Stats.values()) map.put(s, 0d);
             }
-            for (Stats stat : Stats.values()) if (value1.get(stat) != null) map1.put(stat, value1.get(stat)[rarity]);
-            reforgeStatMap.get(e.getUniqueId()).put(i, map1);
+            for (Stats stat : Stats.values()) {
+                if (value1.get(stat) != null) map.put(stat, value1.get(stat)[rarity]);
+            }
+            reforgeStatMap.get(e.getUniqueId()).put(i, map);
         }
     }
 
@@ -455,8 +470,9 @@ public class StatManager {
                                 try {
                                     for (Method m : clazz1.getDeclaredMethods()) {
                                         Object instance = clazz1.getDeclaredConstructor().newInstance();
-                                        if (m.getName().equals("baseValue"))
+                                        if (m.getName().equals("baseValue")) {
                                             reforgeMap2 = (Map<Stats, Double[]>) m.invoke(instance);
+                                        }
                                     }
                                 } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
                                          NoSuchMethodException ex) {
@@ -517,6 +533,7 @@ public class StatManager {
         finalStats.put(Stats.ATTACKSPEED, Math.min(finalStats.get(Stats.ATTACKSPEED), ATTACK_SPEED_CAP));
         finalStats.put(Stats.SPEED, Math.min(finalStats.get(Stats.SPEED), SPEED_CAP));
         finalStats.put(Stats.AGILITY, Math.min(finalStats.get(Stats.AGILITY), AGILITY_CAP));
+        finalStats.put(Stats.SWING_RANGE, Math.min(finalStats.get(Stats.SWING_RANGE), SWING_RANGE_CAP));
 
         finalStatMap.put(entityId, finalStats);
     }

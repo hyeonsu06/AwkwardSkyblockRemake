@@ -36,7 +36,6 @@ public class WitherRage implements SkillMethods {
         setBonus(player, skill.ID(), Stats.FEROCITY, bonus, duration);
     }
 
-    @SkillTagged
     @Override
     public double onHit(Player player, Entity entity, double damage) {
         Skill skill = getSkillAnnotation(getClass());

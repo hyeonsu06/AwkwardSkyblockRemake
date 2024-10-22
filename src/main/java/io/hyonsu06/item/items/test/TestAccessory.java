@@ -1,4 +1,4 @@
-package io.hyonsu06.item.items.accessories;
+package io.hyonsu06.item.items.test;
 
 import io.hyonsu06.core.annotations.items.items.ItemAdditiveBonus;
 import io.hyonsu06.core.annotations.items.items.ItemMetadata;
@@ -15,7 +15,7 @@ import org.bukkit.Material;
         name = "Test Accessory",
         rarity = ItemRarity.ADMIN,
         type = ItemType.ACCESSORY,
-        material = Material.NETHERITE_INGOT
+        material = Material.EMERALD
 )
 @ItemStats(
         damage = 1,
@@ -31,6 +31,7 @@ import org.bukkit.Material;
         agility = 1,
         healthRegen = 1,
         manaRegen = 1,
+        swingRange = 1,
         luck = 1
 )
 @ItemAdditiveBonus(
@@ -47,6 +48,7 @@ import org.bukkit.Material;
         add_agility = 1,
         add_healthRegen = 1,
         add_manaRegen = 1,
+        add_swingRange = 1,
         add_luck = 1
 )
 @ItemMultiplicativeBonus(
@@ -63,6 +65,7 @@ import org.bukkit.Material;
         mul_agility = 2,
         mul_healthRegen = 2,
         mul_manaRegen = 2,
+        mul_swingRange = 2,
         mul_luck = 0.5)
 public class TestAccessory {
 }
