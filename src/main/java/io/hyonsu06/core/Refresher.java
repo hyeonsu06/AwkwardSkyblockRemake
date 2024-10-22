@@ -641,7 +641,7 @@ public class Refresher {
         return input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
     }
 
-    public static List<String> addSkillDescription(String template, int wordsPerLine, long[] args, ChatColor color1, ChatColor color2) {
+    public static List<String> addSkillDescription(String template, int maxCharCount, long[] args, ChatColor color1, ChatColor color2) {
         String formatted = template;
 
         // Replace placeholders in the template with colored arguments
@@ -656,25 +656,22 @@ public class Refresher {
         List<String> result = new ArrayList<>();
         StringBuilder currentLine = new StringBuilder();
 
-        // Variables to track word and character count
-        int wordCount = 0;
+        // Variable to track character count
         int charCount = 0;
 
-        // Append words and collect into lines based on word or character limits
+        // Append words and collect into lines based on character limit
         for (String word : words) {
-            // Check if adding this word will exceed 30 characters
-            if (charCount + word.length() > 50 || wordCount >= wordsPerLine) {
-                // If so, add the current line to the result list and reset counts
+            // Check if adding this word would exceed the max character count
+            if (charCount + word.length() + (currentLine.length() > 0 ? 1 : 0) > maxCharCount) {
+                // If so, add the current line to the result list and reset for the next line
                 result.add(currentLine.toString().trim());
                 currentLine.setLength(0);
-                wordCount = 0;
-                charCount = 0;
+                charCount = 0;  // Reset character count
             }
 
             // Add the word to the current line
-            currentLine.append(color1).append(word).append(" ");
-            wordCount++;
-            charCount += word.length() + 1;  // Include the space after each word
+            currentLine.append(word).append(" ");
+            charCount += word.length() + 1;  // Include the space after the word
         }
 
         // Add any remaining words in the current line
