@@ -19,6 +19,18 @@ import static io.hyonsu06.core.functions.ArmorTweaks.getItems;
 import static io.hyonsu06.core.managers.StatManager.slots;
 
 public class EnchantManager implements Listener {
+    public static EnchantManager instance;
+
+    public static EnchantManager instance() {
+        if (instance == null) {
+            instance = new EnchantManager();
+        }
+        return instance;
+    }
+
+    public static void clear() {
+        instance = null;
+    }
 
     public EnchantManager() {
         new BukkitRunnable() {

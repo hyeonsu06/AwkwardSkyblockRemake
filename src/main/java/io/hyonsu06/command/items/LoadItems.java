@@ -166,6 +166,7 @@ public class LoadItems {
     }
 
     public void registerAllItems() {
+        items = new ArrayList<>();
         for (Class<?> clazz : getItemClasses()) {
             getLogger().info("[" + plugin.getName() + "] Loading item: " + clazz.getSimpleName());
             Class<? extends SkillMethods>[] skills = clazz.getAnnotation(ItemMetadata.class).skills();

@@ -12,6 +12,19 @@ import org.bukkit.Particle;
 import static io.hyonsu06.Main.plugin;
 
 public class NoParticle {
+    public static NoParticle instance;
+
+    public static NoParticle instance() {
+        if (instance == null) {
+            instance = new NoParticle();
+        }
+        return instance;
+    }
+
+    public static void clear() {
+        instance = null;
+    }
+
     public NoParticle() {
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(plugin, ListenerPriority.HIGH, PacketType.Play.Server.WORLD_PARTICLES) {
             public void onPacketSending(PacketEvent event) {

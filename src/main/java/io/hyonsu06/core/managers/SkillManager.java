@@ -39,6 +39,19 @@ public class SkillManager implements Listener {
     @Setter
     public static Map<UUID, Map<String, Integer>> cooldownMap = new HashMap<>();
 
+    public static SkillManager instance;
+
+    public static SkillManager instance() {
+        if (instance == null) {
+            instance = new SkillManager();
+        }
+        return instance;
+    }
+
+    public static void clear() {
+        instance = null;
+    }
+
     public SkillManager() {
         new BukkitRunnable() {
             @Override

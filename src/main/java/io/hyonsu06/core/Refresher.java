@@ -46,6 +46,19 @@ public class Refresher {
     public static final int POTATO_BOOK_ARMOR_HEALTH = 5;
     public static final int POTATO_BOOK_ARMOR_DEFENSE = 4;
 
+    public static Refresher instance;
+
+    public static Refresher instance() {
+        if (instance == null) {
+            instance = new Refresher();
+        }
+        return instance;
+    }
+
+    public static void clear() {
+        instance = null;
+    }
+
     public Refresher() {
         new BukkitRunnable() {
             @Override

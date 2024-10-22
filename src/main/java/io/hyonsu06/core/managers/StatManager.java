@@ -70,6 +70,22 @@ public class StatManager {
     double SPEED_CAP = 500;
     double AGILITY_CAP = 100;
 
+    public static StatManager instance;
+
+    public static StatManager instance() {
+        if (instance == null) {
+            instance = new StatManager();
+        }
+        return instance;
+    }
+
+    public static void clear() {
+        instance = null;
+        baseStatMap = null;
+        reforgeStatMap = null;
+        enchantStatMap = null;
+    }
+
     public StatManager() {
         new BukkitRunnable() {
             @Override

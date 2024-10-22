@@ -56,6 +56,21 @@ public class EntityManager implements Listener {
 
     final int FEROCITY_DELAY = 3;
 
+    public static EnchantManager instance;
+
+    public static EnchantManager instance() {
+        if (instance == null) {
+            instance = new EnchantManager();
+        }
+        return instance;
+    }
+
+    public static void clear() {
+        instance = null;
+        meleeHits = null;
+        rangedHits = null;
+    }
+
     public EntityManager() {
         new BukkitRunnable() {
             @Override

@@ -17,16 +17,19 @@ import io.hyonsu06.command.stat.setStatTabCompleter;
 import io.hyonsu06.command.stat.setStatCommand;
 import io.hyonsu06.core.*;
 import io.hyonsu06.core.Refresher;
+import io.hyonsu06.core.annotations.skills.Skill;
 import io.hyonsu06.core.functions.setSkillMapOfEntity;
 import io.hyonsu06.core.managers.*;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.*;
+import java.util.HashMap;
 
 import static io.hyonsu06.core.managers.EntityManager.loadData;
 import static io.hyonsu06.core.functions.getClasses.*;
@@ -80,25 +83,38 @@ public final class Main extends JavaPlugin {
         plugin.getCommand("addenchant").setTabCompleter(new AddEnchantmentTabCompleter());
         plugin.getCommand("autobuild").setExecutor(new AutoBuild());
 
+        StatManager.instance();
+        NoParticle.instance();
+        Refresher.instance();
+
         getPluginManager().registerEvents(new ModifySomeFeatures(), plugin);
-        getPluginManager().registerEvents(new EnchantManager(), plugin);
         getPluginManager().registerEvents(new VanillaEntityManager(), plugin);
-        getPluginManager().registerEvents(new EntityManager(), plugin);
-        getPluginManager().registerEvents(new SkillManager(), plugin);
         getPluginManager().registerEvents(new AllItemsListener(), plugin);
         getPluginManager().registerEvents(new AccessoriesListener(), plugin);
+
+        getPluginManager().registerEvents(EnchantManager.instance(), plugin);
+        getPluginManager().registerEvents(EntityManager.instance(), plugin);
+        getPluginManager().registerEvents(SkillManager.instance(), plugin);
 
         getPluginManager().registerEvents(new DragonHoming(), plugin);
 
         if (isReloading) {
             getLogger().info("Seems plugin is on reload, remapping stat map...");
             loadData();
+
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                EntityManager.getMeleeHits().put(p.getUniqueId(), 0);
+                EntityManager.getRangedHits().put(p.getUniqueId(), 0);
+
+                SkillManager.getCooldownMap().put(p.getUniqueId(), new HashMap<>());
+                for (Class<?> clazz : getSkillClasses()) {
+                    Skill skill = clazz.getAnnotation(Skill.class);
+                    SkillManager.getCooldownMap().get(p.getUniqueId()).put(skill.ID(), 0);
+                }
+            }
         }
 
-        new StatManager();
         new LoadItems().registerAllItems();
-        new NoParticle();
-        new Refresher();
 
         for (World w : Bukkit.getWorlds())
             for (Entity e : w.getEntities())
@@ -122,9 +138,13 @@ public final class Main extends JavaPlugin {
         plugin.getCommand("addenchant").setTabCompleter(null);
         plugin.getCommand("autobuild").setExecutor(null);
 
-        StatManager.setBaseStatMap(null);
-        AccessoriesUtils.setAccessories(null);
-        setSkillMapOfEntity.setSkillMap(null);
+        StatManager.clear();
+        NoParticle.clear();
+        Refresher.clear();
+
+        EnchantManager.clear();
+        EntityManager.clear();
+        SkillManager.clear();
     }
 
     // Save all data
