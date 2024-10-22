@@ -641,50 +641,6 @@ public class Refresher {
         return input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
     }
 
-    public static List<String> addSkillDescription(String template, int maxCharCount, long[] args, ChatColor color1, ChatColor color2) {
-        String formatted = template;
-
-        // Replace placeholders in the template with colored arguments
-        for (int i = 0; i < args.length; i++) {
-            String placeholder = "{" + i + "}";
-            String coloredArg = color2 + numberFormat(args[i]) + color1;  // Apply the placeholder color
-            formatted = formatted.replace(placeholder, coloredArg);
-        }
-
-        // Split the formatted string into words
-        String[] words = formatted.split(" ");
-        List<String> result = new ArrayList<>();
-        StringBuilder currentLine = new StringBuilder();
-
-        // Variable to track character count
-        int charCount = 0;
-
-        // Append words and collect into lines based on character limit
-        for (String word : words) {
-            int wordLength = word.length();
-
-            // Check if adding this word would exceed the max character count
-            if (charCount + wordLength + (!currentLine.isEmpty() ? 1 : 0) > maxCharCount) {
-                // If so, add the current line to the result list and reset for the next line
-                result.add(currentLine.toString().trim());
-                currentLine.setLength(0);
-                charCount = 0;  // Reset character count
-            }
-
-            // Add the word to the current line
-            currentLine.append(word).append(" ");
-            charCount += wordLength + 1;  // Include the space after the word
-        }
-
-        // Add any remaining words in the current line
-        if (!currentLine.isEmpty()) {
-            result.add(currentLine.toString().trim());
-        }
-
-        return result;
-    }
-
-/*
     public static List<String> addSkillDescription(String template, int wordsPerLine, long[] args, ChatColor color1, ChatColor color2) {
         String formatted = template;
         for (int i = 0; i < args.length; i++) {
@@ -719,5 +675,4 @@ public class Refresher {
 
         return result;  // Return the list of split lines
     }
- */
 }
