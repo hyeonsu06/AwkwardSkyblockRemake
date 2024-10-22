@@ -6,7 +6,6 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import static io.hyonsu06.Main.isReloading;
