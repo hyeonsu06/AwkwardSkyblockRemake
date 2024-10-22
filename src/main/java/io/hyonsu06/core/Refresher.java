@@ -643,6 +643,8 @@ public class Refresher {
 
     public static List<String> addSkillDescription(String template, int wordsPerLine, long[] args, ChatColor color1, ChatColor color2) {
         String formatted = template;
+
+        // Replace placeholders in the template with colored arguments
         for (int i = 0; i < args.length; i++) {
             String placeholder = "{" + i + "}";
             String coloredArg = color2 + numberFormat(args[i]) + color1;  // Apply the placeholder color
@@ -654,25 +656,32 @@ public class Refresher {
         List<String> result = new ArrayList<>();
         StringBuilder currentLine = new StringBuilder();
 
-        // Append words and collect into lines after a certain number of words
+        // Variables to track word and character count
         int wordCount = 0;
+        int charCount = 0;
+
+        // Append words and collect into lines based on word or character limits
         for (String word : words) {
+            // Check if adding this word will exceed 30 characters
+            if (charCount + word.length() > 50 || wordCount >= wordsPerLine) {
+                // If so, add the current line to the result list and reset counts
+                result.add(currentLine.toString().trim());
+                currentLine.setLength(0);
+                wordCount = 0;
+                charCount = 0;
+            }
+
+            // Add the word to the current line
             currentLine.append(color1).append(word).append(" ");
             wordCount++;
-
-            // When we reach the word limit for a line, add the current line to the list
-            if (wordCount >= wordsPerLine) {
-                result.add(currentLine.toString().trim());
-                currentLine.setLength(0);  // Clear the StringBuilder for the next line
-                wordCount = 0;  // Reset the word count
-            }
+            charCount += word.length() + 1;  // Include the space after each word
         }
 
-        // Add the last line if any remaining words
+        // Add any remaining words in the current line
         if (!currentLine.isEmpty()) {
             result.add(currentLine.toString().trim());
         }
 
-        return result;  // Return the list of split lines
+        return result;
     }
 }

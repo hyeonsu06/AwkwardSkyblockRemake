@@ -31,7 +31,7 @@ import static org.bukkit.Bukkit.getLogger;
 
 public class LoadItems {
     public static ArrayList<ItemStack> items = new ArrayList<>();
-    public static final int WORDS_PER_LINE = 8;
+    public static final int WORDS_PER_LINE = 8000;
 
     public ItemStack get(Class<?> clazz) {
 
