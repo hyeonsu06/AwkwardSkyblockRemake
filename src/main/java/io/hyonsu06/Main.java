@@ -18,7 +18,6 @@ import io.hyonsu06.command.stat.setStatCommand;
 import io.hyonsu06.core.*;
 import io.hyonsu06.core.Refresher;
 import io.hyonsu06.core.annotations.skills.Skill;
-import io.hyonsu06.core.functions.setSkillMapOfEntity;
 import io.hyonsu06.core.managers.*;
 import org.bukkit.Bukkit;
 import org.bukkit.World;

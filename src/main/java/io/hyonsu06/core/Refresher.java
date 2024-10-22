@@ -46,7 +46,7 @@ public class Refresher {
     public static final int POTATO_BOOK_ARMOR_HEALTH = 5;
     public static final int POTATO_BOOK_ARMOR_DEFENSE = 4;
 
-    public static Refresher instance;
+    public static Refresher instance = null;
 
     public static Refresher instance() {
         if (instance == null) {

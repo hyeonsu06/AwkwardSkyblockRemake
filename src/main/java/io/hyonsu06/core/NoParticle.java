@@ -12,7 +12,7 @@ import org.bukkit.Particle;
 import static io.hyonsu06.Main.plugin;
 
 public class NoParticle {
-    public static NoParticle instance;
+    public static NoParticle instance = null;
 
     public static NoParticle instance() {
         if (instance == null) {
