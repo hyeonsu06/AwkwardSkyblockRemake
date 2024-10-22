@@ -83,9 +83,9 @@ public final class Main extends JavaPlugin {
         plugin.getCommand("addenchant").setTabCompleter(new AddEnchantmentTabCompleter());
         plugin.getCommand("autobuild").setExecutor(new AutoBuild());
 
-        StatManager statManager = StatManager.instance();
-        NoParticle noParticle =  NoParticle.instance();
-        Refresher refresher = Refresher.instance();
+        new StatManager();
+        new NoParticle();
+        new Refresher();
 
         getPluginManager().registerEvents(new ModifySomeFeatures(), plugin);
         getPluginManager().registerEvents(new VanillaEntityManager(), plugin);
@@ -125,6 +125,8 @@ public final class Main extends JavaPlugin {
     public void onDisable() {
         saveData();
         for (BukkitTask task : getScheduler().getPendingTasks()) if (task.getOwner().equals(plugin)) if (!EntityManager.getPlayerTaskMap().containsValue(task.getTaskId())) task.cancel();
+
+        //TODO: RELOAD
 
         plugin.getCommand("items").setExecutor(null);
         plugin.getCommand("stat").setExecutor(null);

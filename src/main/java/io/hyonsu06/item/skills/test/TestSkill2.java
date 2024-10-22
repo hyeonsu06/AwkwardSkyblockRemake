@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 @SkillTagged
 @Skill(
         ID = "test_skill_2",
+        name = "test_2",
         description = ""
 )
 public class TestSkill2 implements SkillMethods {

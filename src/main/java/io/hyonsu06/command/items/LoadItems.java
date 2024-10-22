@@ -33,7 +33,7 @@ import static org.bukkit.Bukkit.getLogger;
 
 public class LoadItems {
     public static ArrayList<ItemStack> items = new ArrayList<>();
-    public static final int WORDS_PER_LINE = 4;
+    public static final int WORDS_PER_LINE = 8;
 
     public ItemStack get(Class<?> clazz) {
 
@@ -103,34 +103,33 @@ public class LoadItems {
 
         for (Class<?> clazz2 : clazz.getAnnotation(ItemMetadata.class).skills()) {
             Skill skills = clazz2.getAnnotation(Skill.class);
-            for (Method method : clazz2.getMethods()) {
-                if (method.isAnnotationPresent(SkillTagged.class)) {
-                    if (!skills.name().isEmpty()) {
-                        if (!skills.simpleDescription()) {
-                            lore.add(format(ChatColor.GOLD + "Ability: {0}  {1}",
-                                    skills.name(),
-                                    ChatColor.BOLD + "", ChatColor.YELLOW + method.getName())
-                            );
 
-                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY, ChatColor.AQUA));
+            // Add skill name and general information once per skill class
+            if (!skills.name().isEmpty()) {
+                if (!skills.simpleDescription()) {
+                    lore.add(format(ChatColor.GOLD + "Ability: {0}  {1}",
+                            skills.name(),
+                            ChatColor.BOLD + "", ChatColor.YELLOW + "")
+                    );
 
-                            if (skills.cost() != 0)
-                                lore.add(format(ChatColor.DARK_GRAY + "Mana cost: {0}", ChatColor.AQUA + String.valueOf(skills.cost())));
-                            if (skills.cooldown() != 0) {
-                                double value = ((double) skills.cooldown()) / 20;
-                                lore.add(format(ChatColor.DARK_GRAY + "Cooldown: {0}s", ChatColor.AQUA + String.valueOf(value)));
-                            }
-                            lore.add(" ");
-                        } else {
-                            lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY, ChatColor.AQUA));
-                            lore.add(" ");
-                        }
+                    lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY, ChatColor.AQUA));
+
+                    if (skills.cost() != 0) {
+                        lore.add(format(ChatColor.DARK_GRAY + "Mana cost: {0}", ChatColor.AQUA + String.valueOf(skills.cost())));
                     }
+                    if (skills.cooldown() != 0) {
+                        double value = ((double) skills.cooldown()) / 20;
+                        lore.add(format(ChatColor.DARK_GRAY + "Cooldown: {0}s", ChatColor.AQUA + String.valueOf(value)));
+                    }
+                    lore.add(" ");
+                } else {
+                    lore.addAll(addSkillDescription(skills.description(), WORDS_PER_LINE, skills.args(), ChatColor.GRAY, ChatColor.AQUA));
+                    lore.add(" ");
                 }
             }
         }
 
-        if (metadata.durability() != Long.MIN_VALUE) lore.add(ChatColor.DARK_GRAY + "Durability: " + metadata.durability() + "/" + metadata.durability());
+        if (metadata.durability() != Long.MIN_VALUE) lore.add(ChatColor.DARK_GRAY + "Durability: " + metadata.durability());
 
 
         meta.setDisplayName(metadata.rarity().getColor() + metadata.name());

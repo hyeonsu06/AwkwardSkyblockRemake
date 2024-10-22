@@ -19,6 +19,7 @@ import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getPDC;
 @SkillTagged
 @Skill(
         ID = "instant_shoot",
+        name = "instant_shoot",
         description = "Shortbow: Instantly Shoots {0} arrows!",
         args = {
                 3,

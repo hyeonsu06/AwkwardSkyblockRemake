@@ -176,6 +176,12 @@ public class EntityManager implements Listener {
                                 if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
                                     e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 3000);
                             }
+                            if (e.getWorld().getEnvironment().equals(World.Environment.NETHER)) {
+                                if (e.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
+                                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(e.getHealth() * 2000);
+                                if (e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
+                                    e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(e.getType().getDefaultAttributes().getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue() * 10000);
+                            }
                             initEntity(e);
                             addDisplay(e);
                         }

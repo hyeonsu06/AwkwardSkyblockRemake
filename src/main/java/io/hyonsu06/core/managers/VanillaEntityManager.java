@@ -129,14 +129,14 @@ public class VanillaEntityManager implements Listener {
             ) {
                 EntityType type = e.getEntity().getType();
                 if (type.equals(EntityType.WITHER)) {
-                    ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(10000000);
+                    ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100000000);
                     ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(2);
-                    ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(30000);
+                    ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(3000);
                 }
                 if (type.equals(EntityType.WARDEN)) {
-                    ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(200000000000000d);
-                    ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(19);
-                    ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(400000);
+                    ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(2000000000d);
+                    ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(199);
+                    ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(4000000);
                 }
                 if (type.equals(EntityType.ENDERMITE)) {
                     ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(50);
@@ -356,10 +356,8 @@ public class VanillaEntityManager implements Listener {
                     ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(100);
                 }
                 if (type.equals(EntityType.ENDERMAN)) {
-                    if (e.getLocation().getWorld().getEnvironment().equals(World.Environment.NORMAL)) {
-                        ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(500);
-                        ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(50);
-                    }
+                    ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(500);
+                    ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(50);
                 }
             }
         }

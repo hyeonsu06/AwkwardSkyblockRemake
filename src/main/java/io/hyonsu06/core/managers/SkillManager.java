@@ -4,12 +4,14 @@ import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import io.hyonsu06.core.annotations.items.items.ItemMetadata;
 import io.hyonsu06.core.annotations.items.reforge.ReforgeMetadata;
 import io.hyonsu06.core.annotations.skills.Skill;
+import io.hyonsu06.core.functions.setSkillMapOfEntity;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -297,7 +299,7 @@ public class SkillManager implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player p) { // If attack is player
             for (ItemStack item : getItems(p)) {
@@ -311,14 +313,8 @@ public class SkillManager implements Listener {
                                 Skill skill = skillClass.getAnnotation(Skill.class);
                                 Map<String, Integer> temp = Map.of(skill.ID(), 0);
                                 cooldownMap.putIfAbsent(p.getUniqueId(), temp);
-                                if (isQualified(p, getSkillAnnotation(skillClass).cost())) {
-                                    if (cooldownMap.get(p.getUniqueId()).get(skill.ID()) == 0) {
-                                        m.invoke(skillInstance, p, event.getEntity(), event.getDamage());
-                                        cooldownMap.get(p.getUniqueId()).put(skill.ID(), skill.cooldown());
-                                        spendMana(p, skill.cost());
-                                    } else {
-                                        p.sendMessage(ChatColor.RED + "This item has cooldown of " + ((double) cooldownMap.get(p.getUniqueId()).get(skill.ID()) / 20) + "s.");
-                                    }
+                                if (setSkillMapOfEntity.getSkillMap().get(p.getUniqueId()).get(skill.ID())) {
+                                    m.invoke(skillInstance, p, event.getEntity(), event.getDamage());
                                 }
                             }
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException |

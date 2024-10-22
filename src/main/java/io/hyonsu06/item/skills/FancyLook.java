@@ -17,6 +17,7 @@ import static io.hyonsu06.core.functions.getAnnotationArguments.getSkillAnnotati
 @SkillTagged
 @Skill(
         ID = "fancy_look",
+        name = "fancy_look",
         description = "You look so fancy, i guess?",
         simpleDescription = true
 )

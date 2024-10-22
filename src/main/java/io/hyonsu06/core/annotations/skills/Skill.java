@@ -28,7 +28,7 @@ public @interface Skill {
      *
      * @return String representing the skill's name
      */
-    String name() default "";
+    String name();
 
     /**
      * Defines the description of the skill.

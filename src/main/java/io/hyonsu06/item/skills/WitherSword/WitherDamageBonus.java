@@ -1,4 +1,4 @@
-package io.hyonsu06.item.skills;
+package io.hyonsu06.item.skills.WitherSword;
 
 import io.hyonsu06.core.annotations.skills.Skill;
 import io.hyonsu06.core.annotations.tags.SkillTagged;
@@ -13,6 +13,7 @@ import static io.hyonsu06.core.functions.getAnnotationArguments.getSkillAnnotati
 @SkillTagged
 @Skill(
         ID = "wither_damage_bonus",
+        name = "wither_damage_bonus",
         description = "Deal {0}% damage to Withers.",
         args = {
                 50

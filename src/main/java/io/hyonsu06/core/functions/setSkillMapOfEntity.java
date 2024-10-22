@@ -2,6 +2,7 @@ package io.hyonsu06.core.functions;
 
 import io.hyonsu06.core.managers.StatManager;
 import io.hyonsu06.core.enums.Stats;
+import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -13,10 +14,10 @@ import java.util.UUID;
 import static io.hyonsu06.Main.plugin;
 
 public class setSkillMapOfEntity {
-    @Setter
+    @Getter @Setter
     private static Map<UUID, Map<String, Boolean>> skillMap = new HashMap<>();
 
-    public static void setBonus(LivingEntity e, String skillID, Stats stat, double value, int duration) {
+    public static void setBonus(LivingEntity e, String skillID, Stats stat, double value, long duration) {
         UUID uuid = e.getUniqueId();
         if (skillMap == null) skillMap.put(uuid, new HashMap<>());
         skillMap.computeIfAbsent(uuid, k -> Map.of(skillID, false));
