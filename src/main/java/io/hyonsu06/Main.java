@@ -83,18 +83,18 @@ public final class Main extends JavaPlugin {
         plugin.getCommand("addenchant").setTabCompleter(new AddEnchantmentTabCompleter());
         plugin.getCommand("autobuild").setExecutor(new AutoBuild());
 
-        new StatManager();
-        new NoParticle();
-        new Refresher();
+        StatManager statManager = StatManager.instance();
+        NoParticle noParticle =  NoParticle.instance();
+        Refresher refresher = Refresher.instance();
 
         getPluginManager().registerEvents(new ModifySomeFeatures(), plugin);
         getPluginManager().registerEvents(new VanillaEntityManager(), plugin);
         getPluginManager().registerEvents(new AllItemsListener(), plugin);
         getPluginManager().registerEvents(new AccessoriesListener(), plugin);
 
-        getPluginManager().registerEvents(EnchantManager.instance(), plugin);
-        getPluginManager().registerEvents(EntityManager.instance(), plugin);
-        getPluginManager().registerEvents(SkillManager.instance(), plugin);
+        getPluginManager().registerEvents(new EnchantManager(), plugin);
+        getPluginManager().registerEvents(new EntityManager(), plugin);
+        getPluginManager().registerEvents(new SkillManager(), plugin);
 
         getPluginManager().registerEvents(new DragonHoming(), plugin);
 
