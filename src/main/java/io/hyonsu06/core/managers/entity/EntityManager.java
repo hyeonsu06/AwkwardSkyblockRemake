@@ -1,4 +1,4 @@
-package io.hyonsu06.core.managers;
+package io.hyonsu06.core.managers.entity;
 
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import io.hyonsu06.command.accessories.AccessoriesUtils;
@@ -6,6 +6,9 @@ import io.hyonsu06.core.annotations.items.items.ItemMetadata;
 import io.hyonsu06.core.annotations.skills.Skill;
 import io.hyonsu06.core.enums.Stats;
 import io.hyonsu06.core.functions.setSkillMapOfEntity;
+import io.hyonsu06.core.managers.SkillManager;
+import io.hyonsu06.core.managers.StatManager;
+import io.hyonsu06.core.managers.enchants.EnchantManager;
 import io.papermc.paper.event.entity.EntityDamageItemEvent;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
@@ -42,7 +45,7 @@ import static io.hyonsu06.core.functions.getClasses.getSkillClasses;
 import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getItemID;
 import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getPDC;
 import static io.hyonsu06.core.functions.setImmuneTime.setNoDamageTicks;
-import static io.hyonsu06.core.managers.VanillaEntityManager.initStat;
+import static io.hyonsu06.core.managers.vanilla.VanillaEntityManager.initStat;
 import static org.bukkit.Bukkit.*;
 
 public class EntityManager implements Listener {
@@ -146,9 +149,15 @@ public class EntityManager implements Listener {
                 }
             }
         }
+
+        for (World w : Bukkit.getWorlds())
+            for (Entity e : w.getEntities())
+                if (e instanceof TextDisplay display) if (display.getVehicle() == null) display.remove();
+
         int i = 0;
         for (World world : getWorlds()) for (Entity ignored : world.getEntities()) i++;
         getLogger().info("entity count: " + i);
+
     }
 
     @EventHandler
@@ -335,7 +344,7 @@ public class EntityManager implements Listener {
         if (!damageEvent.isCancelled()) {
             if (damageEvent.getEntity() instanceof LivingEntity e) {
                 if (damageEvent instanceof EntityDamageByEntityEvent event) {
-                    if (!(event.getCause().equals(EntityDamageEvent.DamageCause.VOID) || event.getCause().equals(EntityDamageEvent.DamageCause.MAGIC) || event.getCause().equals(EntityDamageEvent.DamageCause.CUSTOM))) {
+                    if (!event.getCause().equals(EntityDamageEvent.DamageCause.VOID) || !(event.getCause().equals(EntityDamageEvent.DamageCause.MAGIC) || event.getEntity() instanceof AreaEffectCloud) || !event.getCause().equals(EntityDamageEvent.DamageCause.CUSTOM)) {
                         Entity attacker = event.getDamager();
                         Entity entity = event.getEntity();
 

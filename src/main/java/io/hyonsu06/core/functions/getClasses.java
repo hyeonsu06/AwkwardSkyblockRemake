@@ -1,6 +1,7 @@
 package io.hyonsu06.core.functions;
 
 import io.hyonsu06.core.annotations.tags.ItemTagged;
+import io.hyonsu06.core.annotations.tags.RecipeTagged;
 import io.hyonsu06.core.annotations.tags.ReforgeTagged;
 import io.hyonsu06.core.annotations.tags.SkillTagged;
 import org.reflections.Reflections;
@@ -11,6 +12,7 @@ public class getClasses {
     public static Set<Class<?>> itemReflections;
     public static Set<Class<?>> skillReflections;
     public static Set<Class<?>> reforgeReflections;
+    public static Set<Class<?>> recipeReflections;
 
     public static Set<Class<?>> getItemClasses() {
         if (itemReflections == null) {
@@ -31,5 +33,12 @@ public class getClasses {
             reforgeReflections = new Reflections("io.hyonsu06.item.reforges").getTypesAnnotatedWith(ReforgeTagged.class);
         }
         return reforgeReflections;
+    }
+
+    public static Set<Class<?>> getRecipeClasses() {
+        if (recipeReflections == null) {
+            recipeReflections = new Reflections("io.hyonsu06.item.items.recipes").getTypesAnnotatedWith(RecipeTagged.class);
+        }
+        return recipeReflections;
     }
 }

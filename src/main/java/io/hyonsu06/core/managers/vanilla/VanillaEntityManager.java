@@ -1,4 +1,4 @@
-package io.hyonsu06.core.managers;
+package io.hyonsu06.core.managers.vanilla;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -16,34 +16,38 @@ import java.util.Map;
 import static io.hyonsu06.core.functions.NumberTweaks.shortNumber;
 import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getPDC;
 import static io.hyonsu06.core.functions.setImmuneTime.setNoDamageTicks;
-import static org.bukkit.Bukkit.getLogger;
 
 public class VanillaEntityManager implements Listener {
     private static Map<Location, Boolean> split = new HashMap<>();
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOW)
     public void onHit1(EntityDamageEvent e) {
-        EntityType type = e.getEntity().getType();
-        if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON) || type.equals(EntityType.GUARDIAN) || type.equals(EntityType.ELDER_GUARDIAN) || type.equals(EntityType.WARDEN)) {
-            setNoDamageTicks((LivingEntity) e.getEntity(), 0);
-        }
-        if (type.equals(EntityType.PLAYER)) {
-            setNoDamageTicks((LivingEntity) e.getEntity(), 10);
-        }
-        if (e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.TRIAL_SPAWNER)) {
-            setNoDamageTicks((LivingEntity) e.getEntity(), 0);
-        }
-        if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON)) {
-            Entity entity = e.getEntity();
-            LivingEntity victim = (LivingEntity) entity;
-            EntityType type2 = e.getEntity().getType();
-            if (type2.equals(EntityType.WITHER) || type2.equals(EntityType.ENDER_DRAGON)) {
-                String name = victim.getName();
-                if (victim.getCustomName() != null) name = victim.getCustomName();
-                if (victim.getHealth() / victim.getMaxHealth() > 0.5) {
-                    ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.GREEN + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
-                } else {
-                    ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.YELLOW + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+        if (
+                !e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND) ||
+                        !e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.CUSTOM)
+        ) {
+            EntityType type = e.getEntity().getType();
+            if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON) || type.equals(EntityType.GUARDIAN) || type.equals(EntityType.ELDER_GUARDIAN) || type.equals(EntityType.WARDEN)) {
+                setNoDamageTicks((LivingEntity) e.getEntity(), 0);
+            }
+            if (type.equals(EntityType.PLAYER)) {
+                setNoDamageTicks((LivingEntity) e.getEntity(), 10);
+            }
+            if (e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.TRIAL_SPAWNER)) {
+                setNoDamageTicks((LivingEntity) e.getEntity(), 0);
+            }
+            if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON)) {
+                Entity entity = e.getEntity();
+                LivingEntity victim = (LivingEntity) entity;
+                EntityType type2 = e.getEntity().getType();
+                if (type2.equals(EntityType.WITHER) || type2.equals(EntityType.ENDER_DRAGON)) {
+                    String name = victim.getName();
+                    if (victim.getCustomName() != null) name = victim.getCustomName();
+                    if (victim.getHealth() / victim.getMaxHealth() > 0.5) {
+                        ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.GREEN + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+                    } else {
+                        ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.YELLOW + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+                    }
                 }
             }
         }
@@ -52,22 +56,27 @@ public class VanillaEntityManager implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onDamage1(EntityDamageByEntityEvent e) {
         EntityType type = e.getEntity().getType();
-        if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON) || type.equals(EntityType.ELDER_GUARDIAN) || type.equals(EntityType.WARDEN) || type.equals(EntityType.PLAYER)) {
-            if (e.getCause().equals(EntityDamageEvent.DamageCause.MAGIC)) {
-                e.setDamage(e.getDamage() / 100);
+        if (
+                !e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND) ||
+                        !e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.CUSTOM)
+        ) {
+            if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON) || type.equals(EntityType.ELDER_GUARDIAN) || type.equals(EntityType.WARDEN) || type.equals(EntityType.PLAYER)) {
+                if (e.getCause().equals(EntityDamageEvent.DamageCause.MAGIC)) {
+                    e.setDamage(e.getDamage() / 50);
+                }
             }
-        }
-        if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON)) {
-            Entity entity = e.getEntity();
-            LivingEntity victim = (LivingEntity) entity;
-            EntityType type2 = e.getEntity().getType();
-            if (type2.equals(EntityType.WITHER) || type2.equals(EntityType.ENDER_DRAGON)) {
-                String name = victim.getName();
-                if (victim.getCustomName() != null) name = victim.getCustomName();
-                if (victim.getHealth() / victim.getMaxHealth() > 0.5) {
-                    ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.GREEN + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
-                } else {
-                    ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.YELLOW + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+            if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON)) {
+                Entity entity = e.getEntity();
+                LivingEntity victim = (LivingEntity) entity;
+                EntityType type2 = e.getEntity().getType();
+                if (type2.equals(EntityType.WITHER) || type2.equals(EntityType.ENDER_DRAGON)) {
+                    String name = victim.getName();
+                    if (victim.getCustomName() != null) name = victim.getCustomName();
+                    if (victim.getHealth() / victim.getMaxHealth() > 0.5) {
+                        ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.GREEN + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+                    } else {
+                        ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.YELLOW + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+                    }
                 }
             }
         }
@@ -75,39 +84,93 @@ public class VanillaEntityManager implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onDamage2(EntityDamageEvent e) {
-        if (e.getEntity() instanceof LivingEntity victim) {
-            EntityType type = e.getEntity().getType();
-            if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON)) {
-                String name = victim.getName();
-                if (victim.getCustomName() != null) name = victim.getCustomName();
-                if (victim.getHealth() / victim.getMaxHealth() > 0.5) {
-                    ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.GREEN + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
-                } else {
-                    ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.YELLOW + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+        if (
+                !e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND) ||
+                        !e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.CUSTOM)
+        ) {
+            if (e.getEntity() instanceof LivingEntity victim) {
+                EntityType type = e.getEntity().getType();
+                if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON)) {
+                    String name = victim.getName();
+                    if (victim.getCustomName() != null) name = victim.getCustomName();
+                    if (victim.getHealth() / victim.getMaxHealth() > 0.5) {
+                        ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.GREEN + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+                    } else {
+                        ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.YELLOW + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+                    }
                 }
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onSpawnHighest(EntitySpawnEvent e) {
+        EntityType type = e.getEntityType();
+        if (
+                !e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND) ||
+                        !e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.CUSTOM)
+        ) {
+            if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON)) {
+                Entity entity = e.getEntity();
+                LivingEntity victim = (LivingEntity) entity;
+                EntityType type2 = e.getEntity().getType();
+                if (type2.equals(EntityType.WITHER) || type2.equals(EntityType.ENDER_DRAGON)) {
+                    String name = victim.getName();
+                    if (victim.getCustomName() != null) name = victim.getCustomName();
+                    if (victim.getHealth() / victim.getMaxHealth() > 0.5) {
+                        ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.GREEN + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+                    } else {
+                        ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.YELLOW + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onHeal(EntityRegainHealthEvent e) {
+        EntityType type = e.getEntityType();
+        if (
+                !e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND) ||
+                        !e.getEntity().getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.CUSTOM)
+        ) {
+            if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON)) {
+                Entity entity = e.getEntity();
+                LivingEntity victim = (LivingEntity) entity;
+                EntityType type2 = e.getEntity().getType();
+                if (type2.equals(EntityType.WITHER) || type2.equals(EntityType.ENDER_DRAGON)) {
+                    String name = victim.getName();
+                    if (victim.getCustomName() != null) name = victim.getCustomName();
+                    if (victim.getHealth() / victim.getMaxHealth() > 0.5) {
+                        ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.GREEN + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+                    } else {
+                        ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.YELLOW + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void slimeSplit(SlimeSplitEvent event) {
+        if (event.getEntity().getPersistentDataContainer().has(getPDC("ominous"), PersistentDataType.BOOLEAN)) {
+            split.put(event.getEntity().getLocation(), true);
         }
     }
 
     public static void initStat(EntitySpawnEvent event) {
         if (event.getEntity() instanceof LivingEntity e) {
             if (
-                    e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.NATURAL) ||
-                            e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.BUILD_WITHER) ||
-                            e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.BUILD_SNOWMAN) ||
-                            e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.BUILD_IRONGOLEM) ||
-                            e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.SPAWNER) ||
-                            e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.TRIAL_SPAWNER) ||
-                            e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.POTION_EFFECT) ||
-                            e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.SLIME_SPLIT)
+                    !e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND) ||
+                            !e.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.CUSTOM)
             ) {
                 EntityType type = e.getType();
                 e.getPersistentDataContainer().set(getPDC("natural"), PersistentDataType.BOOLEAN, true);
 
                 if (type.equals(EntityType.WITHER)) {
-                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(500000);
+                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(250000);
                     e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(1);
-                    e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(1000);
+                    e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(800);
                 }
                 if (type.equals(EntityType.WARDEN)) {
                     e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(2000000000d);
@@ -133,7 +196,7 @@ public class VanillaEntityManager implements Listener {
                 if (type.equals(EntityType.GHAST)) {
                     e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(200);
                 }
-                if (type.equals(EntityType.MAGMA_CUBE)) {
+                if (type.equals(EntityType.MAGMA_CUBE) && split.get(event.getLocation())) {
                     if (((MagmaCube) e).getSize() == 4) {
                         e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(500);
                         e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(400);
@@ -147,6 +210,7 @@ public class VanillaEntityManager implements Listener {
                         e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100);
                         e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(50);
                     }
+                    split.put(event.getLocation(), false);
                 }
                 if (type.equals(EntityType.STRIDER)) {
                     e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(200);
@@ -166,8 +230,8 @@ public class VanillaEntityManager implements Listener {
                     e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(6000);
                 }
                 if (type.equals(EntityType.ENDER_DRAGON)) {
-                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(2000000000);
-                    e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(2);
+                    e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(300000);
+                    e.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(1);
                 }
                 if (type.equals(EntityType.GUARDIAN)) {
                     e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(2500000);
@@ -204,7 +268,7 @@ public class VanillaEntityManager implements Listener {
                     e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(200);
                     e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(15);
                 }
-                if (type.equals(EntityType.SLIME)) {
+                if (type.equals(EntityType.SLIME) && split.get(event.getLocation())) {
                     if (((Slime) e).getSize() == 4) {
                         e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(250);
                         e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(40);
@@ -218,6 +282,7 @@ public class VanillaEntityManager implements Listener {
                         e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
                         e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(5);
                     }
+                    split.put(event.getLocation(), false);
                 }
                 if (type.equals(EntityType.WOLF)) {
                     e.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100);
@@ -336,50 +401,6 @@ public class VanillaEntityManager implements Listener {
                     e.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(50);
                 }
             }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onSpawnHighest(EntitySpawnEvent e) {
-        EntityType type = e.getEntityType();
-        if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON)) {
-            Entity entity = e.getEntity();
-            LivingEntity victim = (LivingEntity) entity;
-            EntityType type2 = e.getEntity().getType();
-            if (type2.equals(EntityType.WITHER) || type2.equals(EntityType.ENDER_DRAGON)) {
-                String name = victim.getName();
-                if (victim.getCustomName() != null) name = victim.getCustomName();
-                if (victim.getHealth() / victim.getMaxHealth() > 0.5) {
-                    ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.GREEN + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
-                } else {
-                    ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.YELLOW + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
-                }
-            }
-        }
-    }
-
-    @EventHandler
-    public void onHeal(EntityRegainHealthEvent e) {
-        EntityType type = e.getEntityType();
-        if (type.equals(EntityType.WITHER) || type.equals(EntityType.ENDER_DRAGON)) {
-            Entity entity = e.getEntity();
-            LivingEntity victim = (LivingEntity) entity;
-            EntityType type2 = e.getEntity().getType();
-            if (type2.equals(EntityType.WITHER) || type2.equals(EntityType.ENDER_DRAGON)) {
-                String name = victim.getName();
-                if (victim.getCustomName() != null) name = victim.getCustomName();
-                if (victim.getHealth() / victim.getMaxHealth() > 0.5) {
-                    ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.GREEN + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
-                } else {
-                    ((Boss) victim).getBossBar().setTitle(name + " " + ChatColor.YELLOW + shortNumber(victim.getHealth()) + ChatColor.GRAY + "/" + ChatColor.GREEN + shortNumber(victim.getMaxHealth()) + ChatColor.RED + "❤");
-                }
-            }
-        }}
-
-    @EventHandler
-    public void slimeSplit(SlimeSplitEvent event) {
-        if (event.getEntity().getPersistentDataContainer().has(getPDC("ominous"), PersistentDataType.BOOLEAN)) {
-            split.put(event.getEntity().getLocation(), true);
         }
     }
 }

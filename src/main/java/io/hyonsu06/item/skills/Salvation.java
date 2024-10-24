@@ -1,6 +1,6 @@
 package io.hyonsu06.item.skills;
 
-import io.hyonsu06.core.managers.EntityManager;
+import io.hyonsu06.core.managers.entity.EntityManager;
 import io.hyonsu06.core.managers.StatManager;
 import io.hyonsu06.core.annotations.skills.Skill;
 import io.hyonsu06.core.annotations.tags.SkillTagged;

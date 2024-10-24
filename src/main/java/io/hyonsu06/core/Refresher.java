@@ -73,8 +73,11 @@ public class Refresher {
     public void refreshItemVisuals(ItemStack item) {
         // Check if item has ItemMetadata
         ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.getPersistentDataContainer().has(getPDC("id"), PersistentDataType.STRING))
-            return; // No valid item metadata
+        if (meta == null) return;
+        if (!meta.getPersistentDataContainer().has(getPDC("id"), PersistentDataType.STRING)) {
+            meta.getPersistentDataContainer().set(getPDC("id"), PersistentDataType.STRING, item.getType().name().toLowerCase());
+            item.setItemMeta(meta);
+        }
 
         String reforge = meta.getPersistentDataContainer().get(getPDC("reforge"), PersistentDataType.STRING);
         Class<?> reforgeClass = null;
@@ -92,10 +95,13 @@ public class Refresher {
 
         // Find the class associated with this item ID (assuming you have a way to map IDs to classes)
         Class<?> clazz = findClassById(itemId);
+        if (clazz == null) return;
 
         // Recreate item metadata
         ItemMetadata metadata = clazz.getAnnotation(ItemMetadata.class);
         List<String> lore = new ArrayList<>();
+
+        meta.setEnchantmentGlintOverride(metadata.hasGlow());
 
         Map<Stats, Double[]> reforgeMap = new HashMap<>();
         if (reforgeClass != null) {

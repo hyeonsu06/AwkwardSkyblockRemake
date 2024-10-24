@@ -18,30 +18,27 @@ import io.hyonsu06.command.stat.setStatCommand;
 import io.hyonsu06.core.*;
 import io.hyonsu06.core.Refresher;
 import io.hyonsu06.core.annotations.skills.Skill;
+import io.hyonsu06.core.managers.crafting.CraftingManager;
 import io.hyonsu06.core.managers.*;
+import io.hyonsu06.core.managers.enchants.EnchantManager;
+import io.hyonsu06.core.managers.entity.DataMapManager;
+import io.hyonsu06.core.managers.entity.EntityManager;
+import io.hyonsu06.core.managers.vanilla.VanillaEntityManager;
+import io.hyonsu06.core.managers.vanilla.VanillaItemManager;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TextDisplay;
-import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.generator.WorldInfo;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.HashMap;
-import java.util.Random;
 
-import static io.hyonsu06.core.functions.getPluginNameSpacedKey.getPDC;
-import static io.hyonsu06.core.managers.EntityManager.loadData;
+import static io.hyonsu06.core.managers.entity.EntityManager.loadData;
 import static io.hyonsu06.core.functions.getClasses.*;
 import static org.bukkit.Bukkit.getPluginManager;
 import static org.bukkit.Bukkit.getScheduler;
 
-public final class Main extends JavaPlugin {
+public class Main extends JavaPlugin {
     public static Main plugin;
     public static boolean isReloading;
     public static DataMapManager dataMapManager1;
@@ -74,7 +71,7 @@ public final class Main extends JavaPlugin {
             getSkillClasses();
             getItemClasses();
             getReforgeClasses();
-
+            getRecipeClasses();
         }
 
         plugin.getCommand("items").setExecutor(new ShowAllItemsCommand());
@@ -95,6 +92,7 @@ public final class Main extends JavaPlugin {
 
         getPluginManager().registerEvents(new ModifySomeFeatures(), plugin);
         getPluginManager().registerEvents(new VanillaEntityManager(), plugin);
+        getPluginManager().registerEvents(new VanillaItemManager(), plugin);
         getPluginManager().registerEvents(new AllItemsListener(), plugin);
         getPluginManager().registerEvents(new AccessoriesListener(), plugin);
 
@@ -103,6 +101,8 @@ public final class Main extends JavaPlugin {
         getPluginManager().registerEvents(new SkillManager(), plugin);
 
         getPluginManager().registerEvents(new DragonHoming(), plugin);
+
+        Bukkit.getPluginManager().registerEvents(new CraftingManager(), plugin);
 
         if (isReloading) {
             getLogger().info("Seems plugin is on reload, remapping stat map...");
@@ -119,12 +119,7 @@ public final class Main extends JavaPlugin {
                 }
             }
         }
-
         new LoadItems().registerAllItems();
-
-        for (World w : Bukkit.getWorlds())
-            for (Entity e : w.getEntities())
-                if (e instanceof TextDisplay display) if (display.getVehicle() == null) display.remove();
     }
 
     @Override

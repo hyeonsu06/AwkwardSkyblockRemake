@@ -111,6 +111,13 @@ public @interface ItemMetadata {
     int stack() default 1;
 
     /**
+     * Defines whether item has glint without enchantments.
+     *
+     * @return boolean representing can have glint
+     */
+    boolean hasGlow() default false;
+
+    /**
      * Define the skill classes associated with the item.
      *
      * @return Class<? extends SkillMethods>[]

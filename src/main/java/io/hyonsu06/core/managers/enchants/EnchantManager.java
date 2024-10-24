@@ -1,6 +1,7 @@
-package io.hyonsu06.core.managers;
+package io.hyonsu06.core.managers.enchants;
 
 import io.hyonsu06.core.enums.Stats;
+import io.hyonsu06.core.managers.StatManager;
 import io.hyonsu06.item.enchantments.Enchantment;
 import io.hyonsu06.item.enchantments.EnchantmentUtils;
 import org.bukkit.Bukkit;

@@ -65,7 +65,9 @@ public class SkillManager implements Listener {
                         if (id == null) break;
                         try {
                             // Invoke passive skills
-                            for (Class<?> skillClass : getMatchedSkill(id)) {
+                            Class<?>[] skills = getMatchedSkill(id);
+                            if (skills == null) break;
+                            for (Class<?> skillClass : skills) {
                                 for (Method m : skillClass.getDeclaredMethods()) {
                                     if (m.getName().equals("passive")) {
                                         Object skillInstance = skillClass.getDeclaredConstructor().newInstance();
@@ -139,7 +141,9 @@ public class SkillManager implements Listener {
                 if (event.getAction().isRightClick()) { // If right-click
                     if (p.isSneaking()) {
                         try { // Invoke
-                            for (Class<?> skillClass : getMatchedSkill(id))
+                            Class<?>[] skills = getMatchedSkill(id);
+                            if (skills == null) break;
+                            for (Class<?> skillClass : skills) {
                                 for (Method m : skillClass.getDeclaredMethods())
                                     if (m.getName().equals("onSneakRightClick")) {
                                         Object skillInstance = skillClass.getDeclaredConstructor().newInstance();
@@ -156,13 +160,16 @@ public class SkillManager implements Listener {
                                             }
                                         }
                                     }
+                            }
                         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException |
                                  InstantiationException e) {
                             e.printStackTrace();
                         }
                     }
                     try { // Invoke
-                        for (Class<?> skillClass : getMatchedSkill(id))
+                        Class<?>[] skills = getMatchedSkill(id);
+                        if (skills == null) break;
+                        for (Class<?> skillClass : skills) {
                             for (Method m : skillClass.getDeclaredMethods())
                                 if (m.getName().equals("onRightClick")) {
                                     Object skillInstance = skillClass.getDeclaredConstructor().newInstance();
@@ -179,6 +186,7 @@ public class SkillManager implements Listener {
                                         }
                                     }
                                 }
+                        }
                     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException |
                              InstantiationException e) {
                         e.printStackTrace();
@@ -186,7 +194,9 @@ public class SkillManager implements Listener {
                 } else if (event.getAction().isLeftClick()) { // If left-click
                     if (p.isSneaking()) {
                         try { // Invoke
-                            for (Class<?> skillClass : getMatchedSkill(id))
+                            Class<?>[] skills = getMatchedSkill(id);
+                            if (skills == null) break;
+                            for (Class<?> skillClass : skills) {
                                 for (Method m : skillClass.getDeclaredMethods())
                                     if (m.getName().equals("onSneakLeftClick")) {
                                         Object skillInstance = skillClass.getDeclaredConstructor().newInstance();
@@ -203,13 +213,16 @@ public class SkillManager implements Listener {
                                             }
                                         }
                                     }
+                            }
                         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException |
                                  InstantiationException e) {
                             e.printStackTrace();
                         }
                     }
                     try { // Invoke
-                        for (Class<?> skillClass : getMatchedSkill(id))
+                        Class<?>[] skills = getMatchedSkill(id);
+                        if (skills == null) break;
+                        for (Class<?> skillClass : skills) {
                             for (Method m : skillClass.getDeclaredMethods())
                                 if (m.getName().equals("onLeftClick")) {
                                     Object skillInstance = skillClass.getDeclaredConstructor().newInstance();
@@ -226,6 +239,7 @@ public class SkillManager implements Listener {
                                         }
                                     }
                                 }
+                        }
                     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException |
                              InstantiationException e) {
                         e.printStackTrace();
@@ -243,7 +257,9 @@ public class SkillManager implements Listener {
             if (id == null) continue;
             if (!event.getPlayer().isSneaking()) { // If player "start" sneaking
                 try { // Invoke
-                    for (Class<?> skillClass : getMatchedSkill(id))
+                    Class<?>[] skills = getMatchedSkill(id);
+                    if (skills == null) break;
+                    for (Class<?> skillClass : skills) {
                         for (Method m : skillClass.getDeclaredMethods())
                             if (m.getName().equals("onSneak")) {
                                 Object skillInstance = skillClass.getDeclaredConstructor().newInstance();
@@ -260,6 +276,7 @@ public class SkillManager implements Listener {
                                     }
                                 }
                             }
+                    }
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException |
                          InstantiationException e) {
                     e.printStackTrace();
@@ -275,7 +292,9 @@ public class SkillManager implements Listener {
             String id = getItemID(item);
             if (id == null) continue;
             try { // Invoke
-                for (Class<?> skillClass : getMatchedSkill(id))
+                Class<?>[] skills = getMatchedSkill(id);
+                if (skills == null) break;
+                for (Class<?> skillClass : skills) {
                     for (Method m : skillClass.getDeclaredMethods())
                         if (m.getName().equals("onJump")) {
                             Object skillInstance = skillClass.getDeclaredConstructor().newInstance();
@@ -292,6 +311,7 @@ public class SkillManager implements Listener {
                                 }
                             }
                         }
+                }
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException |
                      InstantiationException e) {
                 e.printStackTrace();
@@ -306,7 +326,9 @@ public class SkillManager implements Listener {
                 String id = getItemID(item);
                 if (id == null) continue;
                 try { // Invoke
-                    for (Class<?> skillClass : getMatchedSkill(id)) {
+                    Class<?>[] skills = getMatchedSkill(id);
+                    if (skills == null) break;
+                    for (Class<?> skillClass : skills) {
                         Skill skill = skillClass.getAnnotation(Skill.class);
                         for (Method m : skillClass.getDeclaredMethods()) {
                             if (m.getName().equals("onHit")) {

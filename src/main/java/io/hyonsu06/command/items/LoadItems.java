@@ -30,11 +30,18 @@ import static java.text.MessageFormat.format;
 import static org.bukkit.Bukkit.getLogger;
 
 public class LoadItems {
+    private static LoadItems instance;
     public static ArrayList<ItemStack> items = new ArrayList<>();
-    public static final int WORDS_PER_LINE = 8000;
+    public static final int WORDS_PER_LINE = 6974;
+
+    public static LoadItems getInstance() {
+        if (instance == null) {
+            instance = new LoadItems();
+        }
+        return instance;
+    }
 
     public ItemStack get(Class<?> clazz) {
-
         // Default item
         ItemMetadata metadata = clazz.getAnnotation(ItemMetadata.class);
         ItemStack item = new ItemStack(metadata.material());
@@ -50,6 +57,8 @@ public class LoadItems {
                 ItemFlag.HIDE_DYE,
                 ItemFlag.HIDE_UNBREAKABLE
         );
+
+        meta.setEnchantmentGlintOverride(metadata.hasGlow());
 
         // Base item stat
         if (clazz.isAnnotationPresent(ItemStats.class)) {

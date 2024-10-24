@@ -1,6 +1,6 @@
 package io.hyonsu06.item.reforges;
 
-import io.hyonsu06.core.managers.EntityManager;
+import io.hyonsu06.core.managers.entity.EntityManager;
 import io.hyonsu06.core.annotations.items.reforge.ReforgeMetadata;
 import io.hyonsu06.core.annotations.tags.ReforgeTagged;
 import io.hyonsu06.core.enums.Stats;
